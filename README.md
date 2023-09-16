@@ -17,9 +17,10 @@
 <!-- /TOC -->
 
 
- **slamplay** is a collection of powerful tools to start playing and experimenting with **SLAM in C++**. It installs and make available in a single cmake framework some of the most important   
- - back-end frameworks (*g2o*, *gtsam*, *ceres*, *se-sync*, etc.), - front-end tools (*opencv*, *pcllib*, etc.),      
- - algebra and geometry libs (*eigen*, *sophus*, etc.),    
+ **slamplay** is a collection of powerful tools to start playing and experimenting with **SLAM in C++**. It's a work in progress. It installs and makes available in a single cmake framework some of the most important    
+ - back-end frameworks (*g2o*, *gtsam*, *ceres*, *se-sync*, etc.),     
+ - front-end tools (*opencv*, *pcl*, etc.),      
+ - algebra and geometry libs (*eigen*, *sophus*, *cholmod*, etc.),    
  - viz tools (*pangolin*, *imgui*, etc.),     
  - loop-closure frameworks (*DBOW3*, *iBOW*, etc.),     
   
@@ -27,6 +28,17 @@ along with some nice examples in order to easily and quickly start with all thes
 
 I created **slamplay** for a computer vision class I recently taught. I started developing it for fun, during my free time, taking inspiration from some repos available on the web.  
 
+<p align="center">
+<img src="images/kitti-VO.png"
+alt="KITTI visual odometry" height="180" border="1"/> 
+<img src="images/euroc-VO.png"
+alt="EUROC VO" height="180" border="1"/> 
+<img src="images/direct-method.png"
+alt="KITTI direct method for feature tracking" height="180" border="1"/> 
+<img src="images/clouds-viz.png"
+alt="Pointcloud visulization" height="180" border="1"/> 
+</p>
+  
 This repository is structured in the following main folders (with self-explanatory names): 
 - `algebra_geometry`
 - `backend`
@@ -41,29 +53,21 @@ This repository is structured in the following main folders (with self-explanato
 - `scripts`
 - `utils`
 - `viz`
-
-<p align="center">
-<img src="images/kitti-VO.png"
-alt="KITTI visual odometry" height="180" border="1"/> 
-<img src="images/euroc-VO.png"
-alt="EUROC VO" height="180" border="1"/> 
-<img src="images/direct-method.png"
-alt="KITTI direct method for feature tracking" height="180" border="1"/> 
-<img src="images/clouds-viz.png"
-alt="Pointcloud visulization" height="180" border="1"/> 
-</p>
-  
   
 ## 1. Quick start 
 
-- Install basic dependencies: `$ ./install_dependencies.sh`
-- Install opencv in a local folder: `$ ./install_local_opencv.sh` (if you want, skip this step and set the variable `OpenCV_DIR` in `config.sh`)
-- Run `$ ./build.sh`
+- Install basic dependencies:      
+  `$ ./install_dependencies.sh`        
+- Install opencv in a local folder:                
+  `$ ./install_local_opencv.sh`     
+  (if you want, skip this step and set the variable `OpenCV_DIR` in `config.sh` with your local OpenCV path)     
+- Build the framework:      
+  `$ ./build.sh`
 
 Once everythins is built, you can enter in the `build` folder and test the different examples. 
 In particular, you can enter in the `full_slam` folder: 
-- configure the file `config/kitti.yaml` 
-- and run the VO app `app/run_kitti_stereo`.
+- configure the file `config/kitti.yaml` (or `config/euroc.yaml`)
+- and run the VO app `app/run_kitti_stereo` (or `app/run_euroc_stereo`)
 
 ## 2. Eigen Tutorials
 
@@ -144,5 +148,5 @@ If you're holding a *steady_clock* in your hand, you would call it a stopwatch, 
 
 ## 6. Credits  
 
-* This repo imported some of the C++ example of the repository https://github.com/gaoxiang12/slambook2. Thanks to the Author for his great work. 
-* Thanks to the Author of the repository https://github.com/nicolov/simple_slam_loop_closure/. I imported a couple of scripts from his repository (for computing the confusion matrix). 
+* This repo imported some of the C++ examples (updated, improved, and commented) of the repository https://github.com/gaoxiang12/slambook2. Thanks to the Author for his great work. 
+* Thanks to the Author of the repository https://github.com/nicolov/simple_slam_loop_closure/. I imported a couple of scripts (updated and improved) from his repository (for computing the confusion matrix). 

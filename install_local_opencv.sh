@@ -40,7 +40,7 @@ export OPENCV_VERSION="4.8.0"   # 4.7.0 4.3.0 4.2.0 4.0.0 3.4.6 3.4.4 3.4.3 3.4.
 
 # set CUDA 
 
-#export CUDA_VERSION="cuda-10.0"  # must be an installed CUDA path in /usr/local; 
+#export CUDA_VERSION="cuda-11.6"  # must be an installed CUDA path in /usr/local; 
                                   # if available, you can use the simple path "/usr/local/cuda" which should be a symbolic link to the last installed cuda version 
 if [[ -n "$CUDA_VERSION" ]]; then
     echo "using CUDA version $CUDA_VERSION"
@@ -116,6 +116,7 @@ if [ ! -f opencv/install/lib/libopencv_core.so ]; then
     if [ "$machine" == "x86_64" ]; then
 		# standard configuration 
         echo "building x86_64 config"
+        # as for the flags and consider this nice reference https://gist.github.com/raulqf/f42c718a658cddc16f9df07ecc627be7
         cmake \
           -DCMAKE_BUILD_TYPE=Release \
           -DCMAKE_INSTALL_PREFIX="`pwd`/../install" \
@@ -129,8 +130,9 @@ if [ ! -f opencv/install/lib/libopencv_core.so ]; then
           -DWITH_CUBLAS=ON \
           -DWITH_CUFFT=ON \
           -DCUDA_FAST_MATH=ON \
-          -DCUDA_ARCH_BIN="6.1" \
-          -DCUDA_ARCH_PTX="" \
+          -DWITH_CUDNN=ON \
+          -DOPENCV_DNN_CUDA=ON \
+          -DCUDA_ARCH_BIN="5.3 6.0 6.1 7.0 7.5 8.6" \
           -DBUILD_opencv_cudacodec=OFF \
           -DENABLE_FAST_MATH=1 \
           -DBUILD_NEW_PYTHON_SUPPORT=ON \
