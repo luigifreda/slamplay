@@ -1,0 +1,76 @@
+diff --git a/C++/CMakeLists.txt b/C++/CMakeLists.txt
+index 03cdb99..75f7a64 100644
+--- a/C++/CMakeLists.txt
++++ b/C++/CMakeLists.txt
+@@ -30,9 +30,12 @@ set(ENABLE_OPENMP ON CACHE BOOL "Enable OpenMP (if available)")
+ # Enable code profiling using gperftools
+ set(ENABLE_PROFILING OFF CACHE BOOL "Enable code profiling using gperftools")
+ # Enable visualization module.
+-set(ENABLE_VISUALIZATION OFF CACHE BOOL "Enable visualization module.")
++set(ENABLE_VISUALIZATION ON CACHE BOOL "Enable visualization module.")
+ # Build Python bindings
+ set(BUILD_PYTHON_BINDINGS OFF CACHE BOOL "Build Python bindings.")
++# Import Pangolin from 
++set(PANGOLIN_ROOT ${PROJECT_SOURCE_DIR}/../../pangolin CACHE STRING "Specify Pangolin folder") 
++
+ 
+ # Add the .cmake files that ship with Eigen3 to the CMake module path (useful for finding other stuff)
+ set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake" CACHE STRING "The CMake module path used for this project")
+@@ -55,7 +58,10 @@ set(CMAKE_EXE_LINKER_FLAGS ${CMAKE_EXE_LINKER_FLAGS} -lprofiler)
+ endif()
+ 
+ if(${ENABLE_VISUALIZATION})
++  set(CMAKE_PREFIX_PATH ${PANGOLIN_ROOT}/install/lib/cmake/Pangolin/) 
+   find_package(Pangolin REQUIRED)
++  message(STATUS "pangolin include: ${Pangolin_INCLUDE_DIRS}")
++  message(STATUS "pangolin libs: ${Pangolin_LIBRARIES}")
+ endif()
+ 
+ if(${BUILD_PYTHON_BINDINGS})
+@@ -139,6 +145,7 @@ endif()
+ 
+ # If visualization is enabled, build library.
+ if(${ENABLE_VISUALIZATION})
++  include_directories(${Pangolin_INCLUDE_DIRS})
+   set(SESyncViz_HDRS ${SESync_HDR_DIR}/SESyncVisualizer.h)
+   set(SESyncViz_SRCS ${SESync_SOURCE_DIR}/SESyncVisualizer.cpp)
+ 
+diff --git a/C++/SE-Sync/include/SESync/SESyncVisualizer.h b/C++/SE-Sync/include/SESync/SESyncVisualizer.h
+index e60847f..78a9233 100644
+--- a/C++/SE-Sync/include/SESync/SESyncVisualizer.h
++++ b/C++/SE-Sync/include/SESync/SESyncVisualizer.h
+@@ -10,6 +10,8 @@
+ #include <pangolin/pangolin.h>
+ #include <pangolin/scene/axis.h>
+ #include <pangolin/scene/scenehandler.h>
++#include <pangolin/gl/glfont.h>
++#include <pangolin/display/default_font.h>
+ 
+ #include <Eigen/Dense>
+ #include <tuple>
+diff --git a/C++/SE-Sync/src/SESyncVisualizer.cpp b/C++/SE-Sync/src/SESyncVisualizer.cpp
+index 66c634b..669520c 100644
+--- a/C++/SE-Sync/src/SESyncVisualizer.cpp
++++ b/C++/SE-Sync/src/SESyncVisualizer.cpp
+@@ -7,7 +7,7 @@
+ 
+ #include "SESync/SESyncVisualizer.h"
+ 
+-#include <Eigen/StdVector>
++#include <Eigen/StdVector> 
+ #include <cstdlib>
+ 
+ namespace SESync {
+@@ -239,10 +239,10 @@ void SESyncVisualizer::DrawInfoText(const size_t iter, const bool bkgnd) const {
+     glColor3f(0.0f, 0.0f, 0.0f);  // Black text on white background.
+   }
+ 
+-  pangolin::GlFont::I()
++  pangolin::default_font()
+       .Text("Iterate: %d/%d", iter + 1, num_iters_)
+       .DrawWindow(10, 22);
+-  pangolin::GlFont::I()
++  pangolin::default_font()
+       .Text("Staircase level: %d", staircase_.at(iter))
+       .DrawWindow(10, 10);
+ 

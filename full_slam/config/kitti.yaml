@@ -1,0 +1,23 @@
+%YAML:1.0
+# data
+
+# the kitti dataset directory, change it to yours! 
+#dataset_dir: /media/luigi/Samsung_T5/datasets/rgbd_datasets/kitti/dataset/sequences/00
+dataset_dir: /media/luigi/Samsung_T5/datasets/rgbd_datasets/kitti/dataset/sequences/05
+#dataset_dir: /media/luigi/Samsung_T5/datasets/rgbd_datasets/kitti/dataset/sequences/06
+# NOTE: camera intrinsics are read from sequences in dataset_dir/calib.txt
+
+use_half_resolution: false 
+
+tracking_lk_patch_size: 11  # 11
+tracking_lk_max_level: 6 # 3
+
+num_features: 1000
+num_features_init: 200
+num_features_tracking: 70 # 50
+num_features_tracking_bad: 20 # 20
+num_features_needed_for_keyframe: 100 # 80
+
+
+# NOTE: camera intrinsics are read from sequences in dataset_dir/calib.txt
+Camera.fps: 100

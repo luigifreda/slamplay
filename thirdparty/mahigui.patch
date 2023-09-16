@@ -1,0 +1,71 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index e7cc3d5..d738705 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -212,9 +212,14 @@ set(CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}${MAHI_GUI_INSTALL_POSTFIX}")
+ # install headers
+ install(DIRECTORY include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+ install(DIRECTORY 3rdparty/glad/include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
++if(MAHI_GUI_NATIVE_DIAGS)
++    install(DIRECTORY 3rdparty/nativefiledialog-extended/src/include/ DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
++endif()
+ install(FILES ${IMGUI_HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+ install(FILES ${IMPLOT_HEADERS} DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+ install(FILES 3rdparty/nanovg/src/nanovg.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
++install(FILES 3rdparty/nanovg/src/nanovg_gl_utils.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
++install(FILES 3rdparty/nanovg/src/nanovg_gl.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+ install(FILES 3rdparty/nanosvg/src/nanosvg.h DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+ install(FILES 3rdparty/clipper/clipper.hpp DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+ 
+diff --git a/include/Mahi/Gui/Application.hpp b/include/Mahi/Gui/Application.hpp
+index 5b2fa17..a87a1c5 100644
+--- a/include/Mahi/Gui/Application.hpp
++++ b/include/Mahi/Gui/Application.hpp
+@@ -56,6 +56,7 @@ public:
+         bool dpi_aware         = false;      ///< does the application scale for high DPI? (WIP, DO NOT USE!!!)
+         bool gl_forward_compat = true;       ///< should GLFW_OPENGL_FORWARD_COMPAT be set? Always set on Mac.
+         Color background  = {0, 0, 0, 1};    ///< OpenGL clear color, i.e. window background color
++        float fontGlobalScale  = 3.0f;       ///< Luigi: added to change the font scale (default value should be 1.0)
+     };
+ 
+     /// Hidden Main Window Constructor (for using ImGui windows exclusively)
+diff --git a/src/Mahi/Gui/Application.cpp b/src/Mahi/Gui/Application.cpp
+index 34d418f..a470279 100644
+--- a/src/Mahi/Gui/Application.cpp
++++ b/src/Mahi/Gui/Application.cpp
+@@ -48,7 +48,7 @@ static void glfw_close_callback(GLFWwindow *window);
+ static void glfw_key_callback(GLFWwindow *, int key, int scancode, int action, int mods);
+ static void glfw_drop_callback(GLFWwindow *window, int count, const char **paths);
+ // IMGUI
+-static ImGuiContext* configureImGui(GLFWwindow *window, float dpi_scale);
++static ImGuiContext* configureImGui(GLFWwindow *window, float dpi_scale, float font_global_scale=1.0f);
+ }  // namespace
+ 
+ ///////////////////////////////////////////////////////////////////////////////
+@@ -165,7 +165,7 @@ Application::Application(const Config &conf) :
+     if (m_vg == NULL)
+         throw std::runtime_error("Failed to create NanoVG context!");
+     // configure ImGui
+-    m_imgui_context = configureImGui(m_window, xscale);
++    m_imgui_context = configureImGui(m_window, xscale, m_conf.fontGlobalScale);
+     if (!m_imgui_context)
+         throw std::runtime_error("Failed to create ImGui context!");
+     m_implot_context = ImPlot::CreateContext();
+@@ -623,7 +623,7 @@ static void glfw_drop_callback(GLFWwindow *window, int count, const char **paths
+ ///////////////////////////////////////////////////////////////////////////////
+ // IMGUI
+ ///////////////////////////////////////////////////////////////////////////////
+-static ImGuiContext* configureImGui(GLFWwindow *window, float dpi_scale) {
++static ImGuiContext* configureImGui(GLFWwindow *window, float dpi_scale, float font_global_scale) {
+     // Setup Dear ImGui context
+     IMGUI_CHECKVERSION();
+     auto context = ImGui::CreateContext();
+@@ -699,7 +699,7 @@ static ImGuiContext* configureImGui(GLFWwindow *window, float dpi_scale) {
+ 
+ 
+     // DPI scaling method 1 (this worked for my previous project, but not this...):
+-    io.FontGlobalScale = 1.0f / dpi_scale;
++    io.FontGlobalScale = 1.0f*font_global_scale/ dpi_scale;
+     io.DisplayFramebufferScale = ImVec2(dpi_scale,dpi_scale);
+     // DPI scaling method 2:
+     // style.ScaleAllSizes(dpi_scale);

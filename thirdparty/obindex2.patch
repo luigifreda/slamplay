@@ -1,0 +1,178 @@
+diff --git a/lib/CMakeLists.txt b/lib/CMakeLists.txt
+index 5b650aa..a67aa01 100644
+--- a/lib/CMakeLists.txt
++++ b/lib/CMakeLists.txt
+@@ -21,20 +21,8 @@ elseif(CMAKE_BUILD_TYPE MATCHES Debug)
+   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O1 -pg -march=native")
+ endif()
+ 
+-# Check C++11 or C++0x support
+-include(CheckCXXCompilerFlag)
+-CHECK_CXX_COMPILER_FLAG("-std=c++11" COMPILER_SUPPORTS_CXX11)
+-CHECK_CXX_COMPILER_FLAG("-std=c++0x" COMPILER_SUPPORTS_CXX0X)
+-if(COMPILER_SUPPORTS_CXX11)
+-   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+-   message(STATUS "Using flag -std=c++11.")
+-elseif(COMPILER_SUPPORTS_CXX0X)
+-   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++0x")
+-   message(STATUS "Using flag -std=c++0x.")
+-else()
+-   message(FATAL_ERROR "The compiler ${CMAKE_CXX_COMPILER} has no C++11 support.
+-                         Please use a different C++ compiler.")
+-endif()
++set(CMAKE_CXX_STANDARD 20)
++set(CMAKE_CXX_STANDARD_REQUIRED ON) # CMake will generate an error if it is unable to compile the code with a compiler that supports C++17.
+ 
+ # Packages required to work with the library
+ find_package(OpenCV REQUIRED) # OpenCV
+diff --git a/lib/src/binary_index.cc b/lib/src/binary_index.cc
+index 7ad1d06..ae03ce3 100644
+--- a/lib/src/binary_index.cc
++++ b/lib/src/binary_index.cc
+@@ -268,7 +268,7 @@ void ImageIndex::searchDescriptor(BinaryDescriptorPtr q,
+   }
+ 
+   // Searching in the trees
+-  #pragma omp parallel for
++  //#pragma omp parallel for
+   for (unsigned i = 0; i < trees_.size(); i++) {
+     trees_[i]->traverseFromRoot(q, pqs[i], rs[i]);
+   }
+@@ -352,7 +352,7 @@ void ImageIndex::insertDescriptor(BinaryDescriptorPtr q) {
+ 
+   // Indexing the descriptor inside each tree
+   if (init_) {
+-    #pragma omp parallel for
++    //#pragma omp parallel for
+     for (unsigned i = 0; i < trees_.size(); i++) {
+       trees_[i]->addDescriptor(q);
+     }
+@@ -362,7 +362,7 @@ void ImageIndex::insertDescriptor(BinaryDescriptorPtr q) {
+ void ImageIndex::deleteDescriptor(BinaryDescriptorPtr q) {
+   // Deleting the descriptor from each tree
+   if (init_) {
+-    #pragma omp parallel for
++    //#pragma omp parallel for
+     for (unsigned i = 0; i < trees_.size(); i++) {
+       trees_[i]->deleteDescriptor(q);
+     }
+diff --git a/lib/tests/test_bdesc.cc b/lib/tests/test_bdesc.cc
+index 9a39f04..7b3bff6 100644
+--- a/lib/tests/test_bdesc.cc
++++ b/lib/tests/test_bdesc.cc
+@@ -19,7 +19,11 @@
+ 
+ #define CATCH_CONFIG_MAIN
+ 
++#include <opencv2/features2d/features2d.hpp>
++#ifdef HAVE_OPENCV_CONTRIB
++#include <opencv2/xfeatures2d/nonfree.hpp>
+ #include <opencv2/xfeatures2d.hpp>
++#endif
+ 
+ #include "catch/catch.hpp"
+ 
+@@ -81,9 +85,12 @@ TEST_CASE("BD: create descriptors from cv::Mat", "[bdesc]") {
+   // Creating feature detector and descriptor
+   cv::Ptr<cv::FastFeatureDetector> det =
+           cv::FastFeatureDetector::create();
++#ifdef HAVE_OPENCV_CONTRIB          
+   cv::Ptr<cv::xfeatures2d::BriefDescriptorExtractor> des =
+           cv::xfeatures2d::BriefDescriptorExtractor::create();
+-
++#else 
++  cv::Ptr<cv::Feature2D> des = cv::ORB::create();
++#endif   
+   // Loading the test image
+   cv::Mat img = cv::imread("image00.jpg");
+ 
+diff --git a/lib/tests/test_bindex.cc b/lib/tests/test_bindex.cc
+index 20f82db..7c24acc 100644
+--- a/lib/tests/test_bindex.cc
++++ b/lib/tests/test_bindex.cc
+@@ -17,16 +17,24 @@
+ * along with obindex2. If not, see <http://www.gnu.org/licenses/>.
+ */
+ 
++#include <opencv2/features2d/features2d.hpp>
++#ifdef HAVE_OPENCV_CONTRIB
++#include <opencv2/xfeatures2d/nonfree.hpp>
+ #include <opencv2/xfeatures2d.hpp>
+-
++#endif
+ #include "obindex2/binary_index.h"
+ 
+-int main() {
++int main() 
++{
+   // Creating feature detector and descriptor
+   cv::Ptr<cv::FastFeatureDetector> det =
+           cv::FastFeatureDetector::create();
++#ifdef HAVE_OPENCV_CONTRIB          
+   cv::Ptr<cv::xfeatures2d::BriefDescriptorExtractor> des =
+           cv::xfeatures2d::BriefDescriptorExtractor::create();
++#else 
++  cv::Ptr<cv::Feature2D> des = cv::ORB::create();
++#endif   
+ 
+   // Loading the test image
+   cv::Mat img = cv::imread("image00.jpg");
+diff --git a/lib/tests/test_btree.cc b/lib/tests/test_btree.cc
+index 2ac6539..9b985b4 100644
+--- a/lib/tests/test_btree.cc
++++ b/lib/tests/test_btree.cc
+@@ -17,7 +17,11 @@
+ * along with obindex2. If not, see <http://www.gnu.org/licenses/>.
+ */
+ 
++#include <opencv2/features2d/features2d.hpp>
++#ifdef HAVE_OPENCV_CONTRIB
++#include <opencv2/xfeatures2d/nonfree.hpp>
+ #include <opencv2/xfeatures2d.hpp>
++#endif
+ 
+ #include "obindex2/binary_tree.h"
+ 
+@@ -25,8 +29,12 @@ int main() {
+   // Creating feature detector and descriptor
+   cv::Ptr<cv::FastFeatureDetector> det =
+           cv::FastFeatureDetector::create();
++#ifdef HAVE_OPENCV_CONTRIB          
+   cv::Ptr<cv::xfeatures2d::BriefDescriptorExtractor> des =
+           cv::xfeatures2d::BriefDescriptorExtractor::create();
++#else 
++  cv::Ptr<cv::Feature2D> des = cv::ORB::create();
++#endif           
+ 
+   // Loading the test image
+   cv::Mat img = cv::imread("image00.jpg");
+diff --git a/lib/tests/test_search.cc b/lib/tests/test_search.cc
+index 509b536..027eb7b 100644
+--- a/lib/tests/test_search.cc
++++ b/lib/tests/test_search.cc
+@@ -22,7 +22,11 @@
+ #include <iostream>
+ 
+ #include <boost/filesystem.hpp>
++#include <opencv2/features2d/features2d.hpp>
++#ifdef HAVE_OPENCV_CONTRIB
++#include <opencv2/xfeatures2d/nonfree.hpp>
+ #include <opencv2/xfeatures2d.hpp>
++#endif
+ 
+ #include "obindex2/binary_index.h"
+ 
+@@ -52,9 +56,12 @@ int main(int argc, char** argv) {
+   // Creating feature detector and descriptor
+   cv::Ptr<cv::FastFeatureDetector> det =
+           cv::FastFeatureDetector::create();
++#ifdef HAVE_OPENCV_CONTRIB          
+   cv::Ptr<cv::xfeatures2d::BriefDescriptorExtractor> des =
+           cv::xfeatures2d::BriefDescriptorExtractor::create();
+-
++#else 
++  cv::Ptr<cv::Feature2D> des = cv::ORB::create();
++#endif
+   // Loading image filenames
+   std::vector<std::string> filenames;
+   getFilenames(argv[1], &filenames);

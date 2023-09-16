@@ -1,0 +1,105 @@
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 9541cd7..8e7dee3 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -3,7 +3,9 @@
+ # ----------------------------------------------------------------------------
+ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
+ 
+-set(CMAKE_CXX_STANDARD 11)
++set(CMAKE_CXX_STANDARD 20)
++set(CMAKE_CXX_STANDARD_REQUIRED ON) # CMake will generate an error if it is unable to compile the code with a compiler that supports C++17.
++
+ 
+ PROJECT(DBoW3)
+ set(PROJECT_VERSION "0.0.1")
+diff --git a/src/Vocabulary.cpp b/src/Vocabulary.cpp
+index 9f0eff3..75cea83 100644
+--- a/src/Vocabulary.cpp
++++ b/src/Vocabulary.cpp
+@@ -1177,7 +1177,7 @@ void Vocabulary::save(cv::FileStorage &f,
+ 
+ }
+ 
+-void Vocabulary::toStream(  std::ostream &out_str, bool compressed) const throw(std::exception){
++void Vocabulary::toStream(  std::ostream &out_str, bool compressed) const /*throw(std::exception)*/{
+ 
+     uint64_t sig=88877711233;//magic number describing the file
+     out_str.write((char*)&sig,sizeof(sig));
+@@ -1257,7 +1257,7 @@ void Vocabulary::toStream(  std::ostream &out_str, bool compressed) const throw(
+ }
+ 
+ 
+-void Vocabulary:: load_fromtxt(const std::string &filename)throw(std::runtime_error){
++void Vocabulary:: load_fromtxt(const std::string &filename) /*throw(std::runtime_error)*/{
+ 
+     std::ifstream ifile(filename);
+     if(!ifile)throw std::runtime_error("Vocabulary:: load_fromtxt  Could not open file for reading:"+filename);
+@@ -1332,7 +1332,7 @@ void Vocabulary:: load_fromtxt(const std::string &filename)throw(std::runtime_er
+            }
+        }
+ }
+-void Vocabulary::fromStream(  std::istream &str )   throw(std::exception){
++void Vocabulary::fromStream(  std::istream &str )   /*throw(std::exception)*/{
+ 
+ 
+     m_words.clear();
+diff --git a/src/Vocabulary.h b/src/Vocabulary.h
+index 7cf5f5a..99d23c3 100644
+--- a/src/Vocabulary.h
++++ b/src/Vocabulary.h
+@@ -299,8 +299,8 @@ public:
+    */
+   int getDescritorType()const;
+   //io to-from a stream
+-  void toStream(  std::ostream &str, bool compressed=true) const throw(std::exception);
+-  void fromStream(  std::istream &str )   throw(std::exception);
++  void toStream(  std::ostream &str, bool compressed=true) const /*throw(std::exception)*/;
++  void fromStream(  std::istream &str )   /*throw(std::exception)*/;
+ 
+  protected:
+ 
+@@ -435,7 +435,7 @@ protected:
+ 
+    /**Loads from ORBSLAM txt files
+     */
+-   void load_fromtxt(const std::string &filename)throw(std::runtime_error);
++   void load_fromtxt(const std::string &filename) /*throw(std::runtime_error)*/;
+ 
+ protected:
+ 
+diff --git a/utils/create_voc_step0.cpp b/utils/create_voc_step0.cpp
+index 4fd78f6..da48b46 100644
+--- a/utils/create_voc_step0.cpp
++++ b/utils/create_voc_step0.cpp
+@@ -43,7 +43,7 @@ vector<string> readImagePaths(int argc,char **argv,int start){
+         return paths;
+ }
+ 
+-vector< cv::Mat  >  loadFeatures( std::vector<string> path_to_images,string descriptor="") throw (std::exception){
++vector< cv::Mat  >  loadFeatures( std::vector<string> path_to_images,string descriptor="") /*throw (std::exception)*/{
+     //select detector
+     cv::Ptr<cv::Feature2D> fdetector;
+     if (descriptor=="orb")        fdetector=cv::ORB::create();
+diff --git a/utils/demo_general.cpp b/utils/demo_general.cpp
+index 63db40b..26d115a 100644
+--- a/utils/demo_general.cpp
++++ b/utils/demo_general.cpp
+@@ -48,7 +48,7 @@ vector<string> readImagePaths(int argc,char **argv,int start){
+         return paths;
+ }
+ 
+-vector< cv::Mat  >  loadFeatures( std::vector<string> path_to_images,string descriptor="") throw (std::exception){
++vector< cv::Mat  >  loadFeatures( std::vector<string> path_to_images,string descriptor="") /*throw (std::exception)*/{
+     //select detector
+     cv::Ptr<cv::Feature2D> fdetector;
+     if (descriptor=="orb")        fdetector=cv::ORB::create();
+@@ -181,7 +181,7 @@ int main(int argc,char **argv)
+     try{
+         CmdLineParser cml(argc,argv);
+         if (cml["-h"] || argc<=2){
+-            cerr<<"Usage:  descriptor_name     image0 image1 ... \n\t descriptors:brisk,surf,orb ,akaze(only if using opencv 3)"<<endl;
++            cerr<<"Usage:  descriptor_name     image0 image1 ... \n\t descriptors:brisk,surf,orb,akaze(only if using opencv 3)"<<endl;
+              return -1;
+         }
+ 

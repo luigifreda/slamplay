@@ -1,0 +1,24 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/utils",
+                "${workspaceFolder}/utils/**",                
+                "${workspaceFolder}/full_slam/include/myslam",                        
+                "/usr/include",
+                "/usr/include/eigen3",
+                "${workspaceFolder}/thirdparty/pangolin/install/include/**",   
+                "${workspaceFolder}/thirdparty/opencv/install/include/**", 
+                "${workspaceFolder}thirdparty/sophus/sophus",           
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/g++",
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "clang-x64"
+        }
+    ],
+    "version": 4
+}
