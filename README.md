@@ -58,13 +58,13 @@ This repository is structured in the following main folders (with self-explanato
 
 - Install basic dependencies:      
   `$ ./install_dependencies.sh`        
-- Install opencv in a local folder:                
+- Install OpenCV in a local folder:                
   `$ ./install_local_opencv.sh`     
   (if you want, skip this step and set the variable `OpenCV_DIR` in `config.sh` with your local OpenCV path)     
 - Build the framework:      
   `$ ./build.sh`
 
-Once everythins is built, you can enter in the `build` folder and test the different examples. 
+Once everything is built, you can enter in the `build` folder and test the different examples. 
 In particular, you can enter in the `full_slam` folder: 
 - configure the file `config/kitti.yaml` (or `config/euroc.yaml`)
 - and run the VO app `app/run_kitti_stereo` (or `app/run_euroc_stereo`)
@@ -95,7 +95,7 @@ Documentation
 * See `docs` folder for further documentation.  
 
 **ISSUES**
-Apparently, in order to avoid *double free or corruption* errors with gtsam on exit, we need to disable the compile option `-march=native` when building apps that use gtsam. This can be done locally by modifing the compile flags at folder level and removing march native optimization for gtsam-related files. Further details in the following links: 
+Apparently, in order to avoid *double free or corruption* errors with gtsam on exit, we need to disable the compile option `-march=native` when building apps that use gtsam. This can be done locally by modifying the compile flags at the folder level and removing march native optimization for gtsam-related files. Further details are in the following links: 
 - https://bitbucket.org/gtborg/gtsam/issues/414/compiling-with-march-native-results-in
 - https://groups.google.com/g/gtsam-users/c/jdySXchYVQg 
 
