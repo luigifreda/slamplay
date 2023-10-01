@@ -28,7 +28,7 @@ function check_package(){
 
 # ====================================================
 
-print_blue  "Configuring and building Thirdparty/opencv ..."
+print_blue  "Configuring and building thirdparty/opencv ..."
 
 set -e
 
@@ -57,7 +57,7 @@ export LD_LIBRARY_PATH=/usr/local/$CUDA_VERSION/lib64${LD_LIBRARY_PATH:+:${LD_LI
 
 # pre-installing some required packages 
 
-if [ ! -d Thirdparty/opencv ]; then
+if [ ! -d thirdparty/opencv ]; then
 	sudo apt-get update
 	sudo apt-get install -y pkg-config libglew-dev libtiff5-dev zlib1g-dev libjpeg-dev libeigen3-dev libtbb-dev libgtk2.0-dev libopenblas-dev
 
@@ -88,7 +88,7 @@ fi
 # now let's download and compile opencv and opencv_contrib
 # N.B: if you want just to update cmake settings and recompile then remove "opencv/install" and "opencv/build/CMakeCache.txt"
 
-cd Thirdparty
+cd thirdparty
 #if [ ! -d opencv/install ]; then
 if [ ! -f opencv/install/lib/libopencv_core.so ]; then
     if [ ! -d opencv ]; then
