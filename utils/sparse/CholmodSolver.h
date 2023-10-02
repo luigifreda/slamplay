@@ -17,10 +17,6 @@
 
 //#define CHOLMOD_SOLVER_DEBUG
 
-
-///  \addtogroup cv_Sparse_Module
-/* @{ */
-
 ///	\class CholmodSolver
 ///	\author Luigi Freda
 ///	\brief 

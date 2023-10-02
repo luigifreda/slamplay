@@ -2,9 +2,6 @@
 
 #include "CholmodDenseMatrix.h"
 
-///  \addtogroup cv_Sparse_Module
-/* @{ */
-
 ///	\class CholmodDenseVector
 ///	\author Luigi Freda
 ///	\brief Interface towards cholmod dense matrix (as a single column matrix)
