@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 3.15)
-project(slamplay)
+cmake_minimum_required(VERSION 3.16...3.27)
+project(slamplay LANGUAGES CXX)
 
 #====================================
 # options 
@@ -8,6 +8,7 @@ set(OPENCV_VERSION          "4" CACHE STRING "Desired OpenCV version") # this is
 set(SET_RPATH               ON  CACHE BOOL   "Set RPATH instead of the default RUNPATH") # for solving the linking issue with g2o binaries (see the related node in the compiler options section)
 set(BUILD_WITH_MARCH_NATIVE ON  CACHE BOOL   "Build with \"-march native\"")
 set(WITH_OPENMP             ON  CACHE BOOL    "Add OpenMP support") # useful for PCL (since we use the macro PCL_NO_PRECOMPILE!)
+set(WITH_TRACY_PROFILER    OFF  CACHE BOOL   "Add Tracy profiler support.")
 
 # NOTE: this is to remove the tons of cmake warning coming from importing ext packages 
 # see here: https://github.com/PointCloudLibrary/pcl/issues/3680
@@ -92,6 +93,20 @@ add_compile_definitions(DATA_DIR=${DATA_DIR})
 
 list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 #list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/thirdparty/g2o/cmake_modules )
+
+# rerun_sdk 
+# include(FetchContent)
+# FetchContent_Declare(
+#   rerun_sdk
+#   GIT_REPOSITORY https://github.com/rerun-io/rerun.git  
+#   GIT_TAG 0.14.1  
+# )
+# FetchContent_MakeAvailable(rerun_sdk)
+set(CMAKE_PREFIX_PATH ${PROJECT_SOURCE_DIR}/thirdparty/rerun/install/lib/cmake/rerun_sdk/)
+set(Rerun_DIR ${PROJECT_SOURCE_DIR}/thirdparty/rerun/install/)
+message(STATUS "set custom rerun folder: ${Rerun_DIR}")
+find_package(rerun_sdk REQUIRED)
+message(STATUS "rerun include: ${RERUN_LIBRARIES}")
 
 # fmt 
 find_package(fmt REQUIRED)
@@ -221,6 +236,16 @@ find_package(GTest REQUIRED)
 # gflags
 find_package(GFlags REQUIRED)
 
+# yaml 
+find_package(yaml-cpp REQUIRED)
+
+if(WITH_TRACY_PROFILER)
+  if(EXISTS "/usr/local/lib/libTracyClient.a")
+    message(STATUS "Found Tracy")
+    add_definitions(-DTRACY_ENABLE)
+    set(TRACY_LIBS /usr/local/lib/libTracyClient.a -ldl -lpthread)
+  endif()
+endif()
 
 #====================================
 # includes 
@@ -255,6 +280,7 @@ set(EXT_INCLUDE_DIRS
   ${GLOG_INCLUDE_DIRS}
   ${GTEST_INCLUDE_DIRS}
   ${GFLAGS_INCLUDE_DIRS}
+  ${YAML_CPP_INCLUDE_DIR}   
 )
 
 #====================================
@@ -296,6 +322,8 @@ set(EXT_LIBS
   ${GTEST_BOTH_LIBRARIES}
   ${GLOG_LIBRARIES}
   ${GFLAGS_LIBRARIES}  
+  ${YAML_CPP_LIBRARIES}
+  rerun_sdk
 )
 
 #====================================

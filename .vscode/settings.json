@@ -96,6 +96,8 @@
         "specialfunctions": "cpp",
         "splines": "cpp",
         "*.inc": "cpp",
-        "matrixfunctions": "cpp"
-    }
+        "matrixfunctions": "cpp",
+        "filesystem": "cpp"
+    },
+    "editor.formatOnSave": true
 }

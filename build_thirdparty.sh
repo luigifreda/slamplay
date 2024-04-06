@@ -321,6 +321,31 @@ if [[ ! -d build/liblcdetector.a ]]; then
 fi 
 cd $SCRIPT_DIR
 
+
+# ====================================================
+
+print_blue '================================================'
+print_blue "Configuring and building thirdparty/rerun ..."
+
+cd thirdparty
+if [ ! -d rerun ]; then
+	sudo apt-get install -y cargo 
+    git clone https://github.com/rerun-io/rerun.git rerun
+    #git fetch --all --tags # to fetch tags 
+    cd rerun
+    git checkout 0.14.1
+    cd .. 
+fi
+cd rerun
+make_buid_dir
+if [[ ! -d install ]]; then
+	cd build
+    cmake .. -DCMAKE_INSTALL_PREFIX="`pwd`/../install" -DCMAKE_BUILD_TYPE=Release $EXTERNAL_OPTION
+	make -j 8
+    make install 
+fi 
+cd $SCRIPT_DIR
+
 # ====================================================
 
 

@@ -22,6 +22,7 @@ using namespace Eigen;
 #include <pcl/io/pcd_io.h>
 
 #include "macros.h"
+#include "messages.h"
 #include "cam_utils.h"
 #include "image_error.h"
 #include "PointCloudViz.h"

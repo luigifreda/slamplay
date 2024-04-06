@@ -3,16 +3,16 @@
 <!-- TOC -->
 
 - [slamplay](#slamplay)
-    - [1. Quick start](#1-quick-start)
-    - [2. Eigen Tutorials](#2-eigen-tutorials)
-    - [3. Back-end](#3-back-end)
-        - [3.1. GTSAM examples](#31-gtsam-examples)
-        - [3.2. Ceres examples](#32-ceres-examples)
-        - [3.3. g2o examples](#33-g2o-examples)
-    - [4. Front-end](#4-front-end)
-    - [5. IO](#5-io)
-        - [5.1. chrono](#51-chrono)
-    - [6. Credits](#6-credits)
+  - [1. Quick start](#1-quick-start)
+  - [2. Eigen Tutorials](#2-eigen-tutorials)
+  - [3. Back-end](#3-back-end)
+    - [3.1. GTSAM examples](#31-gtsam-examples)
+    - [3.2. Ceres examples](#32-ceres-examples)
+    - [3.3. g2o examples](#33-g2o-examples)
+  - [4. Front-end](#4-front-end)
+  - [5. IO](#5-io)
+    - [5.1. chrono](#51-chrono)
+  - [6. Credits](#6-credits)
 
 <!-- /TOC -->
 
@@ -21,7 +21,7 @@
  - back-end frameworks (*g2o*, *gtsam*, *ceres*, *se-sync*, etc.),     
  - front-end tools (*opencv*, *pcl*, etc.),      
  - algebra and geometry libs (*eigen*, *sophus*, *cholmod*, etc.),    
- - viz tools (*pangolin*, *imgui*, etc.),     
+ - viz tools (*pangolin*, *imgui*, *rerun*, etc.),     
  - loop-closure frameworks (*DBOW3*, *iBOW*, etc.),     
   
 along with some nice examples in order to easily and quickly start with all these tools.  
