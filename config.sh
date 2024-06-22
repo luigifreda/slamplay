@@ -12,13 +12,13 @@ cd $CONFIG_DIR # this brings us in the actual folder of this config script (not 
 # ====================================================
 
 # 1: ON, 0: OFF
-export USE_LOCAL_OPENCV=0   # use a local installation of OpenCV
+export USE_LOCAL_OPENCV=1   # use a local installation of OpenCV
 
 export OPENCV_VERSION="4" # default opencv version  
 
 # or you can set manullay OpenCV_DIR
 # export OpenCV_DIR="path to my OpenCV folder"
-export OpenCV_DIR="$CONFIG_DIR/thirdparty/opencv/install/lib/cmake/opencv4"  # here not set 
+# export OpenCV_DIR="$CONFIG_DIR/thirdparty/opencv/install/lib/cmake/opencv4"  # here not set 
 
 
 # ====================================================

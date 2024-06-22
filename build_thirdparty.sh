@@ -53,7 +53,7 @@ print_blue "Configuring and building thirdparty/pangolin ..."
 cd thirdparty
 if [ ! -d pangolin ]; then
 	sudo apt-get install -y libglew-dev
-	git clone https://github.com/stevenlovegrove/Pangolin.git pangolin
+	git clone --recursive https://github.com/stevenlovegrove/Pangolin.git pangolin
     #git fetch --all --tags # to fetch tags 
     cd pangolin
     #git checkout tags/v0.6
@@ -340,7 +340,7 @@ cd rerun
 make_buid_dir
 if [[ ! -d install ]]; then
 	cd build
-    cmake .. -DCMAKE_INSTALL_PREFIX="`pwd`/../install" -DCMAKE_BUILD_TYPE=Release $EXTERNAL_OPTION
+    cmake .. -DCMAKE_INSTALL_PREFIX="`pwd`/../install" -DCMAKE_BUILD_TYPE=Release  $EXTERNAL_OPTION -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} -fPIC" 
 	make -j 8
     make install 
 fi 

@@ -35,6 +35,7 @@ fi
 if [ $USE_CUDA -eq 1 ]; then
     echo "USE_CUDA: $USE_CUDA" 
     EXTERNAL_OPTION="$EXTERNAL_OPTION -DWITH_CUDA=ON"
+    #EXTERNAL_OPTION="$EXTERNAL_OPTION -DCUDA_DIR=$CUDADIR"
 fi
 
 echo "external option: $EXTERNAL_OPTION"
@@ -42,7 +43,7 @@ echo "external option: $EXTERNAL_OPTION"
 # ====================================================
 
 print_blue '================================================'
-print_blue "Building framework"
+print_blue "Building slamplay framework"
 print_blue '================================================'
 
 if [ ! -d build ]; then 

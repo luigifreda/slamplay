@@ -13,6 +13,7 @@ thirdparty/sesync
 thirdparty/dbow3
 thirdparty/obindex2
 thirdparty/ibow-lcd
+thirdparty/rerun
 
 data/new_college
 data/remode_test_data/*

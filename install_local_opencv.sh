@@ -42,7 +42,7 @@ function get_usable_cuda_version(){
 
 # ====================================================
 
-export TARGET_FOLDER=Thirdparty
+export TARGET_FOLDER=thirdparty
 
 export OPENCV_VERSION="4.8.0"   # 4.7.0 4.3.0 4.2.0 4.0.0 3.4.6 3.4.4 3.4.3 3.4.2 3.4.1 
 
