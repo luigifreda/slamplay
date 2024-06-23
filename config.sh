@@ -29,7 +29,7 @@ export OPENCV_VERSION="4" # default opencv version
 # USE_LOCAL_OPENCV=1
 
 # 1: ON, 0: OFF
-export USE_CUDA=0  # use CUDA in PLVS sparse SLAM  
+export USE_CUDA=0  # use CUDA 
 export CUDA_VERSION="cuda-11.6"  # must be an installed CUDA path in "/usr/local"; 
                                  # if available, you can use the simple path "/usr/local/cuda" which should be a symbolic link to the last installed cuda version 
 if [ ! -d /usr/local/$CUDA_VERSION ]; then
@@ -39,6 +39,13 @@ fi
 export PATH=/usr/local/$CUDA_VERSION/bin${PATH:+:${PATH}}
 export LD_LIBRARY_PATH=/usr/local/$CUDA_VERSION/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
 export CUDADIR=/usr/local/$CUDA_VERSION
+
+
+# ====================================================
+# TensorRT Settings
+# ====================================================
+
+export USE_TENSORRT=1  # use TensorRT (will locally install TensorRT and use it. Only available if you installed CUDA and this is properly detected)
 
 
 # ====================================================
@@ -67,7 +74,9 @@ fi
 # reset env var if CUDA lib is not installed 
 if [ $CUDA_FOUND -eq 0 ]; then
 	USE_CUDA=0
+	USE_TENSORRT=0	
 	echo 'CUDA env var reset, check your CUDA installation'
+	echo 'TensorRT env var reser'
 fi
 
 # ====================================================

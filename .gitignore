@@ -14,6 +14,7 @@ thirdparty/dbow3
 thirdparty/obindex2
 thirdparty/ibow-lcd
 thirdparty/rerun
+thirdparty/tensorrtbuffer/lib/libtensorrtbuffer.so
 
 data/new_college
 data/remode_test_data/*

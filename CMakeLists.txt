@@ -10,6 +10,9 @@ set(SET_RPATH               ON  CACHE BOOL   "Set RPATH instead of the default R
 set(BUILD_WITH_MARCH_NATIVE ON  CACHE BOOL   "Build with \"-march native\"")
 set(WITH_OPENMP             ON  CACHE BOOL    "Add OpenMP support") # useful for PCL (since we use the macro PCL_NO_PRECOMPILE!)
 set(WITH_TRACY_PROFILER    OFF  CACHE BOOL   "Add Tracy profiler support.")
+set(WITH_TENSORRT          OFF  CACHE BOOL   "Add TensorRT support.")
+set(TensorRT_DIR          "${PROJECT_SOURCE_DIR}/thirdparty/TensorRT" CACHE STRING "Desired TensorRT path") # this is the first target version that is searched for 
+set(TENSORRTBUFFER_DIR    "${PROJECT_SOURCE_DIR}/thirdparty/tensorrtbuffer" CACHE STRING "Desired tensorrtbuffer path")
 
 # NOTE: this is to remove the tons of cmake warning coming from importing ext packages 
 # see here: https://github.com/PointCloudLibrary/pcl/issues/3680
@@ -240,6 +243,26 @@ find_package(GFlags REQUIRED)
 # yaml 
 find_package(yaml-cpp REQUIRED)
 
+# TensorRT
+if(WITH_TENSORRT)
+  find_package(CUDA REQUIRED)
+  message(STATUS "CUDA_VERSION_STRING: ${CUDA_VERSION_STRING}")
+  message(STATUS "CUDA_TOOLKIT_ROOT_DIR: ${CUDA_TOOLKIT_ROOT_DIR}")    
+  message(STATUS "CUDA_INCLUDE_DIRS: ${CUDA_INCLUDE_DIRS}")
+  message(STATUS "CUDA_LIBRARIES: ${CUDA_LIBRARIES}")
+
+  message(STATUS "TensorRT_DIR: ${TensorRT_DIR}")
+  find_package(TensorRT REQUIRED)
+
+  # adjust for hosting tensorrtbuffer lib
+  set(TensorRT_INCLUDE_DIR ${TensorRT_INCLUDE_DIR} ${TENSORRTBUFFER_DIR}/include)
+  set(TensorRT_LIBRARIES ${TensorRT_LIBRARIES} ${TENSORRTBUFFER_DIR}/lib/libtensorrtbuffer.so)
+
+  message(STATUS "TensorRT_INCLUDE_DIR: ${TensorRT_INCLUDE_DIR}")
+  message(STATUS "TensorRT_LIBRARIES: ${TensorRT_LIBRARIES}")   
+
+endif()
+
 if(WITH_TRACY_PROFILER)
   if(EXISTS "/usr/local/lib/libTracyClient.a")
     message(STATUS "Found Tracy")
@@ -281,7 +304,8 @@ set(EXT_INCLUDE_DIRS
   ${GLOG_INCLUDE_DIRS}
   ${GTEST_INCLUDE_DIRS}
   ${GFLAGS_INCLUDE_DIRS}
-  ${YAML_CPP_INCLUDE_DIR}   
+  ${YAML_CPP_INCLUDE_DIR}
+  ${TensorRT_INCLUDE_DIR} ${CUDA_INCLUDE_DIRS}
 )
 
 #====================================
@@ -325,6 +349,7 @@ set(EXT_LIBS
   ${GFLAGS_LIBRARIES}  
   ${YAML_CPP_LIBRARIES}
   rerun_sdk
+  ${TensorRT_LIBRARIES} ${CUDA_LIBRARIES}
 )
 
 #====================================

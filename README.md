@@ -19,7 +19,7 @@
 
  **slamplay** is a collection of powerful tools to start playing and experimenting with **SLAM in C++**. It's a work in progress. It installs and makes available in a single cmake framework some of the most important    
  - back-end frameworks (*g2o*, *gtsam*, *ceres*, *se-sync*, etc.),     
- - front-end tools (*opencv*, *pcl*, etc.),      
+ - front-end tools (*OpenCV*, *pcl*, *TensorRT*, etc.),      
  - algebra and geometry libs (*eigen*, *sophus*, *cholmod*, etc.),    
  - viz tools (*pangolin*, *imgui*, *rerun*, etc.),     
  - loop-closure frameworks (*DBOW3*, *iBOW*, etc.),     
@@ -45,7 +45,7 @@ This repository is structured in the following main folders (with self-explanato
 - `data`
 - `dense_mapping`
 - `docs`
-- `frontend`
+- `frontend`  (**NEW** C++ TensorRT-based support for SuperPoint and SuperGlue)
 - `full_slam`
 - `io`
 - `loop_closure`
@@ -150,3 +150,4 @@ If you're holding a *steady_clock* in your hand, you would call it a stopwatch, 
 
 * This repo imported some of the C++ examples (updated, improved, and commented) of the repository https://github.com/gaoxiang12/slambook2. Thanks to the Author for his great work. 
 * Thanks to the Author of the repository https://github.com/nicolov/simple_slam_loop_closure/. I imported a couple of scripts (updated and improved) from his repository (for computing the confusion matrix). 
+* Thanks to yuefanhao for his repo https://github.com/yuefanhao/SuperPoint-SuperGlue-TensorRT
