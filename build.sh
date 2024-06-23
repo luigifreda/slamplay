@@ -38,6 +38,12 @@ if [ $USE_CUDA -eq 1 ]; then
     #EXTERNAL_OPTION="$EXTERNAL_OPTION -DCUDA_DIR=$CUDADIR"
 fi
 
+# check TENSORRT options
+if [ $USE_TENSORRT -eq 1 ]; then
+    echo "USE_TENSORRT: $USE_TENSORRT" 
+    EXTERNAL_OPTION="$EXTERNAL_OPTION -DWITH_TENSORRT=ON -DTensorRT_DIR=$SCRIPT_DIR/thirdparty/TensorRT"
+fi
+
 echo "external option: $EXTERNAL_OPTION"
 
 # ====================================================

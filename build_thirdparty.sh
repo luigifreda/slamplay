@@ -39,11 +39,25 @@ if [ $USE_CUDA -eq 1 ]; then
     EXTERNAL_OPTION="$EXTERNAL_OPTION -DWITH_CUDA=ON"
 fi
 
+# check TENSORRT options
+if [ $USE_TENSORRT -eq 1 ]; then
+    echo "USE_TENSORRT: $USE_TENSORRT" 
+    EXTERNAL_OPTION="$EXTERNAL_OPTION -DWITH_TENSORRT=ON -DTensorRT_DIR=$SCRIPT_DIR/thirdparty/TensorRT"
+fi
+
 echo "external option: $EXTERNAL_OPTION"
 # ====================================================
 
 # install ubuntu dependancies!
 #./install_dependencies.sh
+
+if [ $USE_TENSORRT -eq 1 ]; then
+    print_blue '================================================'
+    print_blue "Configuring and installing thirdparty/TensorRT ..."
+
+    ./install_tensorrt.sh
+fi
+
 
 # ====================================================
 
@@ -345,6 +359,25 @@ if [[ ! -d install ]]; then
     make install 
 fi 
 cd $SCRIPT_DIR
+
+
+# ====================================================
+
+if [ $USE_TENSORRT -eq 1 ]; then
+    print_blue '================================================'
+    print_blue "Configuring and building thirdparty/tensorrtbuffer ..."
+
+    cd thirdparty
+    cd tensorrtbuffer
+    make_buid_dir
+    if [[ ! -d lib/libtensorrtbuffer.so ]]; then
+        cd build
+        cmake .. -DCMAKE_BUILD_TYPE=Release  $EXTERNAL_OPTION
+        make -j 8
+    fi 
+    cd $SCRIPT_DIR
+fi 
+
 
 # ====================================================
 
