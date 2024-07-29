@@ -17,6 +17,7 @@ thirdparty/sesync \
 thirdparty/obindex2 \
 thirdparty/ibow-lcd \
 thirdparty/dbow3 \
+thirdparty/rerun \
 )
 
 for folder in "${folders[@]}"

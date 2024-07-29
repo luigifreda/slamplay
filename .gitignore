@@ -15,6 +15,10 @@ thirdparty/obindex2
 thirdparty/ibow-lcd
 thirdparty/rerun
 thirdparty/tensorrtbuffer/lib/libtensorrtbuffer.so
+thirdparty/TensorRT
+thirdparty/rerun
 
+# data 
 data/new_college
 data/remode_test_data/*
+data/freiburg_sequence/matches

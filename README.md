@@ -69,6 +69,7 @@ In particular, you can enter in the `full_slam` folder:
 - configure the file `config/kitti.yaml` (or `config/euroc.yaml`)
 - and run the VO app `app/run_kitti_stereo` (or `app/run_euroc_stereo`)
 
+---
 ## 2. Eigen Tutorials
 
 See the nice [ascii quick reference](docs/Eigen-AsciiQuickReference.txt). 
@@ -80,6 +81,7 @@ See the nice [ascii quick reference](docs/Eigen-AsciiQuickReference.txt).
 * [Geometry](https://eigen.tuxfamily.org/dox/group__Geometry__chapter.html)
 
 
+---
 ## 3. Back-end
 
 Some notes about the back-end frameworks. 
@@ -122,7 +124,7 @@ https://github.com/RainerKuemmerle/g2o/tree/20230223_git/g2o/examples).
   This configuration is enabled/disabled by the cmake option flag `SET_RPATH` I added. 
   - If you get a *double free or corruption* error with g2o (on exit), then it is very likely you used `-march=native` option when compiling this project but you didn't use the same option for building g2o itself. This may cause some alignment inconsistencies between g2o and this project. Then, in that case, build g2o with `-march=native` (i.e. use the cmake option `-DBUILD_WITH_MARCH_NATIVE=ON`)   
 
-
+---
 ## 4. Front-end
 
 ## 5. IO
@@ -145,7 +147,7 @@ If you're holding a *system_clock* in your hand, you would call it a watch, and 
 
 If you're holding a *steady_clock* in your hand, you would call it a stopwatch, and it would tell you how fast someone ran a lap, but it would not tell you what time it is.
 
-
+---
 ## 6. Credits  
 
 * This repo imported some of the C++ examples (updated, improved, and commented) of the repository https://github.com/gaoxiang12/slambook2. Thanks to the Author for his great work. 
