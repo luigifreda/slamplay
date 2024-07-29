@@ -1,7 +1,7 @@
 //
-// Created by gaoxiang on 19-5-4. 
+// Created by gaoxiang on 19-5-4.
 // From https://github.com/gaoxiang12/slambook2
-// Modified by Luigi Freda later for slamplay 
+// Modified by Luigi Freda later for slamplay
 //
 
 #include <opencv2/opencv.hpp>
@@ -14,17 +14,17 @@
 #include "myslam/g2o_types.h"
 #include "myslam/map.h"
 #include "myslam/viewer.h"
+#include "profiler/profiler_tracy.h"
 
 namespace myslam {
 
 std::vector<std::string> Frontend::frontendStatusStrings = {"INIT", "TRACKING_GOOD", "TRACKING_BAD", "LOST", "NUM_STATUS"};
 
-
 Frontend::Frontend() {
-    constexpr double gfft_qualityLevel = 0.01; 
-    constexpr double gfft_minDistance = 5; //20
+    constexpr double gfft_qualityLevel = 0.01;
+    constexpr double gfft_minDistance = 5;  // 20
     constexpr int gfft_blockSize = 5;
-    
+
     num_features_init_ = Config::Get<int>("num_features_init");
     num_features_ = Config::Get<int>("num_features");
 
@@ -35,7 +35,7 @@ Frontend::Frontend() {
     num_features_tracking_bad_ = Config::Get<int>("num_features_tracking_bad");
     num_features_needed_for_keyframe_ = Config::Get<int>("num_features_needed_for_keyframe");
 
-    gftt_ = cv::GFTTDetector::create(num_features_, gfft_qualityLevel, gfft_minDistance, gfft_blockSize);    
+    gftt_ = cv::GFTTDetector::create(num_features_, gfft_qualityLevel, gfft_minDistance, gfft_blockSize);
 }
 
 bool Frontend::AddFrame(myslam::Frame::Ptr frame) {
@@ -59,6 +59,8 @@ bool Frontend::AddFrame(myslam::Frame::Ptr frame) {
 }
 
 bool Frontend::Track() {
+    //FrameMarkNamed("Track");
+    ZoneScoped;
     if (last_frame_) {
         current_frame_->SetPose(relative_motion_ * last_frame_->Pose());
     }
@@ -66,7 +68,7 @@ bool Frontend::Track() {
     int num_track_last = TrackLastFrame();
     tracking_inliers_ = EstimateCurrentPose();
 
-    LOG(INFO) << "tracking inliers: " << tracking_inliers_ << std::endl; 
+    LOG(INFO) << "tracking inliers: " << tracking_inliers_ << std::endl;
 
     if (tracking_inliers_ > num_features_tracking_) {
         // tracking good
@@ -87,6 +89,7 @@ bool Frontend::Track() {
 }
 
 bool Frontend::InsertKeyframe() {
+    ZoneScoped;
     if (tracking_inliers_ >= num_features_needed_for_keyframe_) {
         // still have enough features, don't insert keyframe
         return false;
@@ -100,7 +103,7 @@ bool Frontend::InsertKeyframe() {
 
     SetObservationsForKeyFrame();
     // detect new features
-    DetectFeatures();  
+    DetectFeatures();
     // track in right image
     FindFeaturesInRight();
     // triangulate map points
@@ -158,6 +161,7 @@ int Frontend::TriangulateNewPoints() {
 }
 
 int Frontend::EstimateCurrentPose() {
+    ZoneScoped;
     // setup g2o
     typedef g2o::BlockSolver_6_3 BlockSolverType;
     typedef g2o::LinearSolverDense<BlockSolverType::PoseMatrixType>
@@ -236,7 +240,7 @@ int Frontend::EstimateCurrentPose() {
 
 #if 0
     LOG(INFO) << "Current Pose = \n" << current_frame_->Pose().matrix();
-#endif 
+#endif
 
     for (auto &feat : features) {
         if (feat->is_outlier_) {
@@ -248,6 +252,7 @@ int Frontend::EstimateCurrentPose() {
 }
 
 int Frontend::TrackLastFrame() {
+    ZoneScoped;
     // use LK flow to estimate points in the left image
     std::vector<cv::Point2f> kps_last, kps_current;
     for (auto &kp : last_frame_->features_left_) {
@@ -307,17 +312,18 @@ bool Frontend::StereoInit() {
 }
 
 int Frontend::DetectFeatures() {
-    // create a mask where to detect new features 
+    ZoneScoped;
+    // create a mask where to detect new features
     cv::Mat mask(current_frame_->left_img_.size(), CV_8UC1, 255);
 
 #if 1
     // mark the areas around the current features as "no go"
-    const int window_half_size = 3; // 10
+    const int window_half_size = 3;  // 10
     for (auto &feat : current_frame_->features_left_) {
         cv::rectangle(mask, feat->position_.pt - cv::Point2f(window_half_size, window_half_size),
                       feat->position_.pt + cv::Point2f(window_half_size, window_half_size), 0, cv::FILLED);
     }
-#endif 
+#endif
 
     std::vector<cv::KeyPoint> keypoints;
     gftt_->detect(current_frame_->left_img_, keypoints, mask);
@@ -411,7 +417,7 @@ bool Frontend::BuildInitMap() {
 
 bool Frontend::Reset() {
     LOG(INFO) << "Reset is not implemented. ";
-    if (viewer_) viewer_->AddCurrentFrame(current_frame_);    
+    if (viewer_) viewer_->AddCurrentFrame(current_frame_);
     return true;
 }
 

@@ -9,10 +9,10 @@ set(OPENCV_VERSION          "4" CACHE STRING "Desired OpenCV version") # this is
 set(SET_RPATH               ON  CACHE BOOL   "Set RPATH instead of the default RUNPATH") # for solving the linking issue with g2o binaries (see the related node in the compiler options section)
 set(BUILD_WITH_MARCH_NATIVE ON  CACHE BOOL   "Build with \"-march native\"")
 set(WITH_OPENMP             ON  CACHE BOOL    "Add OpenMP support") # useful for PCL (since we use the macro PCL_NO_PRECOMPILE!)
-set(WITH_TRACY_PROFILER    OFF  CACHE BOOL   "Add Tracy profiler support.")
-set(WITH_TENSORRT          OFF  CACHE BOOL   "Add TensorRT support.")
-set(TensorRT_DIR          "${PROJECT_SOURCE_DIR}/thirdparty/TensorRT" CACHE STRING "Desired TensorRT path") # this is the first target version that is searched for 
-set(TENSORRTBUFFER_DIR    "${PROJECT_SOURCE_DIR}/thirdparty/tensorrtbuffer" CACHE STRING "Desired tensorrtbuffer path")
+set(WITH_TRACY_PROFILER     OFF  CACHE BOOL   "Add Tracy profiler support.")
+set(WITH_TENSORRT           OFF  CACHE BOOL   "Add TensorRT support.")
+set(TensorRT_DIR            "${PROJECT_SOURCE_DIR}/thirdparty/TensorRT" CACHE STRING "Desired TensorRT path") # this is the first target version that is searched for 
+set(TENSORRTBUFFER_DIR      "${PROJECT_SOURCE_DIR}/thirdparty/tensorrtbuffer" CACHE STRING "Desired tensorrtbuffer path")
 
 # NOTE: this is to remove the tons of cmake warning coming from importing ext packages 
 # see here: https://github.com/PointCloudLibrary/pcl/issues/3680
@@ -264,10 +264,11 @@ if(WITH_TENSORRT)
 endif()
 
 if(WITH_TRACY_PROFILER)
-  if(EXISTS "/usr/local/lib/libTracyClient.a")
+  set(TRACY_DIR ${PROJECT_SOURCE_DIR}/thirdparty/tracy/build)
+  if(EXISTS "${TRACY_DIR}/libTracyClient.a")
     message(STATUS "Found Tracy")
     add_definitions(-DTRACY_ENABLE)
-    set(TRACY_LIBS /usr/local/lib/libTracyClient.a -ldl -lpthread)
+    set(TRACY_LIBS ${TRACY_DIR}/libTracyClient.a -ldl -lpthread)
   endif()
 endif()
 
@@ -350,6 +351,7 @@ set(EXT_LIBS
   ${YAML_CPP_LIBRARIES}
   rerun_sdk
   ${TensorRT_LIBRARIES} ${CUDA_LIBRARIES}
+  ${TRACY_LIBS}
 )
 
 #====================================

@@ -101,3 +101,11 @@ if [ $USE_LOCAL_OPENCV -eq 1 ] && [[ ! -n "$OpenCV_DIR" ]]; then
 	echo setting OpenCV_DIR: $OpenCV_DIR
     #export LD_LIBRARY_PATH=$CONFIG_DIR/thirdparty/opencv/install/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
 fi
+
+# ====================================================
+# Tracy Settings
+# ====================================================
+
+# Tracy is a great profiler. Details here https://github.com/wolfpld/tracy
+
+export USE_TRACY=1  # use Tracy, you will be able to profile your apps with the profiler

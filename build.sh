@@ -44,6 +44,12 @@ if [ $USE_TENSORRT -eq 1 ]; then
     EXTERNAL_OPTION="$EXTERNAL_OPTION -DWITH_TENSORRT=ON -DTensorRT_DIR=$SCRIPT_DIR/thirdparty/TensorRT"
 fi
 
+# check Tracy option 
+if [ $USE_TRACY -eq 1 ]; then
+    echo "USE_TRACY: $USE_TRACY" 
+    EXTERNAL_OPTION="$EXTERNAL_OPTION -DWITH_TRACY_PROFILER=ON"
+fi
+
 echo "external option: $EXTERNAL_OPTION"
 
 # ====================================================

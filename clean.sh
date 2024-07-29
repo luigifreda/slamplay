@@ -18,6 +18,7 @@ thirdparty/obindex2 \
 thirdparty/ibow-lcd \
 thirdparty/dbow3 \
 thirdparty/rerun \
+thirdparty/tracy \
 )
 
 for folder in "${folders[@]}"

@@ -3,16 +3,18 @@
 <!-- TOC -->
 
 - [slamplay](#slamplay)
-  - [1. Quick start](#1-quick-start)
-  - [2. Eigen Tutorials](#2-eigen-tutorials)
-  - [3. Back-end](#3-back-end)
-    - [3.1. GTSAM examples](#31-gtsam-examples)
-    - [3.2. Ceres examples](#32-ceres-examples)
-    - [3.3. g2o examples](#33-g2o-examples)
-  - [4. Front-end](#4-front-end)
-  - [5. IO](#5-io)
-    - [5.1. chrono](#51-chrono)
-  - [6. Credits](#6-credits)
+  - [Quick start](#quick-start)
+  - [Eigen Tutorials](#eigen-tutorials)
+  - [Back-end](#back-end)
+    - [GTSAM examples](#gtsam-examples)
+    - [Ceres examples](#ceres-examples)
+    - [g2o examples](#g2o-examples)
+  - [Front-end](#front-end)
+  - [IO](#io)
+    - [chrono](#chrono)
+  - [Utils](#utils)
+    - [Tracy](#tracy)
+  - [Credits](#credits)
 
 <!-- /TOC -->
 
@@ -54,7 +56,7 @@ This repository is structured in the following main folders (with self-explanato
 - `utils`
 - `viz`
   
-## 1. Quick start 
+## Quick start 
 
 - Install basic dependencies:      
   `$ ./install_dependencies.sh`        
@@ -70,7 +72,8 @@ In particular, you can enter in the `full_slam` folder:
 - and run the VO app `app/run_kitti_stereo` (or `app/run_euroc_stereo`)
 
 ---
-## 2. Eigen Tutorials
+
+## Eigen Tutorials
 
 See the nice [ascii quick reference](docs/Eigen-AsciiQuickReference.txt). 
 
@@ -82,11 +85,12 @@ See the nice [ascii quick reference](docs/Eigen-AsciiQuickReference.txt).
 
 
 ---
-## 3. Back-end
+
+## Back-end
 
 Some notes about the back-end frameworks. 
 
-### 3.1. GTSAM examples
+### GTSAM examples
 
 Installed tag **4.2a9**
 * https://github.com/borglab/gtsam/tree/4.2a9/examples
@@ -101,7 +105,7 @@ Apparently, in order to avoid *double free or corruption* errors with gtsam on e
 - https://bitbucket.org/gtborg/gtsam/issues/414/compiling-with-march-native-results-in
 - https://groups.google.com/g/gtsam-users/c/jdySXchYVQg 
 
-### 3.2. Ceres examples 
+### Ceres examples 
 
 Installed tag 2.1.0 
 * https://ceres-solver.googlesource.com/ceres-solver/+/refs/tags/2.1.0/examples/
@@ -110,7 +114,7 @@ Documentation
 * http://ceres-solver.org/tutorial.html
 * See `docs` folder for further documentation. 
 
-### 3.3. g2o examples
+### g2o examples
 
 Installed tag *20230223_git*. See related [examples](
 https://github.com/RainerKuemmerle/g2o/tree/20230223_git/g2o/examples).
@@ -125,11 +129,14 @@ https://github.com/RainerKuemmerle/g2o/tree/20230223_git/g2o/examples).
   - If you get a *double free or corruption* error with g2o (on exit), then it is very likely you used `-march=native` option when compiling this project but you didn't use the same option for building g2o itself. This may cause some alignment inconsistencies between g2o and this project. Then, in that case, build g2o with `-march=native` (i.e. use the cmake option `-DBUILD_WITH_MARCH_NATIVE=ON`)   
 
 ---
-## 4. Front-end
 
-## 5. IO
+## Front-end
 
-### 5.1. chrono
+---
+
+##  IO
+
+### chrono
 
 https://www.modernescpp.com/index.php/the-three-clocks 
 
@@ -147,8 +154,26 @@ If you're holding a *system_clock* in your hand, you would call it a watch, and 
 
 If you're holding a *steady_clock* in your hand, you would call it a stopwatch, and it would tell you how fast someone ran a lap, but it would not tell you what time it is.
 
+
 ---
-## 6. Credits  
+
+## Utils
+
+### Tracy 
+
+Tracy is a great profiler. Repository link: https://github.com/wolfpld/tracy. Documentation is [here](https://github.com/wolfpld/tracy/releases/latest/download/tracy.pdf).
+
+- Include `profiler/profiler_tracy.h` in every file you are interested in profiling.
+- Check `TRACY_ENABLE` is defined for the WHOLE project (`slamplay` automatically takes care of that if you set `USE_TRACY=1` in `config.h`).
+- Add the macro `FrameMark` at the end of each frame loop. (Jump this: The latest version of tracy does not seem to support well this)
+- Add the macro `ZoneScoped` as the first line of your function definitions to include them in the profile.
+- Run tracy profiler: `./thirdparty/tracy/tracy-profiler` and hit the connect button. 
+- Compile and run your application.
+- You’re profiling your program! Go to tracy interface and hit the `statistics` button.
+
+---
+
+## Credits  
 
 * This repo imported some of the C++ examples (updated, improved, and commented) of the repository https://github.com/gaoxiang12/slambook2. Thanks to the Author for his great work. 
 * Thanks to the Author of the repository https://github.com/nicolov/simple_slam_loop_closure/. I imported a couple of scripts (updated and improved) from his repository (for computing the confusion matrix). 

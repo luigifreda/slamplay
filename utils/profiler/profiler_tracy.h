@@ -4,7 +4,7 @@
 // Further details https://github.com/wolfpld/tracy/releases/latest/download/tracy.pdf
 
 // Uncomment this to enable Tracy for CPU profiling.
-// #define TRACY_ENABLE
+// #define TRACY_ENABLE // Automatically defined by cmake if tracy is available
 
 // Uncomment for memory profiling (usage of memory). I wouldn't enable both CPU and memory profiling at the same time. It may have a meaningful overhead.
 // #define TRACY_ENABLE_MEMORY_PROFILING

@@ -1,0 +1,21 @@
+diff --git a/profiler/CMakeLists.txt b/profiler/CMakeLists.txt
+index 928aec3f..325492d6 100644
+--- a/profiler/CMakeLists.txt
++++ b/profiler/CMakeLists.txt
+@@ -171,12 +171,13 @@ else()
+     add_executable(${PROJECT_NAME} ${PROFILER_FILES} ${COMMON_FILES} ${SERVER_FILES})
+ endif()
+ 
+-target_link_libraries(${PROJECT_NAME} PRIVATE TracyServer TracyImGui)
++message(STATUS "CMAKE_DL_LIBS: ${CMAKE_DL_LIBS}")
++target_link_libraries(${PROJECT_NAME} PRIVATE TracyServer TracyImGui ${CMAKE_DL_LIBS} pthread)
+ 
+ if(NOT EMSCRIPTEN)
+-    target_link_libraries(${PROJECT_NAME} PRIVATE TracyNfd)
++    target_link_libraries(${PROJECT_NAME} PRIVATE TracyNfd ${CMAKE_DL_LIBS} pthread)
+     if (NOT USE_WAYLAND)
+-        target_link_libraries(${PROJECT_NAME} PRIVATE TracyGlfw3)
++        target_link_libraries(${PROJECT_NAME} PRIVATE TracyGlfw3 ${CMAKE_DL_LIBS} pthread)
+     endif()
+ endif()
+ 

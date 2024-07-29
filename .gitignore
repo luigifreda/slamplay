@@ -17,6 +17,9 @@ thirdparty/rerun
 thirdparty/tensorrtbuffer/lib/libtensorrtbuffer.so
 thirdparty/TensorRT
 thirdparty/rerun
+thirdparty/tracy
+thirdparty/tracy-profiler
+thirdparty/TensorRT-8.5.1.7.Linux.x86_64-gnu.cuda-11.8.cudnn8.6.tar.gz
 
 # data 
 data/new_college

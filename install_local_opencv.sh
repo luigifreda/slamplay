@@ -84,7 +84,7 @@ export LD_LIBRARY_PATH=/usr/local/$CUDA_VERSION/lib64${LD_LIBRARY_PATH:+:${LD_LI
 
 # pre-installing some required packages 
 
-if [ ! -d $TARGET_FOLDER/opencv ]; then
+if [[ ! -d $TARGET_FOLDER/opencv ]]; then
 	sudo apt-get update
 	sudo apt-get install -y pkg-config libglew-dev libtiff5-dev zlib1g-dev libjpeg-dev libeigen3-dev libtbb-dev libgtk2.0-dev libopenblas-dev
     sudo apt-get install -y curl software-properties-common unzip
