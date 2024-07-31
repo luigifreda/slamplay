@@ -26,6 +26,20 @@ function check_package(){
     fi
 }
 
+function install_package(){
+    do_install=$(check_package $1)
+    if [ $do_install -eq 1 ] ; then
+        sudo apt-get install -y $1
+    fi 
+}
+
+function install_packages(){
+    for var in "$@"
+    do
+        install_package "$var"
+    done
+}
+
 function get_usable_cuda_version(){
     version="$1"
     if [[ "$version" != *"cuda"* ]]; then
@@ -90,7 +104,7 @@ if [[ ! -d $TARGET_FOLDER/opencv ]]; then
     sudo apt-get install -y curl software-properties-common unzip
     sudo apt-get install -y build-essential cmake 
     if [[ "$CUDA_ON" == "ON" ]]; then 
-        sudo apt-get install -y libcudnn8 libcudnn8-dev
+        install_packages libcudnn8 libcudnn8-dev
     fi 
 
     if [[ $version == *"22.04"* ]] ; then

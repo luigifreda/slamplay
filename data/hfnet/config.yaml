@@ -1,0 +1,71 @@
+
+HFNet:
+    Extractor:
+        # Type of extractor
+        #  - HFNetTF: the original HF-Net running in TensorFlow
+        #  - HFNetRT: the HF-Net optimized by TensorRT
+        #  - HFNetVINO: the HF-Net optimized by OpenVINO (Disabled because of the bad performance)
+        type: "HFNetRT" # [HFNetTF HFNetRT HFNetVINO]
+
+        # HFNET Extractor
+        #Extractor.modelPath: "hfnet/hfnet_tf/" # relative to data folder
+        modelPath: "hfnet/hfnet-rt/HFNet-RT"  # relative to data folder
+
+        # Scale factor between levels in the scale pyramid 	
+        scaleFactor: 1.2
+
+        # Extractor: Number of levels in the scale pyramid	
+        nLevels: 1
+
+        # Extractor: Number of features per image
+        nFeatures: 1000
+        threshold: 0.01
+
+        imageSize: 
+            width: 640
+            height: 480
+
+    Dataset:
+        # TUM1
+        #DATASET="rgbd_dataset_freiburg1_360"
+        #DATASET="rgbd_dataset_freiburg1_desk"
+        #DATASET="rgbd_dataset_freiburg1_desk2"
+        #DATASET="rgbd_dataset_freiburg1_floor"
+        #DATASET="rgbd_dataset_freiburg1_plant"
+        #DATASET="rgbd_dataset_freiburg1_room" # <--- 
+        #DATASET="rgbd_dataset_freiburg2_rpy"
+        #DATASET="rgbd_dataset_freiburg1_teddy"
+        #DATASET="rgbd_dataset_freiburg1_xyz"
+
+        # TUM2
+        #DATASET="rgbd_dataset_freiburg2_360_hemisphere"
+        #DATASET="rgbd_dataset_freiburg2_360_kidnap"
+        #DATASET="rgbd_dataset_freiburg2_coke"
+        #DATASET="rgbd_dataset_freiburg2_desk" # <--- 
+        #DATASET="rgbd_dataset_freiburg2_dishes"
+        #DATASET="rgbd_dataset_freiburg2_large_no_loop"
+        #DATASET="rgbd_dataset_freiburg2_large_with_loop"
+        #DATASET="rgbd_dataset_freiburg2_metallic_sphere"
+        #DATASET="rgbd_dataset_freiburg2_metallic_sphere2"
+        #DATASET="rgbd_dataset_freiburg2_pioneer_360"
+        #DATASET="rgbd_dataset_freiburg2_pioneer_slam"
+        #DATASET="rgbd_dataset_freiburg2_pioneer_slam2"
+        #DATASET="rgbd_dataset_freiburg2_pioneer_slam3"
+        #DATASET="rgbd_dataset_freiburg2_rpy"
+        #DATASET="rgbd_dataset_freiburg2_xyz"
+
+        # TUM3 
+        #DATASET="rgbd_dataset_freiburg3_cabinet"  
+        #DATASET="rgbd_dataset_freiburg3_large_cabinet"
+        #DATASET="rgbd_dataset_freiburg3_long_office_household" # <--- 
+        #DATASET="rgbd_dataset_freiburg3_nostructure_notexture_far"
+        #DATASET="rgbd_dataset_freiburg3_nostructure_notexture_near_withloop"
+        #DATASET="rgbd_dataset_freiburg3_nostructure_texture_far"
+        #DATASET="rgbd_dataset_freiburg3_nostructure_texture_near_withloop"
+        #DATASET="rgbd_dataset_freiburg3_structure_notexture_far"
+        #DATASET="rgbd_dataset_freiburg3_structure_notexture_near"
+        #DATASET="rgbd_dataset_freiburg3_structure_texture_far"
+        #DATASET="rgbd_dataset_freiburg3_structure_texture_near"
+        #DATASET="rgbd_dataset_freiburg3_teddy"
+        base: "/media/luigi/Samsung_T5/datasets/rgbd_datasets/tum"
+        sequence: "rgbd_dataset_freiburg1_room/rgb" 

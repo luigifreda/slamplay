@@ -30,7 +30,7 @@ export OPENCV_VERSION="4" # default opencv version
 
 # 1: ON, 0: OFF
 export USE_CUDA=0  # use CUDA 
-export CUDA_VERSION="cuda-11.6"  # must be an installed CUDA path in "/usr/local"; 
+export CUDA_VERSION="cuda-11.8"  # must be an installed CUDA path in "/usr/local"; 
                                  # if available, you can use the simple path "/usr/local/cuda" which should be a symbolic link to the last installed cuda version 
 if [ ! -d /usr/local/$CUDA_VERSION ]; then
     CUDA_VERSION="cuda"  # use last installed CUDA path (standard path)
@@ -46,7 +46,19 @@ export CUDADIR=/usr/local/$CUDA_VERSION
 # ====================================================
 
 export USE_TENSORRT=1  # use TensorRT (will locally install TensorRT and use it. Only available if you installed CUDA and this is properly detected)
+#export TENSORRT_VERSION="10" # WIP, does not work yet 
+export TENSORRT_VERSION="8"
 
+# ====================================================
+# Tensorflow Settings
+# ====================================================
+
+export USE_TENSORFLOW=0
+export TENSORFLOW_ROOT="/home/luigi/.tensorflow"
+if [ ! -d $TENSORFLOW_ROOT ]; then
+	echo "TENSORFLOW_ROOT: $TENSORFLOW_ROOT does not exist"
+	USE_TENSORFLOW=0
+fi
 
 # ====================================================
 # Check and Manage Settings 

@@ -98,7 +98,8 @@
         "*.inc": "cpp",
         "matrixfunctions": "cpp",
         "filesystem": "cpp",
-        "cassert": "cpp"
+        "cassert": "cpp",
+        "charconv": "cpp"
     },
     "editor.formatOnSave": true
 }

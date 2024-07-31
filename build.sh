@@ -12,6 +12,7 @@ reset
 # ====================================================
 
 ./build_thirdparty.sh 
+./install_dl_models.sh
 
 # ====================================================
 # check if we have external options
@@ -42,6 +43,12 @@ fi
 if [ $USE_TENSORRT -eq 1 ]; then
     echo "USE_TENSORRT: $USE_TENSORRT" 
     EXTERNAL_OPTION="$EXTERNAL_OPTION -DWITH_TENSORRT=ON -DTensorRT_DIR=$SCRIPT_DIR/thirdparty/TensorRT"
+fi
+
+# check TENSORFLOW options
+if [ $USE_TENSORFLOW -eq 1 ]; then
+    echo "USE_TENSORFLOW: $USE_TENSORFLOW" 
+    EXTERNAL_OPTION="$EXTERNAL_OPTION -DWITH_TENSORFLOW=ON -DTENSORFLOW_ROOT=$TENSORFLOW_ROOT"
 fi
 
 # check Tracy option 

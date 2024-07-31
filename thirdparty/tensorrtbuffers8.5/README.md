@@ -1,0 +1,1 @@
+Adapted from folder `TensorRT-<version>/samples/common/buffers.h` and companion files 

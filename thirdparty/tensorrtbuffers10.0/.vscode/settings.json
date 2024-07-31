@@ -1,0 +1,9 @@
+{
+    "files.associations": {
+        "iostream": "cpp",
+        "sstream": "cpp",
+        "stdexcept": "cpp",
+        "cassert": "cpp",
+        "type_traits": "cpp"
+    }
+}

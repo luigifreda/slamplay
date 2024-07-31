@@ -4,7 +4,7 @@
 set(FOLDERS 
   camera_model  
   features
-  features_tensorrt
+  features_dl
   motion_estimation_2D_2D  
   motion_estimation_3D_2D  
   motion_estimation_3D_3D

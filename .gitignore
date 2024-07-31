@@ -14,14 +14,24 @@ thirdparty/dbow3
 thirdparty/obindex2
 thirdparty/ibow-lcd
 thirdparty/rerun
-thirdparty/tensorrtbuffer/lib/libtensorrtbuffer.so
+thirdparty/tensorrtbuffers/lib/libtensorrtbuffers.so
 thirdparty/TensorRT
 thirdparty/rerun
 thirdparty/tracy
 thirdparty/tracy-profiler
+thirdparty/tensorrtbuffers
 thirdparty/TensorRT-8.5.1.7.Linux.x86_64-gnu.cuda-11.8.cudnn8.6.tar.gz
+thirdparty/TensorRT-10.0.1.6.Linux.x86_64-gnu.cuda-11.8.tar.gz
 
 # data 
 data/new_college
 data/remode_test_data/*
 data/freiburg_sequence/matches
+data/hfnet/hfnet_tf
+data/hfnet/hfnet-rt
+data/hfnet/hfnet_tf.tar.xz
+data/hfnet/hfnet-rt.tar.xz
+ImageToLocalAndGlobal*.engine
+ImageToLocal*.engine
+ImageToLocalAndIntermediate*.engine 
+IntermediateToGlobal*.engine

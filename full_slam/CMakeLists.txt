@@ -8,7 +8,7 @@ include_directories(${CMAKE_CURRENT_LIST_DIR}/include)
 
 add_subdirectory(src)
 add_subdirectory(test)
-add_subdirectory(app)
+add_subdirectory(apps)
 
 get_current_dir_name(CURRENT_DIR_NAME) # macro from cmake/macros.cmake
 # in order to keep the same relative file paths:

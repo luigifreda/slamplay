@@ -18,6 +18,8 @@ fi
 print_blue '================================================'
 print_blue "Configuring and building thirdparty/tracy ..."
 
+TRACY_INSTALL_PATH=$SCRIPT_DIR/thirdparty/tracy/install
+
 cd thirdparty
 if [ ! -d "tracy" ]; then
     sudo apt install -y libtbb-dev wayland-scanner++ waylandpp-dev libglfw3-dev libdbus-1-dev
@@ -32,9 +34,9 @@ cd tracy
 if [ ! -d build ]; then
     mkdir build
 fi
-if [[ ! -f build/libTracyClient.a ]]; then
+if [[ ! -f $TRACY_INSTALL_PATH/lib/libTracyClient.a ]]; then
     cd build
-    cmake .. -DCMAKE_INSTALL_PREFIX="$SCRIPT_DIR/install" -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} -fPIC"
+    cmake .. -DCMAKE_INSTALL_PREFIX="$TRACY_INSTALL_PATH" -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} -fPIC"
     make -j 10
     make install
     cd ..
@@ -45,7 +47,7 @@ if [[ ! -f $SCRIPT_DIR/thirdparty/tracy/tracy-profiler ]]; then
         mkdir build
     fi    
     cd build
-    cmake .. -DCMAKE_INSTALL_PREFIX="$SCRIPT_DIR/install" -DLEGACY=ON
+    cmake .. -DCMAKE_INSTALL_PREFIX="$TRACY_INSTALL_PATH" -DLEGACY=ON
     make -j 10
     cp tracy-profiler $SCRIPT_DIR/thirdparty/tracy
 fi

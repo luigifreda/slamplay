@@ -10,9 +10,11 @@ set(SET_RPATH               ON  CACHE BOOL   "Set RPATH instead of the default R
 set(BUILD_WITH_MARCH_NATIVE ON  CACHE BOOL   "Build with \"-march native\"")
 set(WITH_OPENMP             ON  CACHE BOOL    "Add OpenMP support") # useful for PCL (since we use the macro PCL_NO_PRECOMPILE!)
 set(WITH_TRACY_PROFILER     OFF  CACHE BOOL   "Add Tracy profiler support.")
-set(WITH_TENSORRT           OFF  CACHE BOOL   "Add TensorRT support.")
+set(WITH_TENSORRT           OFF  CACHE BOOL   "Add TensorRT support with DL features.")
 set(TensorRT_DIR            "${PROJECT_SOURCE_DIR}/thirdparty/TensorRT" CACHE STRING "Desired TensorRT path") # this is the first target version that is searched for 
-set(TENSORRTBUFFER_DIR      "${PROJECT_SOURCE_DIR}/thirdparty/tensorrtbuffer" CACHE STRING "Desired tensorrtbuffer path")
+set(TENSORRTBUFFER_DIR      "${PROJECT_SOURCE_DIR}/thirdparty/tensorrtbuffers" CACHE STRING "Desired tensorrtbuffers path")
+set(WITH_TENSORFLOW         OFF  CACHE BOOL   "Add Tensorflow support with DL features.")
+set(TENSORFLOW_ROOT         "${PROJECT_SOURCE_DIR}/thirdparty/tensorflow" CACHE STRING "Desired Tensorflow path")
 
 # NOTE: this is to remove the tons of cmake warning coming from importing ext packages 
 # see here: https://github.com/PointCloudLibrary/pcl/issues/3680
@@ -245,6 +247,7 @@ find_package(yaml-cpp REQUIRED)
 
 # TensorRT
 if(WITH_TENSORRT)
+  add_definitions(-DUSE_TENSORRT)
   find_package(CUDA REQUIRED)
   message(STATUS "CUDA_VERSION_STRING: ${CUDA_VERSION_STRING}")
   message(STATUS "CUDA_TOOLKIT_ROOT_DIR: ${CUDA_TOOLKIT_ROOT_DIR}")    
@@ -254,21 +257,41 @@ if(WITH_TENSORRT)
   message(STATUS "TensorRT_DIR: ${TensorRT_DIR}")
   find_package(TensorRT REQUIRED)
 
-  # adjust for hosting tensorrtbuffer lib
+  # adjust for hosting tensorrtbuffers lib
   set(TensorRT_INCLUDE_DIR ${TensorRT_INCLUDE_DIR} ${TENSORRTBUFFER_DIR}/include)
-  set(TensorRT_LIBRARIES ${TensorRT_LIBRARIES} ${TENSORRTBUFFER_DIR}/lib/libtensorrtbuffer.so)
+  set(TensorRT_LIBRARIES ${TensorRT_LIBRARIES} ${TENSORRTBUFFER_DIR}/lib/libtensorrtbuffers.so)
 
   message(STATUS "TensorRT_INCLUDE_DIR: ${TensorRT_INCLUDE_DIR}")
   message(STATUS "TensorRT_LIBRARIES: ${TensorRT_LIBRARIES}")   
 
 endif()
 
+# Tensorflow 
+if(WITH_TENSORFLOW)
+  ADD_DEFINITIONS(-DUSE_TENSORFLOW)
+
+  set(Tensorflow_Root "/home/luigi/.tensorflow")
+  set(Tensorflow_INCLUDE_DIRS
+      ${Tensorflow_Root}/include/tensorflow/bazel-bin/bin/tensorflow/include
+      ${Tensorflow_Root}/include/tensorflow/bazel-bin/bin/tensorflow/include/src
+  )
+  set(Tensorflow_LIBS
+      ${Tensorflow_Root}/lib/libtensorflow_cc.so
+  )
+  #${Tensorflow_Root}/lib/libtensorflow_framework.so)
+
+  find_package(Protobuf REQUIRED)
+endif()
+
+
+# Tracy 
 if(WITH_TRACY_PROFILER)
-  set(TRACY_DIR ${PROJECT_SOURCE_DIR}/thirdparty/tracy/build)
+  set(TRACY_INSTALL_DIR ${PROJECT_SOURCE_DIR}/thirdparty/tracy/install/)
+  set(TRACY_INCLUDE_DIR ${TRACY_INSTALL_DIR}/include)
   if(EXISTS "${TRACY_DIR}/libTracyClient.a")
     message(STATUS "Found Tracy")
     add_definitions(-DTRACY_ENABLE)
-    set(TRACY_LIBS ${TRACY_DIR}/libTracyClient.a -ldl -lpthread)
+    set(TRACY_LIBS ${TRACY_INSTALL_DIR}/lib/libTracyClient.a -ldl -lpthread)
   endif()
 endif()
 
@@ -307,6 +330,9 @@ set(EXT_INCLUDE_DIRS
   ${GFLAGS_INCLUDE_DIRS}
   ${YAML_CPP_INCLUDE_DIR}
   ${TensorRT_INCLUDE_DIR} ${CUDA_INCLUDE_DIRS}
+  ${TRACY_INCLUDE_DIR}
+  ${Tensorflow_INCLUDE_DIRS}
+  ${PROTOBUF_INCLUDE_DIRS}
 )
 
 #====================================
@@ -352,6 +378,8 @@ set(EXT_LIBS
   rerun_sdk
   ${TensorRT_LIBRARIES} ${CUDA_LIBRARIES}
   ${TRACY_LIBS}
+  ${Tensorflow_LIBS}
+  ${PROTOBUF_LIBRARY}
 )
 
 #====================================

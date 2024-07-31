@@ -3,18 +3,19 @@
 <!-- TOC -->
 
 - [slamplay](#slamplay)
-  - [Quick start](#quick-start)
-  - [Eigen Tutorials](#eigen-tutorials)
-  - [Back-end](#back-end)
-    - [GTSAM examples](#gtsam-examples)
-    - [Ceres examples](#ceres-examples)
-    - [g2o examples](#g2o-examples)
-  - [Front-end](#front-end)
-  - [IO](#io)
-    - [chrono](#chrono)
-  - [Utils](#utils)
-    - [Tracy](#tracy)
-  - [Credits](#credits)
+    - [1. Quick start](#1-quick-start)
+    - [2. Eigen Tutorials](#2-eigen-tutorials)
+    - [3. Back-end](#3-back-end)
+        - [3.1. GTSAM examples](#31-gtsam-examples)
+        - [3.2. Ceres examples](#32-ceres-examples)
+        - [3.3. g2o examples](#33-g2o-examples)
+    - [4. Front-end](#4-front-end)
+        - [4.1. Features DL Deep Learning](#41-features-dl-deep-learning)
+    - [5. IO](#5-io)
+        - [5.1. chrono](#51-chrono)
+    - [6. Utils](#6-utils)
+        - [6.1. Tracy](#61-tracy)
+    - [7. Credits](#7-credits)
 
 <!-- /TOC -->
 
@@ -132,6 +133,12 @@ https://github.com/RainerKuemmerle/g2o/tree/20230223_git/g2o/examples).
 
 ## Front-end
 
+### Features DL (Deep Learning)
+
+In `frontend/feature_dl` you can find: 
+- A C++ implementation of SuperPoint and SuperGlue under TensorRT
+- A C++ implementation of [HFNet](https://github.com/ethz-asl/hfnet) under TensorRT and Tensorflow. 
+
 ---
 
 ##  IO
@@ -178,3 +185,4 @@ Tracy is a great profiler. Repository link: https://github.com/wolfpld/tracy. Do
 * This repo imported some of the C++ examples (updated, improved, and commented) of the repository https://github.com/gaoxiang12/slambook2. Thanks to the Author for his great work. 
 * Thanks to the Author of the repository https://github.com/nicolov/simple_slam_loop_closure/. I imported a couple of scripts (updated and improved) from his repository (for computing the confusion matrix). 
 * Thanks to yuefanhao for his repo https://github.com/yuefanhao/SuperPoint-SuperGlue-TensorRT
+* Thanks to the Authors of the repository https://github.com/LiuLimingCode/HFNet_SLAM. I adapted their C++ implementation of HFNet.

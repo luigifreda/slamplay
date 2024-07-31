@@ -56,6 +56,19 @@ if [ $USE_TENSORRT -eq 1 ]; then
     print_blue "Configuring and installing thirdparty/TensorRT ..."
 
     ./install_tensorrt.sh
+
+    if [[ ! -L "$SCRIPT_DIR/thirdparty/tensorrtbuffers" ]]; then
+        if [[ $TENSORRT_VERSION == 10* ]]; then 
+            #FILE_NAME="TensorRT-10.0.1.6.Linux.x86_64-gnu.cuda-11.8.tar.gz" 
+            ln -sf $SCRIPT_DIR/thirdparty/tensorrtbuffers10.0 $SCRIPT_DIR/thirdparty/tensorrtbuffers
+        elif [[ $TENSORRT_VERSION == 8* ]]; then
+            #FILE_NAME="TensorRT-8.5.1.7.Linux.x86_64-gnu.cuda-11.8.cudnn8.6.tar.gz"
+            ln -sf $SCRIPT_DIR/thirdparty/tensorrtbuffers8.5 $SCRIPT_DIR/thirdparty/tensorrtbuffers
+        else
+            echo "TensorRT version $TENSORRT_VERSION is not supported" 
+            exit -1
+        fi
+    fi
 fi
 
 
@@ -365,12 +378,12 @@ cd $SCRIPT_DIR
 
 if [ $USE_TENSORRT -eq 1 ]; then
     print_blue '================================================'
-    print_blue "Configuring and building thirdparty/tensorrtbuffer ..."
+    print_blue "Configuring and building thirdparty/tensorrtbuffers ..."
 
     cd thirdparty
-    cd tensorrtbuffer
+    cd tensorrtbuffers
     make_buid_dir
-    if [[ ! -d lib/libtensorrtbuffer.so ]]; then
+    if [[ ! -d lib/libtensorrtbuffers.so ]]; then
         cd build
         cmake .. -DCMAKE_BUILD_TYPE=Release  $EXTERNAL_OPTION
         make -j 8
