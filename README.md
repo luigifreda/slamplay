@@ -7,13 +7,13 @@ Author: [Luigi Freda](https://www.luigifreda.com)
 - [slamplay](#slamplay)
   - [Quick start](#quick-start)
   - [Eigen Tutorials](#eigen-tutorials)
+  - [Front-end](#front-end)
+    - [Features DL (Deep Learning)](#features-dl-deep-learning)
+    - [Depth DL](#depth-dl)
   - [Back-end](#back-end)
     - [GTSAM examples](#gtsam-examples)
     - [Ceres examples](#ceres-examples)
     - [g2o examples](#g2o-examples)
-  - [Front-end](#front-end)
-    - [Features DL (Deep Learning)](#features-dl-deep-learning)
-    - [Depth DL](#depth-dl)
   - [IO](#io)
     - [chrono](#chrono)
   - [Utils](#utils)
@@ -25,10 +25,11 @@ Author: [Luigi Freda](https://www.luigifreda.com)
 
  **slamplay** is a collection of powerful tools to start playing and experimenting with **SLAM in C++**. It's a work in progress. It installs and makes available in a single cmake framework some of the most important    
  - back-end frameworks (*g2o*, *gtsam*, *ceres*, *se-sync*, etc.),     
- - front-end tools (*OpenCV*, *pcl*, *TensorRT*, etc.),      
+ - front-end tools (*OpenCV*, *pcl*, *TensorRT*, *tensorflow_cc*, etc.),      
  - algebra and geometry libs (*eigen*, *sophus*, *cholmod*, etc.),    
  - viz tools (*pangolin*, *imgui*, *rerun*, etc.),     
- - loop-closure frameworks (*DBOW3*, *iBOW*, etc.),     
+ - loop-closure frameworks (*DBOW3*, *iBOW*, etc.),
+ - deep learning tools (based on *TensorRT*, *tensorflow_cc*, etc.),     
   
 along with some nice examples in order to easily and quickly start with all these tools.  
 
@@ -53,7 +54,7 @@ This repository is structured in the following main folders (with self-explanato
 - `data`
 - `dense_mapping`
 - `docs`
-- `frontend`  (**NEW** C++ TensorRT-based support for SuperPoint and SuperGlue)
+- `frontend`  (**NEW** with new C++ tools based on *TensorRT*/*tensorflow_cc*, e.g, *SuperPoint*, *SuperGlue*, *Depth-Anything*, *HFNet*)
 - `full_slam`
 - `io`
 - `loop_closure`
@@ -71,7 +72,7 @@ This repository is structured in the following main folders (with self-explanato
   (if you want, skip this step and set the variable `OpenCV_DIR` in `config.sh` with your local OpenCV path)     
 - Build the framework:      
   `$ ./build.sh`
-- If you want to use the DL (Deep Learning) models then run: 
+- If you want to use the DL (Deep Learning) models then run the following command to download both NN weights/checkpoints and data:
   `$ ./install_dl_models.sh` 
 
 Once everything is built, you can enter in the `build` folder and test the different examples. 
@@ -90,6 +91,22 @@ See the nice [ascii quick reference](docs/Eigen-AsciiQuickReference.txt).
 * [Dense linear problems and decompositions](https://eigen.tuxfamily.org/dox/group__DenseLinearSolvers__chapter.html)
 * [Sparse linear algebra](https://eigen.tuxfamily.org/dox/group__Sparse__chapter.html)
 * [Geometry](https://eigen.tuxfamily.org/dox/group__Geometry__chapter.html)
+
+
+---
+
+## Front-end
+
+### Features DL (Deep Learning)
+
+In `frontend/feature_dl` you can find: 
+- A C++ implementation of SuperPoint and SuperGlue under TensorRT
+- A C++ implementation of [HFNet](https://github.com/ethz-asl/hfnet) under TensorRT and Tensorflow. 
+
+### Depth DL
+
+In `frontend/depth_dl` you can find: 
+- A C++ implementation of [Depth-Anything-V2.0](https://github.com/DepthAnything/Depth-Anything-V2) based on TensorRT.
 
 
 ---
@@ -136,20 +153,6 @@ https://github.com/RainerKuemmerle/g2o/tree/20230223_git/g2o/examples).
   This configuration is enabled/disabled by the cmake option flag `SET_RPATH` I added. 
   - If you get a *double free or corruption* error with g2o (on exit), then it is very likely you used `-march=native` option when compiling this project but you didn't use the same option for building g2o itself. This may cause some alignment inconsistencies between g2o and this project. Then, in that case, build g2o with `-march=native` (i.e. use the cmake option `-DBUILD_WITH_MARCH_NATIVE=ON`)   
 
----
-
-## Front-end
-
-### Features DL (Deep Learning)
-
-In `frontend/feature_dl` you can find: 
-- A C++ implementation of SuperPoint and SuperGlue under TensorRT
-- A C++ implementation of [HFNet](https://github.com/ethz-asl/hfnet) under TensorRT and Tensorflow. 
-
-### Depth DL
-
-In `frontend/depth_dl` you can find: 
-- A C++ implementation of [Depth-Anything-V2.0](https://github.com/DepthAnything/Depth-Anything-V2) based on TensorRT.
 
 ---
 
