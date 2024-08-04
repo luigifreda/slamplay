@@ -14,7 +14,7 @@ set(WITH_TENSORRT           OFF  CACHE BOOL   "Add TensorRT support with DL feat
 set(TensorRT_DIR            "${PROJECT_SOURCE_DIR}/thirdparty/TensorRT" CACHE STRING "Desired TensorRT path") # this is the first target version that is searched for 
 set(TENSORRTBUFFER_DIR      "${PROJECT_SOURCE_DIR}/thirdparty/tensorrtbuffers" CACHE STRING "Desired tensorrtbuffers path")
 set(WITH_TENSORFLOW         OFF  CACHE BOOL   "Add Tensorflow support with DL features.")
-set(TENSORFLOW_ROOT         "${PROJECT_SOURCE_DIR}/thirdparty/tensorflow" CACHE STRING "Desired Tensorflow path")
+set(TENSORFLOW_ROOT         "$ENV{HOME}/.tensorflow" CACHE STRING "Desired Tensorflow path")
 
 # NOTE: this is to remove the tons of cmake warning coming from importing ext packages 
 # see here: https://github.com/PointCloudLibrary/pcl/issues/3680
@@ -270,17 +270,23 @@ endif()
 if(WITH_TENSORFLOW)
   ADD_DEFINITIONS(-DUSE_TENSORFLOW)
 
-  set(Tensorflow_Root "/home/luigi/.tensorflow")
-  set(Tensorflow_INCLUDE_DIRS
-      ${Tensorflow_Root}/include/tensorflow/bazel-bin/bin/tensorflow/include
-      ${Tensorflow_Root}/include/tensorflow/bazel-bin/bin/tensorflow/include/src
-  )
-  set(Tensorflow_LIBS
-      ${Tensorflow_Root}/lib/libtensorflow_cc.so
-  )
-  #${Tensorflow_Root}/lib/libtensorflow_framework.so)
+  set(Tensorflow_Root ${TENSORFLOW_ROOT})
+  set(CMAKE_PREFIX_PATH ${CMAKE_MODULE_PATH} ${Tensorflow_Root}/lib/cmake/TensorflowCC/)
+  find_package(TensorflowCC REQUIRED)
 
-  find_package(Protobuf REQUIRED)
+  # set(Tensorflow_INCLUDE_DIRS
+  #   ${Tensorflow_Root}/include/tensorflow/bazel-bin/tensorflow/include
+  #   ${Tensorflow_Root}/include/tensorflow/bazel-bin/tensorflow/include/src
+  #   ${Tensorflow_Root}/include/tensorflow/bazel-bin/bin/tensorflow/include
+  #   ${Tensorflow_Root}/include/tensorflow/bazel-bin/bin/tensorflow/include/src
+  # )
+  # set(Tensorflow_LIBS
+  #   ${Tensorflow_Root}/lib/libtensorflow_cc.so
+  #   ${Tensorflow_Root}/lib/libtensorflow_framework.so)
+
+  set(Tensorflow_LIBS TensorflowCC::TensorflowCC)
+
+  #find_package(Protobuf REQUIRED)
 endif()
 
 
@@ -331,7 +337,7 @@ set(EXT_INCLUDE_DIRS
   ${YAML_CPP_INCLUDE_DIR}
   ${TensorRT_INCLUDE_DIR} ${CUDA_INCLUDE_DIRS}
   ${TRACY_INCLUDE_DIR}
-  ${Tensorflow_INCLUDE_DIRS}
+  #${Tensorflow_INCLUDE_DIRS}  # may use a different version of Eigen 
   ${PROTOBUF_INCLUDE_DIRS}
 )
 
@@ -378,7 +384,7 @@ set(EXT_LIBS
   rerun_sdk
   ${TensorRT_LIBRARIES} ${CUDA_LIBRARIES}
   ${TRACY_LIBS}
-  ${Tensorflow_LIBS}
+  #${Tensorflow_LIBS}  # may use a different version of Eigen 
   ${PROTOBUF_LIBRARY}
 )
 

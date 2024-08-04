@@ -3,6 +3,7 @@
 
 set(FOLDERS 
   camera_model  
+  depth_dl
   features
   features_dl
   motion_estimation_2D_2D  

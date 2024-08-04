@@ -35,3 +35,4 @@ ImageToLocalAndGlobal*.engine
 ImageToLocal*.engine
 ImageToLocalAndIntermediate*.engine 
 IntermediateToGlobal*.engine
+data/depth_anything/trained_data

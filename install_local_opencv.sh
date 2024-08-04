@@ -73,7 +73,7 @@ if [ ! -d $TARGET_FOLDER ]; then
 fi 
 
 # set CUDA 
-#export CUDA_VERSION="cuda-11.6"  # must be an installed CUDA path in /usr/local; 
+#export CUDA_VERSION="cuda-11.8"  # must be an installed CUDA path in /usr/local; 
                                   # if available, you can use the simple path "/usr/local/cuda" which should be a symbolic link to the last installed cuda version 
 CUDA_ON=ON
 if [[ -n "$CUDA_VERSION" ]]; then
@@ -104,7 +104,7 @@ if [[ ! -d $TARGET_FOLDER/opencv ]]; then
     sudo apt-get install -y curl software-properties-common unzip
     sudo apt-get install -y build-essential cmake 
     if [[ "$CUDA_ON" == "ON" ]]; then 
-        install_packages libcudnn8 libcudnn8-dev
+        install_packages libcudnn8 libcudnn8-dev  # check and install otherwise this is going to update to the latest version (and that's not we necessary want to do)
     fi 
 
     if [[ $version == *"22.04"* ]] ; then

@@ -15,7 +15,7 @@ HFNetSettings::HFNetSettings(const std::string& configFile) {
 }
 
 bool HFNetSettings::readConfig(const std::string& configFile) {
-    auto node = YAML::LoadFile(kHFNetConfigFile.c_str());
+    auto node = YAML::LoadFile(configFile.c_str());
     if (!node) {
         MSG_ERROR("Didn't find config file. Exiting.");
         return 0;
@@ -72,4 +72,5 @@ ostream& operator<<(std::ostream& output, const HFNetSettings& settings) {
 
     return output;
 }
-};  // namespace hfnet
+
+}  // namespace hfnet

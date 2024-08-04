@@ -1,34 +1,33 @@
+#include <pangolin/pangolin.h>
+#include <boost/format.hpp>
 #include <opencv2/opencv.hpp>
 #include <sophus/se3.hpp>
-#include <boost/format.hpp>
-#include <pangolin/pangolin.h>
 
-#include "macros.h"
 #include "DirectPoseEstimation.h"
+#include "image_pyramids.h"
 #include "image_utils.h"
+#include "macros.h"
 
 using namespace std;
 using namespace cv;
 
-std::string dataDir = STR(DATA_DIR); //DATA_DIR set by compilers flag 
+std::string dataDir = STR(DATA_DIR);  // DATA_DIR set by compilers flag
 
 // Camera intrinsics
 double fx = 718.856, fy = 718.856, cx = 607.1928, cy = 185.2157;
 // baseline
 double baseline = 0.573;
-// input images 
+// input images
 string left_file = dataDir + "/opticflow/left.png";
 string disparity_file = dataDir + "/opticflow/disparity.png";
-boost::format fmt_others(dataDir + "/opticflow/%06d.png");    // other files
+boost::format fmt_others(dataDir + "/opticflow/%06d.png");  // other files
 
-
-int main(int argc, char **argv) 
-{
+int main(int argc, char **argv) {
     cv::Mat left_img = cv::imread(left_file, 0);
     cv::Mat disparity_img = cv::imread(disparity_file, 0);
 
-    Intrinsics intrinsics{fx,fy,cx,cy};
-    DirectMethodParams params; 
+    Intrinsics intrinsics{fx, fy, cx, cy};
+    DirectMethodParams params;
 
     // let's randomly pick pixels in the first image and generate some 3d points in the first image's frame
     cv::RNG rng;
@@ -42,7 +41,7 @@ int main(int argc, char **argv)
         int x = rng.uniform(border, left_img.cols - border);  // don't pick pixels close to border
         int y = rng.uniform(border, left_img.rows - border);  // don't pick pixels close to border
         int disparity = disparity_img.at<uchar>(y, x);
-        double depth = fx * baseline / disparity; // you know this is disparity to depth
+        double depth = fx * baseline / disparity;  // you know this is disparity to depth
         depth_ref.push_back(depth);
         pixels_ref.push_back(Eigen::Vector2d(x, y));
     }
@@ -50,19 +49,19 @@ int main(int argc, char **argv)
     // estimates 01~05.png's pose using this information
     Sophus::SE3d T_cur_ref;
 
-    const int num_images = 6; 
-    for (int i = 1; i < num_images; i++) 
-    {  
+    const int num_images = 6;
+    for (int i = 1; i < num_images; i++)
+    {
         cv::Mat img = cv::imread((fmt_others % i).str(), 0);
-        cv::Mat img2_show; 
+        cv::Mat img2_show;
 #if 0       
         // try single layer by uncommenting this 
         DirectPoseEstimationSingleLayer(intrinsics, params, left_img, img, pixels_ref, depth_ref, T_cur_ref, img2_show);
-#else         
-        std::vector<cv::Mat> pyr2_show; 
+#else
+        std::vector<cv::Mat> pyr2_show;
         DirectPoseEstimationMultiLayer(intrinsics, params, left_img, img, pixels_ref, depth_ref, T_cur_ref, pyr2_show);
         composePyrImage(pyr2_show, img2_show);
-#endif         
+#endif
         cv::imshow("current", img2_show);
         cv::waitKey();
     }

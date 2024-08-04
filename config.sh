@@ -53,8 +53,9 @@ export TENSORRT_VERSION="8"
 # Tensorflow Settings
 # ====================================================
 
-export USE_TENSORFLOW=0
-export TENSORFLOW_ROOT="/home/luigi/.tensorflow"
+# This is working with the configuration <>
+export USE_TENSORFLOW=0  # use Tensorflow (will locally install Tensorflow and use it. Only available if you installed tensorflow_cc from source)
+export TENSORFLOW_ROOT="$HOME/.tensorflow"
 if [ ! -d $TENSORFLOW_ROOT ]; then
 	echo "TENSORFLOW_ROOT: $TENSORFLOW_ROOT does not exist"
 	USE_TENSORFLOW=0

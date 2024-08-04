@@ -4,3 +4,5 @@ Test:
   subparameters:
     param1: 1.5
     param2: "just_a_name" 
+  arrayInt: [1, 2, 3]
+  arrayFloat: [4.1, 5.2, 6.3]

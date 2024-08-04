@@ -3,7 +3,7 @@
 
 # set(FOLDERS_TENSORRT
 #   superpointglue_tensorrt
-#   hfnet_tensorrt
+#   hfnet
 # )
 
 # foreach(folder ${FOLDERS_TENSORRT})

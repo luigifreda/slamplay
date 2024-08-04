@@ -4,8 +4,6 @@
 #include <cfloat>
 #include <sstream> 
 
-#define EIGEN_MPL2_ONLY // this is for being sure of picking just the MPL2 licensed parts
-
 #include <Eigen/Dense>
 #include <Eigen/CholmodSupport>
 #include <Eigen/SparseCore>

@@ -8,8 +8,8 @@ HFNet:
         type: "HFNetRT" # [HFNetTF HFNetRT HFNetVINO]
 
         # HFNET Extractor
-        #Extractor.modelPath: "hfnet/hfnet_tf/" # relative to data folder
-        modelPath: "hfnet/hfnet-rt/HFNet-RT"  # relative to data folder
+        modelPath: "hfnet/hfnet_tf/" # relative to data folder
+        #modelPath: "hfnet/hfnet-rt/HFNet-RT"  # relative to data folder
 
         # Scale factor between levels in the scale pyramid 	
         scaleFactor: 1.2
@@ -67,5 +67,5 @@ HFNet:
         #DATASET="rgbd_dataset_freiburg3_structure_texture_far"
         #DATASET="rgbd_dataset_freiburg3_structure_texture_near"
         #DATASET="rgbd_dataset_freiburg3_teddy"
-        base: "/media/luigi/Samsung_T5/datasets/rgbd_datasets/tum"
+        base: "/media/luigi/Samsung_T51/datasets/rgbd_datasets/tum"
         sequence: "rgbd_dataset_freiburg1_room/rgb" 

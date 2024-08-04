@@ -3,7 +3,7 @@
 #include "extractors/HFextractor.h"
 
 #include "macros.h"
-#include "yamlUtils.h"
+#include "yaml_utils.h"
 
 #include <opencv2/opencv.hpp>
 
@@ -49,4 +49,4 @@ class HFNetSettings {
     std::string datasetPath_;
 };
 
-};  // namespace hfnet
+}  // namespace hfnet

@@ -1,0 +1,13 @@
+
+DepthAnything:
+    modelPath: "depth_anything/trained_data/depth_anything_v2_metric_hypersim_vitl.engine"  # relative to data folder
+    depthScale: 1.0
+
+Dataset:
+    path: "hypersim/test_kinect_head_rgb_image_rect_color_compressed.mp4" 
+    isRelativePath: true  # is path relative to data folder
+    cameraParams: [525.0, 525.0, 319.5, 239.5]  # fx, fy, cx, cy (no distortion for the hypersim dataset above) 
+
+    imageSize: 
+        width: 640
+        height: 480

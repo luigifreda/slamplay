@@ -151,9 +151,13 @@ total costs: 60.0883 ± 4.10698
 #include <fstream>
 #include <random>
 
+#include <Eigen/Core>
+
+#include <cv/matches_utils.h>
+#include <io/image_io.h>
+#include <time/TicToc.h>
 #include "extractors/HFNetSettings.h"
 #include "extractors/HFextractor.h"
-#include "extractors/utility_common.h"
 
 #include "macros.h"
 #include "messages.h"
@@ -212,7 +216,7 @@ struct TestExtractor : public HFextractor {
             }
             TimerDetectPerLevel[level].Toc();
             nKeypoints += allKeypoints[level].size();
-            // ShowKeypoints(std::to_string(level), mvImagePyramid[level], allKeypoints[level]);
+            // showKeypoints(std::to_string(level), mvImagePyramid[level], allKeypoints[level]);
         }
 
         TimerCopy.Tic();
@@ -327,7 +331,7 @@ int main(int argc, char **argv) {
 
     MSG_ASSERT(nLevels <= maxNumLevels, "The number of levels should be less than: " << maxNumLevels);
 
-    vector<string> files = GetPngFiles(strDatasetPath);  // get all image files
+    std::vector<std::string> files = GetPngFiles(strDatasetPath);  // get all image files
     if (files.empty()) {
         cout << "Error, failed to find any valid image in: " << strDatasetPath << endl;
         return 1;
@@ -342,8 +346,11 @@ int main(int argc, char **argv) {
         return 1;
     }
 
+#if 0
     InitAllModels(strModelPath, kHFNetRTModel, ImSize, nLevels, scaleFactor);
-    // InitAllModels(strModelPath, kHFNetTFModel, ImSize, nLevels, scaleFactor);
+#else
+    InitAllModels(strModelPath, kHFNetTFModel, ImSize, nLevels, scaleFactor);
+#endif
     auto vpModels = GetModelVec();
 
     TestExtractor *pExtractor = new TestExtractor(1000, 0.01, scaleFactor, nLevels, vpModels);
@@ -352,7 +359,7 @@ int main(int argc, char **argv) {
     std::uniform_int_distribution<unsigned int> distribution(0, files.size());
 
     cv::Mat image;
-    vector<KeyPoint> vKeyPoints;
+    std::vector<cv::KeyPoint> vKeyPoints;
     cv::Mat localDescriptors, globalDescriptors;
 
     // randomly detect an image and show the results
@@ -390,7 +397,7 @@ int main(int argc, char **argv) {
         cout << "Get features number: " << vKeyPoints.size() << endl;
         PrintTimer(nLevels);
 
-        ShowKeypoints("press 'q' to exit", image, vKeyPoints);
+        showKeypoints("press 'q' to exit", image, vKeyPoints);
         cout << endl;
         command = cv::waitKey(1);
         select++;

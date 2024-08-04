@@ -11,7 +11,7 @@
 #include <thread>
 
 #include "macros.h"
-#include "yamlUtils.h"
+#include "yaml_utils.h"
 
 std::string dataDir = STR(DATA_DIR);  // DATA_DIR set by compilers flag
 std::string configFile = dataDir + "/config.yaml";
@@ -23,6 +23,8 @@ struct YamlConfig {
         std::string param2;
         bool param3 = false;
     } subParameters;
+    std::vector<int> arrayInt;
+    std::vector<float> arrayFloat;
 };
 
 bool readYamlConfig(const YAML::Node& node, YamlConfig& config) {
@@ -31,6 +33,8 @@ bool readYamlConfig(const YAML::Node& node, YamlConfig& config) {
     config.subParameters.param1 = getParam(node, "subparameters:param1", config.subParameters.param1);
     config.subParameters.param2 = getParam(node, "subparameters:param2", config.subParameters.param2);
     config.subParameters.param3 = getParam(node, "subparameters:param3", config.subParameters.param3);
+    config.arrayInt = getArray<int>(node, "arrayInt", config.arrayInt);
+    config.arrayFloat = getArray<float>(node, "arrayFloat", config.arrayFloat);
     return true;
 }
 

@@ -10,7 +10,7 @@
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
 
-#include "collection_adapters.hpp"
+#include "rerun_collection_adapters.hpp"
 #include "macros.h"
 
 #include "RerunSingleton.h"

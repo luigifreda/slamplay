@@ -1,6 +1,9 @@
-#pragma once 
+#pragma once
 
-struct Intrinsics
-{
-    double fx, fy, cx, cy; 
+namespace slamplay {
+
+struct Intrinsics {
+    double fx, fy, cx, cy;
 };
+
+}  // namespace slamplay

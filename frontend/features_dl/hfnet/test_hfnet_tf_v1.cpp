@@ -14,10 +14,10 @@ outputs[3].shape(): [1,4096]
 #include <fstream>
 #include <random>
 
+#include <cv/matches_utils.h>
 #include "HFNetSettings.h"
 #include "extractors/HFNetTFModel.h"
 #include "extractors/HFextractor.h"
-#include "extractors/utility_common.h"
 
 #ifdef USE_TENSORFLOW
 
@@ -204,7 +204,7 @@ int main(int argc, char *argv[]) {
         DetectFull(image, vKeyPoints, localDescriptors, globalDescriptors, 1000, threshold, nNMSRadius);
         cout << "Get features number: " << vKeyPoints.size() << endl;
 
-        ShowKeypoints("press 'q' to exit", image, vKeyPoints);
+        showKeypoints("press 'q' to exit", image, vKeyPoints);
         cout << endl;
         command = cv::waitKey();
     }

@@ -12,7 +12,7 @@ reset
 # ====================================================
 
 ./build_thirdparty.sh 
-./install_dl_models.sh
+#./install_dl_models.sh
 
 # ====================================================
 # check if we have external options

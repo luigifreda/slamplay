@@ -38,9 +38,11 @@ match correct percentage: 0.797645
 #include <opencv2/core/eigen.hpp>
 #include <opencv2/opencv.hpp>
 
+#include <cv/matches_utils.h>
+#include <io/image_io.h>
+#include <time/TicToc.h>
 #include "extractors/HFNetSettings.h"
 #include "extractors/HFextractor.h"
-#include "extractors/utility_common.h"
 
 using namespace cv;
 using namespace std;
@@ -218,8 +220,8 @@ int main(int argc, char* argv[]) {
                 if (match.distance > matchThreshold) continue;
                 thresholdMatchesHF.emplace_back(match);
             }
-            cv::Mat E = FindCorrectMatchesByEssentialMat(keypointsHF1, keypointsHF2, thresholdMatchesHF, cv::Mat::eye(3, 3, CV_32F), inlierMatchesHF, wrongMatchesHF);
-            cv::Mat plotHF = ShowCorrectMatches(image1, image2, keypointsHF1, keypointsHF2, inlierMatchesHF, wrongMatchesHF, showWholeMatches);
+            cv::Mat E = findCorrectMatchesByEssentialMat(keypointsHF1, keypointsHF2, thresholdMatchesHF, cv::Mat::eye(3, 3, CV_32F), inlierMatchesHF, wrongMatchesHF);
+            cv::Mat plotHF = showCorrectMatches(image1, image2, keypointsHF1, keypointsHF2, inlierMatchesHF, wrongMatchesHF, showWholeMatches);
             cv::imshow("HF + BFMatcher_L2", plotHF);
             cout << "HF + BFMatcher_L2:" << endl;
             cout << "match costs time: " << timer.timeBuff[0] << "ms" << endl;
@@ -240,8 +242,8 @@ int main(int argc, char* argv[]) {
                 if (match.distance > matchThreshold * 10) continue;
                 thresholdMatchesHF.emplace_back(match);
             }
-            cv::Mat E = FindCorrectMatchesByEssentialMat(keypointsHF1, keypointsHF2, thresholdMatchesHF, cv::Mat::eye(3, 3, CV_32F), inlierMatchesHF, wrongMatchesHF);
-            cv::Mat plotHF = ShowCorrectMatches(image1, image2, keypointsHF1, keypointsHF2, inlierMatchesHF, wrongMatchesHF, showWholeMatches);
+            cv::Mat E = findCorrectMatchesByEssentialMat(keypointsHF1, keypointsHF2, thresholdMatchesHF, cv::Mat::eye(3, 3, CV_32F), inlierMatchesHF, wrongMatchesHF);
+            cv::Mat plotHF = showCorrectMatches(image1, image2, keypointsHF1, keypointsHF2, inlierMatchesHF, wrongMatchesHF, showWholeMatches);
             cv::imshow("HF + BFMatcher_L1", plotHF);
             cout << "HF + BFMatcher_L1:" << endl;
             cout << "match costs time: " << timer.timeBuff[0] << "ms" << endl;
@@ -256,8 +258,8 @@ int main(int argc, char* argv[]) {
             timer.Tic();
             SearchByBoWHFNetSLAM(ratioThreshold, matchThreshold * matchThreshold, true, descriptorsHF1, descriptorsHF2, matchesHF);
             timer.Toc();
-            cv::Mat E = FindCorrectMatchesByEssentialMat(keypointsHF1, keypointsHF2, matchesHF, cv::Mat::eye(3, 3, CV_32F), inlierMatchesHF, wrongMatchesHF);
-            cv::Mat plotHF = ShowCorrectMatches(image1, image2, keypointsHF1, keypointsHF2, inlierMatchesHF, wrongMatchesHF, showWholeMatches);
+            cv::Mat E = findCorrectMatchesByEssentialMat(keypointsHF1, keypointsHF2, matchesHF, cv::Mat::eye(3, 3, CV_32F), inlierMatchesHF, wrongMatchesHF);
+            cv::Mat plotHF = showCorrectMatches(image1, image2, keypointsHF1, keypointsHF2, inlierMatchesHF, wrongMatchesHF, showWholeMatches);
             cv::imshow("HF + SearchByBoWHFNetSLAM", plotHF);
             cout << "HF + SearchByBoWHFNetSLAM:" << endl;
             cout << "match costs time: " << timer.timeBuff[0] << "ms" << endl;

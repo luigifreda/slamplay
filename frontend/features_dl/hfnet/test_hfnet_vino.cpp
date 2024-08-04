@@ -49,10 +49,10 @@ detect global costs: 9.03912 ± 0.139315
 #include <fstream>
 #include <random>
 
+#include <cv/matches_utils.h>
 #include "Frame.h"
 #include "HFNetSettings.h"
 #include "extractors/HFNetVINOModel.h"
-#include "extractors/utility_common.h"
 
 #ifdef USE_OPENVINO
 
@@ -508,7 +508,7 @@ int main(int argc, char *argv[]) {
         cout << preGlobalDescriptors.row(50).col(50) << endl;
         cout << globalDescriptors.col(0).rowRange(100, 110) << endl;
 
-        ShowKeypoints("press 'x' for further test", image, vKeyPoints);
+        showKeypoints("press 'x' for further test", image, vKeyPoints);
         cout << endl;
         command = cv::waitKey();
     }

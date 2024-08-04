@@ -1,4 +1,5 @@
 #include "extractors/HFNetTFModelV2.h"
+#include <tensorflow/core/public/version.h>
 
 namespace hfnet {
 
@@ -95,7 +96,11 @@ bool HFNetTFModelV2::Run(std::vector<tensorflow::Tensor> &vNetResults) {
 
     Status status = mSession->Run(mvInputTensors, mvOutputTensorNames, {}, &vNetResults);
 
+#if TF_MAJOR_VERSION == 2 && (TF_MINOR_VERSION >= 9 && TF_MINOR_VERSION <= 10)  // This may be need a fix according to the compatibility of tensorflow
     if (!status.ok()) cerr << status.error_message() << endl;
+#else
+    if (!status.ok()) cerr << status.message() << endl;
+#endif
     return status.ok();
 }
 

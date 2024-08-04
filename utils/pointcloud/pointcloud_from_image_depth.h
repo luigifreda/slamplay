@@ -12,31 +12,33 @@
 
 #include "messages.h"
 
+namespace slamplay {
+
 // get point cloud from image and distance (distance pixels represent the distance |OP|)
-template <typename PointT>
+template <typename PointT, typename Scalar = double>
 inline void getPointCloudFromImageAndDistance(const cv::Mat& color,
-                                              const cv::Mat_<double>& distance,
-                                              cv::Mat& mask,
+                                              const cv::Mat_<Scalar>& distance,
+                                              const cv::Mat& maskIn,
                                               const Intrinsics& intrinsics,
                                               const int border,
                                               const Eigen::Isometry3d& T,
                                               pcl::PointCloud<PointT>& pointCloud) {
     pointCloud.clear();
-    if (mask.empty()) mask = cv::Mat(color.size(), CV_8U, 1);
+    cv::Mat mask = maskIn.empty() ? cv::Mat(color.size(), CV_8U, 1) : maskIn;
     MSG_ASSERT(mask.type() == CV_8U || mask.type() == CV_8UC1, "Must be a mask!");
 
-    const double& fx = intrinsics.fx;
-    const double& fy = intrinsics.fy;
-    const double& cx = intrinsics.cx;
-    const double& cy = intrinsics.cy;
+    const auto& fx = intrinsics.fx;
+    const auto& fy = intrinsics.fy;
+    const auto& cx = intrinsics.cx;
+    const auto& cy = intrinsics.cy;
 
     for (int v = border; v < color.rows - border; v++)
     {
-        const double* distance_ptr_v = distance.ptr<double>(v);
+        const Scalar* distance_ptr_v = distance.template ptr<Scalar>(v);
         const uchar* mask_ptr_v = mask.ptr<uchar>(v);
         for (int u = border; u < color.cols - border; u++)
         {
-            const double distance = distance_ptr_v[u];  // distance along the ray
+            const Scalar distance = distance_ptr_v[u];  // distance along the ray
             const uchar valid = mask_ptr_v[u];
             if (distance == 0 || valid == 0)
                 continue;  // distance 0 means not measured
@@ -64,30 +66,32 @@ inline void getPointCloudFromImageAndDistance(const cv::Mat& color,
 }
 
 // get point cloud from image and depth
-template <typename PointT>
+template <typename PointT, typename Scalar = double>
 inline void getPointCloudFromImageAndDepth(const cv::Mat& color,
-                                           const cv::Mat_<double>& depth,
-                                           cv::Mat& mask,
+                                           const cv::Mat_<Scalar>& depth,
+                                           const cv::Mat& maskIn,
                                            const Intrinsics& intrinsics,
                                            const int border,
                                            const Eigen::Isometry3d& T,
                                            pcl::PointCloud<PointT>& pointCloud) {
     pointCloud.clear();
-    if (mask.empty()) mask = cv::Mat(color.size(), CV_8U, 1);
+    cv::Mat mask = maskIn.empty() ? cv::Mat(color.size(), CV_8U, 1) : maskIn;
     MSG_ASSERT(mask.type() == CV_8U || mask.type() == CV_8UC1, "Must be a mask!");
 
-    const double& fx = intrinsics.fx;
-    const double& fy = intrinsics.fy;
-    const double& cx = intrinsics.cx;
-    const double& cy = intrinsics.cy;
+    std::cout << "starting here" << std::endl;
+
+    const auto& fx = intrinsics.fx;
+    const auto& fy = intrinsics.fy;
+    const auto& cx = intrinsics.cx;
+    const auto& cy = intrinsics.cy;
 
     for (int v = border; v < color.rows - border; v++)
     {
-        const double* depth_ptr_v = depth.ptr<double>(v);
+        const Scalar* depth_ptr_v = depth.template ptr<Scalar>(v);
         const uchar* mask_ptr_v = mask.ptr<uchar>(v);
         for (int u = border; u < color.cols - border; u++)
         {
-            const double depth = depth_ptr_v[u];  // z depth
+            const Scalar depth = depth_ptr_v[u];  // z depth
             const uchar valid = mask_ptr_v[u];
             if (depth == 0 || valid == 0)
                 continue;  // 0 means not measured
@@ -111,3 +115,5 @@ inline void getPointCloudFromImageAndDepth(const cv::Mat& color,
     pointCloud.width = pointCloud.size();
     pointCloud.height = 1;
 }
+
+}  // namespace slamplay

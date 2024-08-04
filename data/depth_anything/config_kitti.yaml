@@ -1,0 +1,15 @@
+
+# NOTE: this is just a test. The NN was fine-tuned on virtual kitti 2 dataset. Here we are using KITTI dataset which is different.
+
+DepthAnything:
+    modelPath: "depth_anything/trained_data/depth_anything_v2_metric_vkitti_vitl.engine"  # relative to data folder
+    depthScale: 1.0
+
+Dataset:
+    path: "kitti/kitti06/video_color.mp4" 
+    isRelativePath: true  # is path relative to data folder
+    cameraParams: [707.0912, 707.0912, 601.8873, 183.1104]  # fx, fy, cx, cy (no distortion for the hypersim dataset above) 
+
+    imageSize: 
+        width: 1226
+        height: 370
