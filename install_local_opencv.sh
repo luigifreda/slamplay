@@ -110,8 +110,9 @@ if [[ ! -d $TARGET_FOLDER/opencv ]]; then
     if [[ $version == *"22.04"* ]] ; then
         sudo apt install -y libtbb-dev libeigen3-dev 
         sudo apt install -y zlib1g-dev libjpeg-dev libwebp-dev libpng-dev libtiff5-dev 
-        sudo add-apt-repository "deb http://security.ubuntu.com/ubuntu xenial-security main"  # for libjasper-dev 
+        sudo add-apt-repository -y "deb http://security.ubuntu.com/ubuntu xenial-security main"  # for libjasper-dev 
         sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3B4FE6ACC0B21F32 # for libjasper-dev 
+        sudo apt update
         sudo apt install -y libjasper-dev
         sudo apt install -y libv4l-dev libdc1394-dev libtheora-dev libvorbis-dev libxvidcore-dev libx264-dev yasm \
                                 libopencore-amrnb-dev libopencore-amrwb-dev libxine2-dev            
