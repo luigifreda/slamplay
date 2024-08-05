@@ -29,8 +29,7 @@ struct rerun::CollectionAdapter<rerun::Position3D, Eigen::Matrix3Xf> {
     // Sanity check that this is binary compatible.
     static_assert(
         sizeof(rerun::Position3D) ==
-        sizeof(Eigen::Matrix3Xf::Scalar) * Eigen::Matrix3Xf::RowsAtCompileTime
-    );
+        sizeof(Eigen::Matrix3Xf::Scalar) * Eigen::Matrix3Xf::RowsAtCompileTime);
 
     /// Borrow for non-temporary.
     Collection<rerun::Position3D> operator()(const Eigen::Matrix3Xf& matrix) {
@@ -38,8 +37,7 @@ struct rerun::CollectionAdapter<rerun::Position3D, Eigen::Matrix3Xf> {
         return Collection<rerun::Position3D>::borrow(
             // Cast to void because otherwise Rerun will try to do above sanity checks with the wrong type (scalar).
             reinterpret_cast<const void*>(matrix.data()),
-            matrix.cols()
-        );
+            matrix.cols());
     }
 
     // Do a full copy for temporaries (otherwise the data might be deleted when the temporary is destroyed).
@@ -56,8 +54,7 @@ struct rerun::CollectionAdapter<uint8_t, cv::Mat> {
     /// Borrow for non-temporary.
     Collection<uint8_t> operator()(const cv::Mat& img) {
         assert(
-            "OpenCV matrix was expected have bit depth CV_U8" && CV_MAT_DEPTH(img.type()) == CV_8U
-        );
+            "OpenCV matrix was expected have bit depth CV_U8" && CV_MAT_DEPTH(img.type()) == CV_8U);
 
         return Collection<uint8_t>::borrow(img.data, img.total() * img.channels());
     }
@@ -65,8 +62,7 @@ struct rerun::CollectionAdapter<uint8_t, cv::Mat> {
     // Do a full copy for temporaries (otherwise the data might be deleted when the temporary is destroyed).
     Collection<uint8_t> operator()(cv::Mat&& img) {
         assert(
-            "OpenCV matrix was expected have bit depth CV_U8" && CV_MAT_DEPTH(img.type()) == CV_8U
-        );
+            "OpenCV matrix was expected have bit depth CV_U8" && CV_MAT_DEPTH(img.type()) == CV_8U);
 
         std::vector<uint8_t> img_vec(img.total() * img.channels());
         img_vec.assign(img.data, img.data + img.total() * img.channels());

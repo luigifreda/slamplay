@@ -47,6 +47,7 @@ match correct percentage: 0.797645
 using namespace cv;
 using namespace std;
 using namespace hfnet;
+using namespace slamplay;
 
 int SearchByBoWHFNetSLAM(float mfNNratio, float threshold, bool mutual,
                          cv::Mat& Descriptors1, cv::Mat& Descriptors2,

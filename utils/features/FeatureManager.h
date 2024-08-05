@@ -10,6 +10,8 @@
 
 #include "string_utils.h"
 
+namespace slamplay {
+
 // a generic set of parameters for specializations of Feature2D
 // (some of them may not applicable)
 struct FeatureManagerParams {
@@ -63,4 +65,6 @@ cv::Ptr<cv::Feature2D> getFeature2D(const FeatureManagerParams& params) {
     else
         throw std::runtime_error("Invalid descriptor");
     return fdetector;
+}
+
 }

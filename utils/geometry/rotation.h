@@ -1,34 +1,33 @@
-#pragma once 
+#pragma once
 
 #include <algorithm>
 #include <cmath>
 #include <limits>
 
+namespace slamplay {
+
 //////////////////////////////////////////////////////////////////
-// math functions needed for rotation conversion. 
+// math functions needed for rotation conversion.
 
-// dot and cross production 
+// dot and cross production
 
-template<typename T>
+template <typename T>
 inline T DotProduct(const T x[3], const T y[3]) {
     return (x[0] * y[0] + x[1] * y[1] + x[2] * y[2]);
 }
 
-template<typename T>
+template <typename T>
 inline void CrossProduct(const T x[3], const T y[3], T result[3]) {
     result[0] = x[1] * y[2] - x[2] * y[1];
     result[1] = x[2] * y[0] - x[0] * y[2];
     result[2] = x[0] * y[1] - x[1] * y[0];
 }
 
-
 //////////////////////////////////////////////////////////////////
 
-
-// Converts from a angle anxis to quaternion : 
-template<typename T>
-inline void AngleAxisToQuaternion(const T *angle_axis, T *quaternion) 
-{
+// Converts from a angle anxis to quaternion :
+template <typename T>
+inline void AngleAxisToQuaternion(const T *angle_axis, T *quaternion) {
     const T &a0 = angle_axis[0];
     const T &a1 = angle_axis[1];
     const T &a2 = angle_axis[2];
@@ -42,7 +41,7 @@ inline void AngleAxisToQuaternion(const T *angle_axis, T *quaternion)
         quaternion[1] = a0 * k;
         quaternion[2] = a1 * k;
         quaternion[3] = a2 * k;
-    } else { // in case if theta_squared is zero
+    } else {  // in case if theta_squared is zero
         const T k(0.5);
         quaternion[0] = T(1.0);
         quaternion[1] = a0 * k;
@@ -51,9 +50,8 @@ inline void AngleAxisToQuaternion(const T *angle_axis, T *quaternion)
     }
 }
 
-template<typename T>
-inline void QuaternionToAngleAxis(const T *quaternion, T *angle_axis) 
-{
+template <typename T>
+inline void QuaternionToAngleAxis(const T *quaternion, T *angle_axis) {
     const T &q1 = quaternion[1];
     const T &q2 = quaternion[2];
     const T &q3 = quaternion[3];
@@ -70,8 +68,8 @@ inline void QuaternionToAngleAxis(const T *quaternion, T *angle_axis)
         // would be greater than pi...
 
         const T two_theta = T(2.0) * ((cos_theta < 0.0)
-                                      ? atan2(-sin_theta, -cos_theta)
-                                      : atan2(sin_theta, cos_theta));
+                                          ? atan2(-sin_theta, -cos_theta)
+                                          : atan2(sin_theta, cos_theta));
         const T k = two_theta / sin_theta;
 
         angle_axis[0] = q1 * k;
@@ -87,12 +85,10 @@ inline void QuaternionToAngleAxis(const T *quaternion, T *angle_axis)
         angle_axis[1] = q2 * k;
         angle_axis[2] = q3 * k;
     }
-
 }
 
-template<typename T>
-inline void AngleAxisRotatePoint(const T angle_axis[3], const T pt[3], T result[3]) 
-{
+template <typename T>
+inline void AngleAxisRotatePoint(const T angle_axis[3], const T pt[3], T result[3]) {
     const T theta2 = DotProduct(angle_axis, angle_axis);
     if (theta2 > T(std::numeric_limits<double>::epsilon())) {
         // Away from zero, use the rodriguez formula
@@ -157,3 +153,5 @@ inline void AngleAxisRotatePoint(const T angle_axis[3], const T pt[3], T result[
         result[2] = pt[2] + w_cross_pt[2];
     }
 }
+
+}  // namespace slamplay

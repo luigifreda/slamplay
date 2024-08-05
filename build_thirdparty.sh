@@ -107,8 +107,10 @@ print_blue "Configuring and building thirdparty/sophus ..."
 
 cd thirdparty
 if [ ! -d sophus ]; then
-    sudo apt-get install gfortran libc++-dev libgoogle-glog-dev libatlas-base-dev libsuitesparse-dev libceres-dev 
-    sudo apt install libfmt-dev
+    sudo apt install -y libgoogle-glog-dev 
+    sudo apt install -y libatlas-base-dev libsuitesparse-dev libceres-dev
+    sudo apt install -y gfortran libc++-dev  
+    sudo apt install -y libfmt-dev
 	git clone https://github.com/strasdat/Sophus.git sophus
     #git fetch --all --tags # to fetch tags 
     cd sophus
@@ -226,6 +228,8 @@ cd $SCRIPT_DIR
 
 print_blue '================================================'
 print_blue "Configuring and building thirdparty/json ..."
+# Must be installed before ibow-lcd
+
 
 cd thirdparty
 if [ ! -d json ]; then
@@ -254,7 +258,7 @@ print_blue "Configuring and building thirdparty/sesync ..."
 
 cd thirdparty
 if [ ! -d sesync ]; then
-    sudo apt-get install build-essential cmake-gui libeigen3-dev liblapack-dev libblas-dev libsuitesparse-dev
+    sudo apt-get install -y build-essential cmake-gui libeigen3-dev liblapack-dev libblas-dev libsuitesparse-dev
     git clone https://github.com/david-m-rosen/SE-Sync sesync
     #git fetch --all --tags # to fetch tags 
     cd sesync
@@ -334,9 +338,12 @@ cd thirdparty
 if [ ! -d ibow-lcd ]; then
 	sudo apt-get install -y libboost-system-dev libboost-filesystem-dev
 	git clone https://github.com/emiliofidalgo/ibow-lcd.git ibow-lcd
+
     cd ibow-lcd
     git checkout 0804b1eec5db88b3d252c02617b6c95b91ca0a96
     git apply ../ibow-lcd.patch 
+
+    cp -R ../json/install/include/nlohmann/ external
     cd .. 
 fi
 cd ibow-lcd

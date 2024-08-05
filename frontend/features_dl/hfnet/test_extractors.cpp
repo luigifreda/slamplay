@@ -165,6 +165,7 @@ total costs: 60.0883 ± 4.10698
 using namespace cv;
 using namespace std;
 using namespace hfnet;
+using namespace slamplay;
 
 const int maxNumLevels = 20;
 

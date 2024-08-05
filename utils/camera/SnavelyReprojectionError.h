@@ -1,20 +1,21 @@
-#ifndef SnavelyReprojection_H
-#define SnavelyReprojection_H
+#pragma once
 
 #include <iostream>
 #include "ceres/ceres.h"
 #include "rotation.h"
+
+namespace slamplay {
 
 // Templated pinhole camera model for used with Ceres.  The camera is
 // parameterized using 9 parameters: 3 for rotation, 3 for translation, 1 for
 // focal length and 2 for radial distortion. The principal point is not modeled
 // (i.e. it is assumed be located at the image center).
 class SnavelyReprojectionError {
-public:
-    SnavelyReprojectionError(double observation_x, double observation_y) 
+   public:
+    SnavelyReprojectionError(double observation_x, double observation_y)
         : observed_x(observation_x), observed_y(observation_y) {}
 
-    template<typename T>
+    template <typename T>
     bool operator()(const T *const camera,
                     const T *const point,
                     T *residuals) const {
@@ -33,7 +34,7 @@ public:
     // [6-8] : camera parameter, [6] focal length, [7-8] second and forth order radial distortion
     // point : 3D location.
     // predictions : 2D predictions with center of the image plane.
-    template<typename T>
+    template <typename T>
     static inline bool CamProjectionWithDistortion(const T *camera, const T *point, T *predictions) {
         // Rodrigues' formula
         T p[3];
@@ -66,10 +67,9 @@ public:
             new SnavelyReprojectionError(observed_x, observed_y)));
     }
 
-private:
+   private:
     double observed_x;
     double observed_y;
 };
 
-#endif // SnavelyReprojection.h
-
+}  // namespace slamplay

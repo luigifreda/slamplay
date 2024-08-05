@@ -13,6 +13,8 @@
 #include "macros.h"
 #include "yaml_utils.h"
 
+using namespace slamplay;
+
 std::string dataDir = STR(DATA_DIR);  // DATA_DIR set by compilers flag
 std::string configFile = dataDir + "/config.yaml";
 

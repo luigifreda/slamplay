@@ -38,7 +38,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/extractors/HFextractor.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/extractors/HFNetTFModel.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/extractors/HFNetTFModelV2.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/extractors/HFNetRTModel.cpp
-#${CMAKE_CURRENT_SOURCE_DIR}/extractors/HFNetVINOModel.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/extractors/HFNetVINOModel.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/extractors/HFNetSettings.cpp
 )
 

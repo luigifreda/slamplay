@@ -54,7 +54,7 @@ This repository is structured in the following main folders (with self-explanato
 - `data`
 - `dense_mapping`
 - `docs`
-- `frontend`  (**NEW** with new C++ tools based on *TensorRT*/*tensorflow_cc*, e.g, *SuperPoint*, *SuperGlue*, *Depth-Anything*, *HFNet*)
+- `frontend`  (with **new** C++ tools based on *TensorRT* and *tensorflow_cc*, e.g, *SuperPoint*, *SuperGlue*, *Depth-Anything*, *HFNet*)
 - `full_slam`
 - `io`
 - `loop_closure`
@@ -63,7 +63,11 @@ This repository is structured in the following main folders (with self-explanato
 - `utils`
 - `viz`
   
-## Quick start 
+---
+
+## Quick start
+
+The following procedure has been successfully tested under **Ubuntu 20.04** (and under Ubuntu 22.04 with partial DL support). 
 
 - Install basic dependencies:      
   `$ ./install_dependencies.sh`        
@@ -74,6 +78,9 @@ This repository is structured in the following main folders (with self-explanato
   `$ ./build.sh`
 - If you want to use the DL (Deep Learning) models then run the following command to download both NN weights/checkpoints and data:
   `$ ./install_dl_models.sh` 
+- Optional: If you want to install and test tensorflow C++ API (e.g. for HFNet), then run:    
+  `$ ./install_tensorflow_cc.sh`      
+  See [tensorflow_cc](https://github.com/luigifreda/tensorflow_cc) for further details. Note that this step will take a long while. 
 
 Once everything is built, you can enter in the `build` folder and test the different examples. 
 In particular, you can enter in the `full_slam` folder: 

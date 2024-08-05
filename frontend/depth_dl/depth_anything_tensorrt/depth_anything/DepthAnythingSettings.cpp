@@ -4,6 +4,7 @@
 #include <iostream>
 
 using namespace std;
+using namespace slamplay;
 
 const std::string DepthAnythingSettings::kDataDir = STR(DATA_DIR);  // DATA_DIR set by compilers flag
 const std::string DepthAnythingSettings::kDepthAnythingConfigFile = kDataDir + "/depth_anything/config_hypersim.yaml";

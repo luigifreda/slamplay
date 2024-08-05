@@ -2,19 +2,19 @@
 // Created by gaoxiang on 19-4-25.
 //
 
+#include <pcl/io/pcd_io.h>
+#include <pcl/kdtree/kdtree_flann.h>
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
-#include <pcl/io/pcd_io.h>
-#include <pcl/visualization/pcl_visualizer.h>
-#include <pcl/kdtree/kdtree_flann.h>
-#include <pcl/surface/surfel_smoothing.h>
-#include <pcl/surface/mls.h>
 #include <pcl/surface/gp3.h>
+#include <pcl/surface/mls.h>
+#include <pcl/surface/surfel_smoothing.h>
+#include <pcl/visualization/pcl_visualizer.h>
 #include <pcl/surface/impl/mls.hpp>
 
 #include "macros.h"
 
-std::string dataDir = STR(DATA_DIR); // DATA_DIR set by compilers flag 
+std::string dataDir = STR(DATA_DIR);  // DATA_DIR set by compilers flag
 
 // typedefs
 typedef pcl::PointXYZRGB PointT;
@@ -25,14 +25,16 @@ typedef pcl::PointCloud<SurfelT> SurfelCloud;
 typedef pcl::PointCloud<SurfelT>::Ptr SurfelCloudPtr;
 
 SurfelCloudPtr reconstructSurface(
-        const PointCloudPtr &input, float radius, int polynomial_order) {
+    const PointCloudPtr &input, float radius, int polynomial_order) {
     pcl::MovingLeastSquares<PointT, SurfelT> mls;
     pcl::search::KdTree<PointT>::Ptr tree(new pcl::search::KdTree<PointT>);
     mls.setSearchMethod(tree);
     mls.setSearchRadius(radius);
     mls.setComputeNormals(true);
     mls.setSqrGaussParam(radius * radius);
+#if PCL_VERSION_COMPARE(<=, 1, 10, 0)
     mls.setPolynomialFit(polynomial_order > 1);
+#endif
     mls.setPolynomialOrder(polynomial_order);
     mls.setInputCloud(input);
     SurfelCloudPtr output(new SurfelCloud);
@@ -55,9 +57,9 @@ pcl::PolygonMeshPtr triangulateMesh(const SurfelCloudPtr &surfels) {
     // Set typical values for the parameters
     gp3.setMu(2.5);
     gp3.setMaximumNearestNeighbors(100);
-    gp3.setMaximumSurfaceAngle(M_PI / 4); // 45 degrees
-    gp3.setMinimumAngle(M_PI / 18); // 10 degrees
-    gp3.setMaximumAngle(2 * M_PI / 3); // 120 degrees
+    gp3.setMaximumSurfaceAngle(M_PI / 4);  // 45 degrees
+    gp3.setMinimumAngle(M_PI / 18);        // 10 degrees
+    gp3.setMaximumAngle(2 * M_PI / 3);     // 120 degrees
     gp3.setNormalConsistency(true);
 
     // Get result
@@ -68,13 +70,12 @@ pcl::PolygonMeshPtr triangulateMesh(const SurfelCloudPtr &surfels) {
     return triangles;
 }
 
-int main(int argc, char **argv) 
-{
+int main(int argc, char **argv) {
     std::string pointcloud_path = dataDir + "/dense_mapping/map.pcd";
-    if( argc== 2) {
+    if (argc == 2) {
         pointcloud_path = argv[1];
     } else {
-      cout << "usage: " << argv[0] <<" <pointcloud path>" << endl;
+        cout << "usage: " << argv[0] << " <pointcloud path>" << endl;
     }
 
     // Load the points

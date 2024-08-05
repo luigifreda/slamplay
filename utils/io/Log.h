@@ -12,6 +12,8 @@
 
 #include "LogColors.h"
 
+namespace slamplay {
+
 /// modified from the base class of http://drdobbs.com/cpp/201804215
 
 enum class LogLevel {error = 0, warn = 1, info = 2, debug = 3, debug1 = 4, debug2 = 5, debug3 = 6, debug4 = 7};
@@ -109,5 +111,6 @@ Log::~Log()
 	}
 }
 
+}
 
 

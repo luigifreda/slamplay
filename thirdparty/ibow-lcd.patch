@@ -1,5 +1,5 @@
 diff --git a/CMakeLists.txt b/CMakeLists.txt
-index e76804e..6ccb7a8 100644
+index e76804e..ffdf971 100644
 --- a/CMakeLists.txt
 +++ b/CMakeLists.txt
 @@ -1,6 +1,8 @@
@@ -56,7 +56,7 @@ index e76804e..6ccb7a8 100644
  find_package(Boost REQUIRED COMPONENTS system filesystem)
  find_package(OpenMP REQUIRED) # OpenMP
  if (OPENMP_FOUND)
-@@ -49,16 +50,20 @@ if (OPENMP_FOUND)
+@@ -49,16 +50,21 @@ if (OPENMP_FOUND)
  endif()
  
  # Defining the package
@@ -80,7 +80,12 @@ index e76804e..6ccb7a8 100644
  include_directories(include
                      external
 -                    ${catkin_INCLUDE_DIRS}
++                    external/nlohmann
 +                    ${catkin_INCLUDE_DIRS} 
                      ${OpenCV_INCLUDE_DIRS}
                      ${Boost_INCLUDE_DIRS})
  
+diff --git a/external/json.hpp b/external/json_old.hpp
+similarity index 100%
+rename from external/json.hpp
+rename to external/json_old.hpp

@@ -2,6 +2,8 @@
 
 #include <opencv2/opencv.hpp>
 
+namespace slamplay {
+
 inline std::string cvTypeToStr(int type) {
     std::string r;
 
@@ -40,3 +42,5 @@ inline std::string cvTypeToStr(int type) {
 
     return r;
 }
+
+}  // namespace slamplay

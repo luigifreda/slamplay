@@ -4,6 +4,14 @@
 #include <string.h>
 
 #include <Mahi/Gui.hpp>
+// Define a macro to create a version number in a more readable format
+#define GCC_VERSION (__GNUC__ * 10000 + __GNUC_MINOR__ * 100 + __GNUC_PATCHLEVEL__)
+#if GCC_VERSION >= 110000
+#include <fmt/format.h>
+namespace fmt {
+namespace v6 = v8;
+}
+#endif
 #include <Mahi/Util.hpp>
 
 using namespace mahi::gui;
@@ -13,7 +21,7 @@ using namespace mahi::util;
 
 static void gear(float inner_radius, float outer_radius, float width, int teeth,
                  float tooth_depth) {
-    int   i;
+    int i;
     float r0, r1, r2;
     float angle, da;
     float u, v, len;
@@ -91,8 +99,8 @@ static void gear(float inner_radius, float outer_radius, float width, int teeth,
 
         glVertex3f(r1 * (float)cos(angle), r1 * (float)sin(angle), width * 0.5f);
         glVertex3f(r1 * (float)cos(angle), r1 * (float)sin(angle), -width * 0.5f);
-        u   = r2 * (float)cos(angle + da) - r1 * (float)cos(angle);
-        v   = r2 * (float)sin(angle + da) - r1 * (float)sin(angle);
+        u = r2 * (float)cos(angle + da) - r1 * (float)cos(angle);
+        v = r2 * (float)sin(angle + da) - r1 * (float)sin(angle);
         len = (float)sqrt(u * u + v * v);
         u /= len;
         v /= len;
@@ -129,9 +137,8 @@ static void gear(float inner_radius, float outer_radius, float width, int teeth,
 }
 
 class GearsDemo : public Application {
-public:
+   public:
     GearsDemo(Application::Config conf) : Application(conf) {
-
         static float pos[4] = {5.f, 5.f, 10.f, 0.f};
 
         glLightfv(GL_LIGHT0, GL_POSITION, pos);
@@ -204,8 +211,8 @@ public:
         float h = (float)height / (float)width;
         float xmax, znear, zfar;
         znear = 5.0f;
-        zfar  = 30.0f;
-        xmax  = znear * 0.5f;
+        zfar = 30.0f;
+        xmax = znear * 0.5f;
         glMatrixMode(GL_PROJECTION);
         glLoadIdentity();
         glFrustum(-xmax, xmax, -xmax * h, xmax * h, znear, zfar);
@@ -224,23 +231,33 @@ public:
                 else
                     view_rotz += 5.0;
                 break;
-            case GLFW_KEY_ESCAPE: glfwSetWindowShouldClose(m_window, GLFW_TRUE); break;
-            case GLFW_KEY_UP: view_rotx += 5.0; break;
-            case GLFW_KEY_DOWN: view_rotx -= 5.0; break;
-            case GLFW_KEY_LEFT: view_roty += 5.0; break;
-            case GLFW_KEY_RIGHT: view_roty -= 5.0; break;
-            default: return;
+            case GLFW_KEY_ESCAPE:
+                glfwSetWindowShouldClose(m_window, GLFW_TRUE);
+                break;
+            case GLFW_KEY_UP:
+                view_rotx += 5.0;
+                break;
+            case GLFW_KEY_DOWN:
+                view_rotx -= 5.0;
+                break;
+            case GLFW_KEY_LEFT:
+                view_roty += 5.0;
+                break;
+            case GLFW_KEY_RIGHT:
+                view_roty -= 5.0;
+                break;
+            default:
+                return;
         }
     }
 
     float view_rotx = 0.f, view_roty = 0.f, view_rotz = 0.f;
-    int   gear1, gear2, gear3;
+    int gear1, gear2, gear3;
     float angle = 0.f;
     float speed = 100.0f;
 };
 
-int main(int argc, char const* argv[]) {\
-
+int main(int argc, char const* argv[]) {
     Application::Config conf;
     conf.transparent = true;
     conf.decorated = false;

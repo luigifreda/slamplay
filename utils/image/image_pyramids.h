@@ -2,6 +2,8 @@
 
 #include <opencv2/opencv.hpp>
 
+namespace slamplay {
+
 // from a pyramid (as a vector of images) to a single image where the pyramid images are vertically stacked
 inline void composePyrImage(const std::vector<cv::Mat> &pyramid, cv::Mat &out) {
     if (pyramid.empty()) return;
@@ -24,3 +26,5 @@ inline void composePyrImage(const std::vector<cv::Mat> &pyramid, cv::Mat &out) {
         posy += pyramid[ii].rows;
     }
 }
+
+}  // namespace slamplay

@@ -336,6 +336,7 @@ then we update:
 */
 
 
+using namespace slamplay;
 using VecVector2d = std::vector<Eigen::Vector2d, Eigen::aligned_allocator<Eigen::Vector2d>>;
 
 struct Range

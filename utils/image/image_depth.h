@@ -4,6 +4,8 @@
 
 #include <opencv2/opencv.hpp>
 
+namespace slamplay {
+
 void showDepthImage(const std::string &windowName, const cv::Mat &map) {
     double min;
     double max;
@@ -42,3 +44,5 @@ void plotDepth(const cv::Mat &depth_truth, const cv::Mat &depth_estimate, const 
 
     cv::waitKey(1);
 }
+
+}  // namespace slamplay

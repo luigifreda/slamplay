@@ -3,6 +3,8 @@
 #include <Eigen/Core>
 #include <opencv2/opencv.hpp>
 
+namespace slamplay {
+
 // Bilinear grayscale interpolation
 inline double getBilinearInterpolatedValue(const cv::Mat &img, const Eigen::Vector2d &pt) {
     uchar *d = &img.data[int(pt(1, 0)) * img.step + int(pt(0, 0))];
@@ -14,3 +16,5 @@ inline double getBilinearInterpolatedValue(const cv::Mat &img, const Eigen::Vect
             xx * yy * double(d[img.step + 1])) /
            255.0;
 }
+
+}  // namespace slamplay

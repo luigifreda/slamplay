@@ -7,6 +7,8 @@
 #include <numeric>
 #include <opencv2/opencv.hpp>
 
+namespace slamplay {
+
 void showKeypoints(const std::string &title, cv::Mat image, const std::vector<cv::KeyPoint> &keypoints) {
     cv::Mat image_show;
     cvtColor(image, image_show, cv::COLOR_GRAY2BGR);
@@ -171,4 +173,7 @@ cv::Mat findCorrectMatchesByPnP(const std::vector<cv::KeyPoint> &keypoints1, con
         }
     }
     return cv::Mat();
+}
+
+
 }

@@ -30,10 +30,6 @@ function print_blue(){
 	printf "\033[0m"
 }
 
-function gdrive_download () {
-  gdown https://drive.google.com/uc?id=$1
-}
-
 # create install path 
 if [ ! -d $INSTALL_PATH ]; then
   mkdir -p $INSTALL_PATH
@@ -41,13 +37,12 @@ fi
 cd $INSTALL_PATH
 
 
-if [ ! -d "${INSTALL_PATH}/TensorRT" ]; then
+if [ ! -d "${INSTALL_PATH}/TensorRT/lib" ]; then
   mkdir -p ${INSTALL_PATH}/TensorRT
-
+  pip install gdown
   if [ $USE_DRIVE -eq 1 ]; then
     # download the file 
     if [ ! -f $FILE_NAME ]; then
-      pip install gdown
       echo Downloading $FILE_NAME from drive
       echo Alternatively, you can manually download your preferred TensorRT version package from: https://docs.nvidia.com/deeplearning/tensorrt/install-guide/index.html#downloading and place its path in FILE_NAME variable
       gdrive_download $URL_MY_DRIVE_ID 

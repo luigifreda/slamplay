@@ -1,7 +1,7 @@
 //
-// Created by gaoxiang on 19-5-4. 
+// Created by gaoxiang on 19-5-4.
 // From https://github.com/gaoxiang12/slambook2
-// Modified by Luigi Freda later for slamplay 
+// Modified by Luigi Freda later for slamplay
 //
 
 #include "myslam/visual_odometry.h"
@@ -10,34 +10,35 @@
 #include <chrono>
 #include <opencv2/opencv.hpp>
 
+using namespace slamplay;
+
 namespace myslam {
 
-VisualOdometry::VisualOdometry(const std::string &config_path, const DatasetType& dataset_type)
-    : config_file_path_(config_path), dataset_type_(dataset_type){}
+VisualOdometry::VisualOdometry(const std::string& config_path, const DatasetType& dataset_type)
+    : config_file_path_(config_path), dataset_type_(dataset_type) {}
 
 bool VisualOdometry::Init() {
-
     // read from config file
     if (Config::SetParameterFile(config_file_path_) == false) {
         return false;
     }
 
-    const double Ts = 1.0/Config::Get<double>("Camera.fps");
-    timerFps_ = std::make_unique<ChronoFps>(Ts); 
+    const double Ts = 1.0 / Config::Get<double>("Camera.fps");
+    timerFps_ = std::make_unique<ChronoFps>(Ts);
 
     switch (dataset_type_)
     {
-    case DatasetType::KITTI:
-        dataset_ = Dataset::Ptr(new DatasetKitti(Config::Get<std::string>("dataset_dir"), Config::Get<bool>("use_half_resolution")));
-        break;
-    
-    case DatasetType::EUROC:
-        dataset_ = Dataset::Ptr(new DatasetEuroc(Config::Get<std::string>("dataset_dir"), Config::Get<bool>("use_half_resolution")));    
-        break;
+        case DatasetType::KITTI:
+            dataset_ = Dataset::Ptr(new DatasetKitti(Config::Get<std::string>("dataset_dir"), Config::Get<bool>("use_half_resolution")));
+            break;
 
-    default:
-        LOG(FATAL) << "didn't specify a supported dataset!";
-        break;
+        case DatasetType::EUROC:
+            dataset_ = Dataset::Ptr(new DatasetEuroc(Config::Get<std::string>("dataset_dir"), Config::Get<bool>("use_half_resolution")));
+            break;
+
+        default:
+            LOG(FATAL) << "didn't specify a supported dataset!";
+            break;
     }
 
     CHECK_EQ(dataset_->Init(), true);
@@ -69,10 +70,10 @@ void VisualOdometry::Run() {
 #if 0     
         // step by step 
         cv::waitKey(0);
-#else 
+#else
         // give me a constant time between two calls
-        timerFps_->sleep();        
-#endif         
+        timerFps_->sleep();
+#endif
     }
 
     backend_->Stop();
@@ -82,23 +83,23 @@ void VisualOdometry::Run() {
 }
 
 bool VisualOdometry::Step() {
-    int current_frame_index = dataset_->GetCurrentFrameIndex();   
+    int current_frame_index = dataset_->GetCurrentFrameIndex();
     Frame::Ptr new_frame = dataset_->NextFrame();
-    if (new_frame == nullptr) 
+    if (new_frame == nullptr)
     {
         usleep(5000);
         return false;
     }
-    std::cout << "===========================" << std::endl;     
-    LOG(INFO) << "Current frame " << current_frame_index << std::endl; 
-    LOG(INFO) << "VO status: " << frontend_->GetStatusString() << std::endl; 
+    std::cout << "===========================" << std::endl;
+    LOG(INFO) << "Current frame " << current_frame_index << std::endl;
+    LOG(INFO) << "VO status: " << frontend_->GetStatusString() << std::endl;
     auto t1 = std::chrono::steady_clock::now();
     bool success = frontend_->AddFrame(new_frame);
     auto t2 = std::chrono::steady_clock::now();
     auto time_used = std::chrono::duration_cast<std::chrono::duration<double>>(t2 - t1);
     LOG(INFO) << "VO cost time: " << time_used.count() << " seconds.";
 
-    if(frontend_->GetStatus()==FrontendStatus::LOST) cv::waitKey(0);
+    if (frontend_->GetStatus() == FrontendStatus::LOST) cv::waitKey(0);
 
     return success;
 }

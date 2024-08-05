@@ -9,6 +9,8 @@
 #include <pcl/registration/icp.h>
 #include <pcl/visualization/pcl_visualizer.h>
 
+using namespace slamplay;
+
 typedef pcl::PointXYZ PointT;
 typedef pcl::visualization::PointCloudColorHandlerCustom<PointT> ColorHandlerT;
 

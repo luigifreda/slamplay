@@ -26,6 +26,7 @@ using namespace cv;
 using namespace std;
 using namespace Eigen;
 using namespace hfnet;
+using namespace slamplay;
 
 struct KeyFrameHFNetSLAM {
     cv::Mat mGlobalDescriptors;

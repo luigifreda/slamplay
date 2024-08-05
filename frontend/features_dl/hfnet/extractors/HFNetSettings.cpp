@@ -4,6 +4,7 @@
 #include <iostream>
 
 using namespace std;
+using namespace slamplay;
 
 namespace hfnet {
 

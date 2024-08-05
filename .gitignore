@@ -15,6 +15,7 @@ thirdparty/obindex2
 thirdparty/ibow-lcd
 thirdparty/rerun
 thirdparty/tensorrtbuffers/lib/libtensorrtbuffers.so
+libtensorrtbuffers.so
 thirdparty/TensorRT
 thirdparty/rerun
 thirdparty/tracy

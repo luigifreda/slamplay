@@ -10,6 +10,8 @@
 
 #include <yaml-cpp/yaml.h>  //libyaml-cpp-dev
 
+namespace slamplay {
+
 template <typename T>
 inline T getParam(const YAML::Node& node, const std::string& name, const T& defaultValue, std::string parent = "") {
     if (!node.IsDefined()) {
@@ -53,3 +55,5 @@ inline std::vector<T> getArray(const YAML::Node& config, const std::string& name
         return defaultValue;
     }
 }
+
+}  // namespace slamplay

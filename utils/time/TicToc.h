@@ -6,6 +6,8 @@
 #include <numeric>
 #include <opencv2/opencv.hpp>
 
+namespace slamplay {
+
 struct TicToc {
     TicToc() {};
     void clearBuff() { timeBuff.clear(); }
@@ -41,3 +43,5 @@ struct TicToc {
     std::chrono::steady_clock::time_point t1;
     std::chrono::steady_clock::time_point t2;
 };
+
+}  // namespace slamplay

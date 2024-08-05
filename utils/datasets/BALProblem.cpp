@@ -1,10 +1,10 @@
+#include <Eigen/Core>
+#include <Eigen/Dense>
 #include <cstdio>
 #include <fstream>
 #include <iostream>
 #include <string>
 #include <vector>
-#include <Eigen/Core>
-#include <Eigen/Dense>
 
 #include "BALProblem.h"
 #include "rotation.h"
@@ -12,29 +12,28 @@
 typedef Eigen::Map<Eigen::VectorXd> VectorRef;
 typedef Eigen::Map<const Eigen::VectorXd> ConstVectorRef;
 
-namespace 
-{
-    inline double RandDouble()
-    {
-        double r = static_cast<double>(rand());
-        return r / RAND_MAX;
-    }
-
-    inline double RandNormal()
-    {
-        double x1, x2, w;
-        do{
-            x1 = 2.0 * RandDouble() - 1.0;
-            x2 = 2.0 * RandDouble() - 1.0;
-            w = x1 * x1 + x2 * x2;
-        }while( w >= 1.0 || w == 0.0);
-
-        w = sqrt((-2.0 * log(w))/w);
-        return x1 * w;
-    }
+namespace {
+inline double RandDouble() {
+    double r = static_cast<double>(rand());
+    return r / RAND_MAX;
 }
 
-template<typename T>
+inline double RandNormal() {
+    double x1, x2, w;
+    do {
+        x1 = 2.0 * RandDouble() - 1.0;
+        x2 = 2.0 * RandDouble() - 1.0;
+        w = x1 * x1 + x2 * x2;
+    } while (w >= 1.0 || w == 0.0);
+
+    w = sqrt((-2.0 * log(w)) / w);
+    return x1 * w;
+}
+}  // namespace
+
+namespace slamplay {
+
+template <typename T>
 void FscanfOrDie(FILE *fptr, const char *format, T *value) {
     int num_scanned = fscanf(fptr, format, value);
     if (num_scanned != 1)
@@ -111,7 +110,7 @@ BALProblem::BALProblem(const std::string &filename, bool use_quaternions) {
             *quaternion_cursor++ = *original_cursor++;
         }
         // Swap in the quaternion parameters.
-        delete[]parameters_;
+        delete[] parameters_;
         parameters_ = quaternion_parameters;
     }
 }
@@ -137,7 +136,7 @@ void BALProblem::WriteToFile(const std::string &filename) const {
     for (int i = 0; i < num_cameras(); ++i) {
         double angleaxis[9];
         if (use_quaternions_) {
-            //OutPut in angle-axis format.
+            // OutPut in angle-axis format.
             QuaternionToAngleAxis(parameters_ + 10 * i, angleaxis);
             memcpy(angleaxis + 3, parameters_ + 10 * i + 4, 6 * sizeof(double));
         } else {
@@ -164,15 +163,24 @@ void BALProblem::WriteToPLYFile(const std::string &filename) const {
     std::ofstream of(filename.c_str());
 
     of << "ply"
-       << '\n' << "format ascii 1.0"
-       << '\n' << "element vertex " << num_cameras_ + num_points_
-       << '\n' << "property float x"
-       << '\n' << "property float y"
-       << '\n' << "property float z"
-       << '\n' << "property uchar red"
-       << '\n' << "property uchar green"
-       << '\n' << "property uchar blue"
-       << '\n' << "end_header" << std::endl;
+       << '\n'
+       << "format ascii 1.0"
+       << '\n'
+       << "element vertex " << num_cameras_ + num_points_
+       << '\n'
+       << "property float x"
+       << '\n'
+       << "property float y"
+       << '\n'
+       << "property float z"
+       << '\n'
+       << "property uchar red"
+       << '\n'
+       << "property uchar green"
+       << '\n'
+       << "property uchar blue"
+       << '\n'
+       << "end_header" << std::endl;
 
     // Export extrinsic data (i.e. camera centers) as green points.
     double angle_axis[3];
@@ -302,3 +310,5 @@ void BALProblem::Perturb(const double rotation_sigma,
             PerturbPoint3(translation_sigma, camera + camera_block_size() - 6);
     }
 }
+
+}  // namespace slamplay

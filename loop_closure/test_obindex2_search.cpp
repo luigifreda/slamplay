@@ -33,6 +33,8 @@
 #include "Files.h"
 #include "macros.h"
 
+using namespace slamplay;
+
 std::string dataDir = STR(DATA_DIR); // DATA_DIR set by compilers flag 
 
 int main(int argc, char** argv) 

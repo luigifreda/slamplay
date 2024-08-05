@@ -1,7 +1,7 @@
 //
-// Created by gaoxiang on 19-5-4. 
+// Created by gaoxiang on 19-5-4.
 // From https://github.com/gaoxiang12/slambook2
-// Modified by Luigi Freda later for slamplay 
+// Modified by Luigi Freda later for slamplay
 //
 #pragma once
 
@@ -26,7 +26,7 @@ class VisualOdometry {
     typedef std::shared_ptr<VisualOdometry> Ptr;
 
     /// constructor with config file
-    VisualOdometry(const std::string &config_path, const DatasetType& dataset_type=DatasetType::KITTI);
+    VisualOdometry(const std::string& config_path, const DatasetType& dataset_type = DatasetType::KITTI);
 
     /**
      * do initialization things before run
@@ -60,9 +60,7 @@ class VisualOdometry {
     Dataset::Ptr dataset_ = nullptr;
     DatasetType dataset_type_;
 
-    std::unique_ptr<ChronoFps> timerFps_;
+    std::unique_ptr<slamplay::ChronoFps> timerFps_;
 };
 
 }  // namespace myslam
-
-

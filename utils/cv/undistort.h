@@ -2,6 +2,8 @@
 
 #include <opencv2/opencv.hpp>
 
+namespace slamplay {
+
 std::vector<cv::KeyPoint> undistortVectorOfKeyPoints(const std::vector<cv::KeyPoint> &src, const cv::Mat &cameraMatrix, const cv::Mat &distCoeffs) {
     std::vector<cv::Point2f> mat;
     std::vector<cv::KeyPoint> res;
@@ -17,4 +19,6 @@ std::vector<cv::KeyPoint> undistortVectorOfKeyPoints(const std::vector<cv::KeyPo
         res.emplace_back(kpt);
     }
     return res;
+}
+
 }

@@ -5,6 +5,8 @@
 #include <iostream>
 #include <vector>
 
+namespace slamplay {
+
 std::vector<std::string> GetPngFiles(const std::string& strPngDir) {
     std::cout << "Reding png files from " << strPngDir << std::endl;
     struct dirent** namelist;
@@ -39,3 +41,5 @@ std::vector<std::string> GetImageFiles(const std::string& strImageDir, const std
 
     return ret;
 }
+
+}  // namespace slamplay

@@ -4,6 +4,8 @@
 
 #include "string_utils.h"
 
+namespace slamplay {
+
 inline void plotImageErrorWithColorbar(cv::Mat& error) {
     const int font = cv::FONT_HERSHEY_SIMPLEX;  // Set font type
     const double scale = 0.5;                   // Set font scale
@@ -47,3 +49,5 @@ inline void plotImageErrorWithColorbar(cv::Mat& error) {
 
     cv::imshow("Error color map with legend", error_color);  // Show color image with legend
 }
+
+}  // namespace slamplay

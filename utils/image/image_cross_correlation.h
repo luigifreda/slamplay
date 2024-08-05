@@ -4,6 +4,8 @@
 #include <opencv2/opencv.hpp>
 #include "image_interpolation.h"
 
+namespace slamplay {
+
 double NCC(const cv::Mat &ref, const cv::Mat &curr,
            const Eigen::Vector2d &pt_ref, const Eigen::Vector2d &pt_curr,
            int ncc_window_size = 3,  // The half-width of the window taken by NCC
@@ -38,3 +40,5 @@ double NCC(const cv::Mat &ref, const cv::Mat &curr,
     }
     return numerator / sqrt(demoniator1 * demoniator2 + 1e-10);  // prevent denominator from appearing zero
 }
+
+}  // namespace slamplay

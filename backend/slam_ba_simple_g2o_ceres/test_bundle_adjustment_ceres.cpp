@@ -1,20 +1,17 @@
-#include <iostream>
 #include <ceres/ceres.h>
+#include <iostream>
 #include "BALProblem.h"
 #include "SnavelyReprojectionError.h"
 #include "macros.h"
 
-
 using namespace std;
+using namespace slamplay;
 
-
-std::string dataDir = STR(DATA_DIR); //DATA_DIR set by compilers flag 
-
+std::string dataDir = STR(DATA_DIR);  // DATA_DIR set by compilers flag
 
 void SolveBA(BALProblem &bal_problem);
 
-int main(int argc, char **argv) 
-{
+int main(int argc, char **argv) {
     std::string bal_file = dataDir + "/bal/problem-16-22106-pre.txt";
 
     if (argc != 2) {

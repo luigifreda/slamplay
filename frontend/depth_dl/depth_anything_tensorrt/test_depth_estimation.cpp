@@ -22,6 +22,8 @@
 const std::string kDataDir = STR(DATA_DIR);  // DATA_DIR set by compilers flag
 
 using namespace std;
+using namespace slamplay;
+
 // Define the format used by the point cloud: XYZRGB is used here
 typedef pcl::PointXYZRGB PointT;
 typedef pcl::PointCloud<PointT> PointCloudT;

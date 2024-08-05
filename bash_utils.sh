@@ -104,3 +104,14 @@ function get_current_nvidia_driver_version(){
     echo $NVIDIA_DRIVER_VERSION
 }
 
+
+function gdrive_download () {
+  if gdown -V >/dev/null 2>&1; then
+    echo "" #"gdown is found in PATH"
+  else
+    if [[ -f $HOME/.local/bin/gdown ]]; then
+      export PATH=$HOME/.local/bin:$PATH
+    fi 
+  fi  
+  gdown https://drive.google.com/uc?id=$1
+}

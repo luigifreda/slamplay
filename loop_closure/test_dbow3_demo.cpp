@@ -175,7 +175,7 @@ void testDatabase(const  vector<cv::Mat > &features)
 int main(int argc,char **argv)
 {
     try{
-        CmdLineParser cml(argc, argv);
+        slamplay::CmdLineParser cml(argc, argv);
         if (cml["-h"] || argc<=3){
             cerr<<"Usage: " << argv[0]  << " <descriptor type> <image_dir> \n\t descriptor types:brisk,surf,orb,akaze"<<endl;
              return -1;
@@ -185,7 +185,7 @@ int main(int argc,char **argv)
         string dataset_dir=argv[2];
 
         std::vector<std::string> filenames;
-        getImageFilenames(dataset_dir, filenames);
+        slamplay::getImageFilenames(dataset_dir, filenames);
 
         vector<cv::Mat> features= extractFeatures(filenames, descriptor);
         testVocCreation(features);

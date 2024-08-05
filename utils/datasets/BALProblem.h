@@ -2,10 +2,12 @@
 
 #include <string>
 
-///Read BAL dataset from file
+namespace slamplay {
+
+/// Read BAL dataset from file
 class BALProblem {
-public:
-    ///load bal data from text file
+   public:
+    /// load bal data from text file
     explicit BALProblem(const std::string &filename, bool use_quaternions = false);
 
     ~BALProblem() {
@@ -15,10 +17,10 @@ public:
         delete[] parameters_;
     }
 
-    ///save results to text file
+    /// save results to text file
     void WriteToFile(const std::string &filename) const;
 
-    ///save results to ply pointcloud
+    /// save results to ply pointcloud
     void WriteToPLYFile(const std::string &filename) const;
 
     void Normalize();
@@ -51,7 +53,7 @@ public:
 
     const double *points() const { return parameters_ + camera_block_size() * num_cameras_; }
 
-    ///The starting address of the camera parameter
+    /// The starting address of the camera parameter
     double *mutable_cameras() { return parameters_; }
 
     double *mutable_points() { return parameters_ + camera_block_size() * num_cameras_; }
@@ -72,7 +74,7 @@ public:
         return points() + point_index_[i] * point_block_size();
     }
 
-private:
+   private:
     void CameraToAngelAxisAndCenter(const double *camera,
                                     double *angle_axis,
                                     double *center) const;
@@ -87,8 +89,10 @@ private:
     int num_parameters_;
     bool use_quaternions_;
 
-    int *point_index_; // The point index corresponding to each observation
-    int *camera_index_; // The camera index corresponding to each observation
+    int *point_index_;   // The point index corresponding to each observation
+    int *camera_index_;  // The camera index corresponding to each observation
     double *observations_;
     double *parameters_;
 };
+
+}  // namespace slamplay
