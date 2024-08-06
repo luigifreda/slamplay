@@ -24,7 +24,13 @@ do
 	fi 
 done
 #remove symbolic links
-rm -Rf thirdparty/tensorrtbuffers
+if [ -e thirdparty/tensorrtbuffers ]; then
+	rm -Rf thirdparty/tensorrtbuffers
+fi 
+
+if [ -d thirdparty/TensorRT ]; then
+	rm -Rf thirdparty/TensorRT
+fi 
 
 
 # ==========================================

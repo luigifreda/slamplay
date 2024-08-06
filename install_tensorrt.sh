@@ -23,13 +23,6 @@ else
   exit -1
 fi
 
-
-function print_blue(){
-	printf "\033[34;1m"
-	printf "$@ \n"
-	printf "\033[0m"
-}
-
 # create install path 
 if [ ! -d $INSTALL_PATH ]; then
   mkdir -p $INSTALL_PATH
@@ -38,6 +31,11 @@ cd $INSTALL_PATH
 
 
 if [ ! -d "${INSTALL_PATH}/TensorRT/lib" ]; then
+
+  if [ $USE_CUDA -eq 1 ]; then
+      install_packages libcudnn8 libcudnn8-dev  # check and install otherwise this is going to update to the latest version (and that's not we necessary want to do)
+  fi 
+
   mkdir -p ${INSTALL_PATH}/TensorRT
   pip install gdown
   if [ $USE_DRIVE -eq 1 ]; then

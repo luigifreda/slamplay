@@ -214,6 +214,13 @@ find_package(SESync REQUIRED)
 #message(STATUS "sesync lid dir: ${SESYNC_LIB_DIR}")
 message(STATUS "sesync libs: ${SESYNC_LIBS}")
 
+# DBoW2
+set(DBOW2_DIR ${PROJECT_SOURCE_DIR}/thirdparty/dbow2/)
+message(STATUS "set custom DBoW2 folder: ${DBOW2_DIR}")
+set(DBoW2_INCLUDE_DIRS ${DBOW2_DIR}/)
+set(DBoW2_LIB ${DBOW2_DIR}/lib/libDBoW2.so)
+message(STATUS "DBoW2 includes: ${DBoW2_INCLUDE_DIRS}")
+
 # DBoW3
 set(CMAKE_PREFIX_PATH ${PROJECT_SOURCE_DIR}/thirdparty/dbow3/install/lib/cmake/DBoW3)
 set(DBOW3_DIR ${PROJECT_SOURCE_DIR}/thirdparty/dbow3/install/)
@@ -327,6 +334,7 @@ set(EXT_INCLUDE_DIRS
   ${OpenCV_INCLUDE_DIRS}
   ${SESYNC_INCLUDE_DIRS}
   ${CSPARSE_INCLUDE_DIR}
+  ${DBoW2_INCLUDE_DIRS}
   ${DBoW3_INCLUDE_DIRS}
   ${OBINDEX2_INCLUDE_DIR}
   ${IBOW_LCD_INCLUDE_DIR}
@@ -366,6 +374,7 @@ set(EXT_LIBS
   ${CHOLMOD_LIBRARIES}  
   ${Pangolin_LIBRARIES}
   ${PCL_LIBRARIES} 
+  ${DBoW2_LIB}
   gtsam
   ${G2O_LIBS}  
   ${CERES_LIBRARIES}

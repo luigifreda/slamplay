@@ -182,11 +182,11 @@ void ClearTimer() {
 }
 
 void PrintTimer(int nLevels) {
-    cout << "pyramid costs: " << TimerPyramid.aveCost() << " ± " << TimerPyramid.devCost() << endl;
+    cout << "pyramid costs: " << TimerPyramid.aveCost() << " ± " << TimerPyramid.devCost() << " ms" << endl;
     for (int level = 0; level < nLevels; ++level)
-        cout << "level " << level << " costs : " << TimerDetectPerLevel[level].aveCost() << " ± " << TimerDetectPerLevel[level].devCost() << endl;
-    cout << "copy costs: " << TimerCopy.aveCost() << " ± " << TimerCopy.devCost() << endl;
-    cout << "total costs: " << TimerTotal.aveCost() << " ± " << TimerTotal.devCost() << endl;
+        cout << "level " << level << " costs : " << TimerDetectPerLevel[level].aveCost() << " ± " << TimerDetectPerLevel[level].devCost() << " ms" << endl;
+    cout << "copy costs: " << TimerCopy.aveCost() << " ± " << TimerCopy.devCost() << " ms" << endl;
+    cout << "total costs: " << TimerTotal.aveCost() << " ± " << TimerTotal.devCost() << " ms" << endl;
 }
 
 struct TestExtractor : public HFextractor {
@@ -347,11 +347,10 @@ int main(int argc, char **argv) {
         return 1;
     }
 
-#if 0
-    InitAllModels(strModelPath, kHFNetRTModel, ImSize, nLevels, scaleFactor);
-#else
-    InitAllModels(strModelPath, kHFNetTFModel, ImSize, nLevels, scaleFactor);
-#endif
+    const ModelType modelType = kHFNetRTModel;
+    // const ModelType modelType = kHFNetTFModel;  // only when tensorflow is available and USE_TENSORFLOW is defined
+    InitAllModels(strModelPath, modelType, ImSize, nLevels, scaleFactor);
+
     auto vpModels = GetModelVec();
 
     TestExtractor *pExtractor = new TestExtractor(1000, 0.01, scaleFactor, nLevels, vpModels);
@@ -369,26 +368,32 @@ int main(int argc, char **argv) {
     int select = 0;
     while (select < files.size())
     {
-        if (command == 'q')
+        bool show_key_interation = true;
+        if (command == 'q') {
             break;
-#if 0            
-        else if (command == 's')
+        } else if (command == 's') {
             select = std::max(select - 1, 0);
-        else if (command == 'w')
+        } else if (command == 'w') {
             select += 1;
-        else if (command == 'a')
+        } else if (command == 'a') {
             threshold = std::max(threshold - 0.005, 0.005);
-        else if (command == 'd')
+        } else if (command == 'd') {
             threshold += 0.005;
-        else
+        } else if (command == 'r') {
             select = distribution(generator);
+        } else {
+            show_key_interation = false;
+            select++;
+        }
 
-        cout << "command: " << command << endl;
-        cout << "select: " << select << endl;
-        cout << "threshold: " << threshold << endl;
-#endif
+        if (show_key_interation)
+        {
+            cout << "command: " << command << endl;
+            cout << "select: " << select << endl;
+            cout << "threshold: " << threshold << endl;
+        }
 
-        image = imread(strDatasetPath + files[select], IMREAD_GRAYSCALE);
+        image = cv::imread(strDatasetPath + files[select], cv::IMREAD_GRAYSCALE);
 
         ClearTimer();
         TimerTotal.Tic();
@@ -400,8 +405,7 @@ int main(int argc, char **argv) {
 
         showKeypoints("press 'q' to exit", image, vKeyPoints);
         cout << endl;
-        command = cv::waitKey(1);
-        select++;
+        command = cv::waitKey();
     }
     cv::destroyAllWindows();
 

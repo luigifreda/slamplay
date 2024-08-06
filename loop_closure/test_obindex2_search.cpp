@@ -1,21 +1,21 @@
 /**
-* This file is part of obindex2.
-*
-* Copyright (C) 2017 Emilio Garcia-Fidalgo <emilio.garcia@uib.es> (University of the Balearic Islands)
-*
-* obindex2 is free software: you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation, either version 3 of the License, or
-* (at your option) any later version.
-*
-* obindex2 is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-* GNU General Public License for more details.
-*
-* You should have received a copy of the GNU General Public License
-* along with obindex2. If not, see <http://www.gnu.org/licenses/>.
-*/
+ * This file is part of obindex2.
+ *
+ * Copyright (C) 2017 Emilio Garcia-Fidalgo <emilio.garcia@uib.es> (University of the Balearic Islands)
+ *
+ * obindex2 is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * obindex2 is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with obindex2. If not, see <http://www.gnu.org/licenses/>.
+ */
 
 #include <chrono>
 #include <cstdio>
@@ -24,116 +24,110 @@
 #include <boost/filesystem.hpp>
 #include <opencv2/features2d/features2d.hpp>
 #ifdef HAVE_OPENCV_CONTRIB
-#include <opencv2/xfeatures2d/nonfree.hpp>
 #include <opencv2/xfeatures2d.hpp>
+#include <opencv2/xfeatures2d/nonfree.hpp>
 #endif
 
 #include "obindex2/binary_index.h"
 
-#include "Files.h"
+#include "file_utils.h"
 #include "macros.h"
 
 using namespace slamplay;
 
-std::string dataDir = STR(DATA_DIR); // DATA_DIR set by compilers flag 
+std::string dataDir = STR(DATA_DIR);  // DATA_DIR set by compilers flag
 
-int main(int argc, char** argv) 
-{
-  //std::string dataset_dir = dataDir + "/loop_closure/";
-  std::string dataset_dir = dataDir + "/new_college/Images";
-  if( argc== 2) {
-      dataset_dir = argv[1];
-  } else {
-    std::cout << "usage: " << argv[0] <<" <dataset dir>" << std::endl;
-  }
+int main(int argc, char** argv) {
+    // std::string dataset_dir = dataDir + "/loop_closure/";
+    std::string dataset_dir = dataDir + "/new_college/Images";
+    if (argc == 2) {
+        dataset_dir = argv[1];
+    } else {
+        std::cout << "usage: " << argv[0] << " <dataset dir>" << std::endl;
+    }
 
-  // Creating feature detector and descriptor
-  cv::Ptr<cv::FastFeatureDetector> det =
-          cv::FastFeatureDetector::create();
-#ifdef HAVE_OPENCV_CONTRIB          
-  cv::Ptr<cv::xfeatures2d::BriefDescriptorExtractor> des =
-          cv::xfeatures2d::BriefDescriptorExtractor::create();
-#else 
-  cv::Ptr<cv::Feature2D> des = cv::ORB::create();
+    // Creating feature detector and descriptor
+    cv::Ptr<cv::FastFeatureDetector> det =
+        cv::FastFeatureDetector::create();
+#ifdef HAVE_OPENCV_CONTRIB
+    cv::Ptr<cv::xfeatures2d::BriefDescriptorExtractor> des =
+        cv::xfeatures2d::BriefDescriptorExtractor::create();
+#else
+    cv::Ptr<cv::Feature2D> des = cv::ORB::create();
 #endif
 
-  // Loading image filenames
-  std::vector<std::string> filenames;
-  getImageFilenames(dataset_dir, filenames);
-  unsigned nimages = filenames.size();
+    // Loading image filenames
+    std::vector<std::string> filenames;
+    getImageFilenames(dataset_dir, filenames);
+    unsigned nimages = filenames.size();
 
-  // Creating a new index of images
-  obindex2::ImageIndex index(16, 150, 4, obindex2::MERGE_POLICY_AND, true);
+    // Creating a new index of images
+    obindex2::ImageIndex index(16, 150, 4, obindex2::MERGE_POLICY_AND, true);
 
-  // Adding image 0
-  // Detecting and describing keypoints
-  std::vector<cv::KeyPoint> kps0;
-  cv::Mat dscs0;
-  cv::Mat image0 = cv::imread(filenames[0]);
-  det->detect(image0, kps0);
-  cv::KeyPointsFilter::retainBest(kps0, 1000);
-  des->compute(image0, kps0, dscs0);
+    // Adding image 0
+    // Detecting and describing keypoints
+    std::vector<cv::KeyPoint> kps0;
+    cv::Mat dscs0;
+    cv::Mat image0 = cv::imread(filenames[0]);
+    det->detect(image0, kps0);
+    cv::KeyPointsFilter::retainBest(kps0, 1000);
+    des->compute(image0, kps0, dscs0);
 
-  // Adding the image to the index.
-  index.addImage(0, kps0, dscs0);
+    // Adding the image to the index.
+    index.addImage(0, kps0, dscs0);
 
-  auto start = std::chrono::steady_clock::now();
+    auto start = std::chrono::steady_clock::now();
 
-  for (unsigned i = 1; i < nimages; i++) {
-    std::cout << "---" << std::endl;
-    // Processing image i
-    std::cout << "Processing image " << i << std::endl;
-    // Loading and describing the image
-    cv::Mat img = cv::imread(filenames[i]);
-    std::vector<cv::KeyPoint> kps;
-    cv::Mat dscs;
-    det->detect(img, kps);
-    cv::KeyPointsFilter::retainBest(kps, 1000);
-    des->compute(img, kps, dscs);
+    for (unsigned i = 1; i < nimages; i++) {
+        std::cout << "---" << std::endl;
+        // Processing image i
+        std::cout << "Processing image " << i << std::endl;
+        // Loading and describing the image
+        cv::Mat img = cv::imread(filenames[i]);
+        std::vector<cv::KeyPoint> kps;
+        cv::Mat dscs;
+        det->detect(img, kps);
+        cv::KeyPointsFilter::retainBest(kps, 1000);
+        des->compute(img, kps, dscs);
 
-    // Matching the descriptors
-    std::vector<std::vector<cv::DMatch> > matches_feats;
+        // Matching the descriptors
+        std::vector<std::vector<cv::DMatch> > matches_feats;
 
-    // Searching the query descriptors against the features
-    index.searchDescriptors(dscs, &matches_feats, 2, 64);
+        // Searching the query descriptors against the features
+        index.searchDescriptors(dscs, &matches_feats, 2, 64);
 
-    // Filtering matches according to the ratio test
-    std::vector<cv::DMatch> matches;
-    for (unsigned m = 0; m < matches_feats.size(); m++) {
-      if (matches_feats[m][0].distance < matches_feats[m][1].distance * 0.8) {
-        matches.push_back(matches_feats[m][0]);
-      }
-    }
+        // Filtering matches according to the ratio test
+        std::vector<cv::DMatch> matches;
+        for (unsigned m = 0; m < matches_feats.size(); m++) {
+            if (matches_feats[m][0].distance < matches_feats[m][1].distance * 0.8) {
+                matches.push_back(matches_feats[m][0]);
+            }
+        }
 
-    std::vector<obindex2::ImageMatch> image_matches;
+        std::vector<obindex2::ImageMatch> image_matches;
 
-    // We look for similar images according to the good matches found
-    index.searchImages(dscs, matches, &image_matches);
+        // We look for similar images according to the good matches found
+        index.searchImages(dscs, matches, &image_matches);
 
-    // Showing results
-    for (int j = 0; j < std::min(5, static_cast<int>(image_matches.size())); j++) {
-      std::cout << "Cand: " << image_matches[j].image_id <<  ", " <<
-                   "Score: " << image_matches[j].score << std::endl;
-    }
+        // Showing results
+        for (int j = 0; j < std::min(5, static_cast<int>(image_matches.size())); j++) {
+            std::cout << "Cand: " << image_matches[j].image_id << ", " << "Score: " << image_matches[j].score << std::endl;
+        }
 
-    std::cout << "Total features found in the image: " <<
-                                          kps.size() << std::endl;
-    std::cout << "Total matches found against the index: " <<
-                                          matches.size() << std::endl;
-    std::cout << "Total index size BEFORE UPDATE: " <<
-                                          index.numDescriptors() << std::endl;
-    // Updating the index
-    // Matched descriptors are used to update the index and the remaining ones
-    // are added as new visual words
-    index.addImage(i, kps, dscs, matches);
-    std::cout << "Total index size AFTER UPDATE: " <<
-                                          index.numDescriptors() << std::endl;
+        std::cout << "Total features found in the image: " << kps.size() << std::endl;
+        std::cout << "Total matches found against the index: " << matches.size() << std::endl;
+        std::cout << "Total index size BEFORE UPDATE: " << index.numDescriptors() << std::endl;
+        // Updating the index
+        // Matched descriptors are used to update the index and the remaining ones
+        // are added as new visual words
+        index.addImage(i, kps, dscs, matches);
+        std::cout << "Total index size AFTER UPDATE: " << index.numDescriptors() << std::endl;
 
-    // Reindexing features every 500 images
-    if (i % 250 == 0) {
-      std::cout << "------ Rebuilding indices ------" << std::endl;
-      index.rebuild();
-    }
+        // Reindexing features every 500 images
+        if (i % 250 == 0) {
+            std::cout << "------ Rebuilding indices ------" << std::endl;
+            index.rebuild();
+        }
 
 #if 0
     // Showing matchings with the previous image
@@ -153,15 +147,14 @@ int main(int argc, char** argv)
 
     cv::imshow("Matchings", img);
     cv::waitKey(500);
-#endif 
+#endif
+    }
 
-  }
+    auto end = std::chrono::steady_clock::now();
+    auto diff = end - start;
 
-  auto end = std::chrono::steady_clock::now();
-  auto diff = end - start;
+    std::cout << std::chrono::duration<double, std::milli>(diff).count()
+              << " ms" << std::endl;
 
-  std::cout << std::chrono::duration<double, std::milli>(diff).count()
-      << " ms" << std::endl;
-
-  return 0;  // Correct test
+    return 0;  // Correct test
 }

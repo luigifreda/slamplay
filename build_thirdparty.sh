@@ -129,6 +129,15 @@ print_blue "Configuring and building thirdparty/ceres ..."
 
 cd thirdparty
 if [ ! -d ceres ]; then
+
+    # install google-dev stuff 
+    if [[ $version == *"22.04"* ]] ; then
+        sudo apt-get install -y libunwind-dev
+    fi 
+    sudo apt-get install -y libgtest-dev
+    sudo apt-get install -y libgoogle-glog-dev libgflags-dev
+    sudo apt-get install -y libprotobuf-dev protobuf-compiler
+
 	git clone https://ceres-solver.googlesource.com/ceres-solver ceres
     #git fetch --all --tags # to fetch tags 
     cd ceres
@@ -276,6 +285,22 @@ if [[ ! -f build/lib/libSESync.so ]]; then
     cmake .. -DCMAKE_INSTALL_PREFIX="`pwd`/../../install" -DCMAKE_BUILD_TYPE=Release $SESYNC_OPTIONS $EXTERNAL_OPTION
 	make -j 8
     #make install # unfortunately, sesync does not have any install target!
+fi
+cd $SCRIPT_DIR
+
+
+# ====================================================
+
+
+print_blue '================================================'
+print_blue "Configuring and building thirdparty/dbow2 ..."
+
+cd thirdparty/dbow2
+if [ ! -f lib/libDBoW2.so ]; then
+    make_buid_dir
+    cd build
+    cmake .. -DCMAKE_BUILD_TYPE=Release $EXTERNAL_OPTION
+    make -j 8
 fi
 cd $SCRIPT_DIR
 

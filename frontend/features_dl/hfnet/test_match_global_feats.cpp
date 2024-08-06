@@ -134,9 +134,10 @@ int main(int argc, char **argv) {
     const int step = 4;
     int nKeyFrame = (end - start) / step;
 
-    if (nKeyFrame <= 30) exit(-1);
+    // if (nKeyFrame <= 30) exit(-1);
     std::cout << "Dataset range: [" << start << " ~ " << end << "]" << ", nKeyFrame: " << nKeyFrame << std::endl;
 
+    std::cout << "Loading dataset..." << std::endl;
     KeyFrameDB vKeyFrameDB;
     vKeyFrameDB.reserve(nKeyFrame);
     float cur = start;
@@ -164,16 +165,21 @@ int main(int argc, char **argv) {
 
     char command = ' ';
     int select = 0;
-    while (1)
+    while (select < files.size() && command != 'q')
     {
         if (command == 'w')
             select += 1;
         else if (command == 'x')
             select -= 1;
-        else if (command == ' ')
+        else if (command == 'r')
             select = distribution(generator);
+        else {
+            select++;
+        }
 
-        cv::Mat image = imread(strDatasetPath + files[select], IMREAD_GRAYSCALE);
+        cout << "====================================================" << endl;
+
+        cv::Mat image = cv::imread(strDatasetPath + files[select], cv::IMREAD_GRAYSCALE);
 
         KeyFrameHFNetSLAM *pKFHF = new KeyFrameHFNetSLAM(select, image, pModel);
 
@@ -181,15 +187,16 @@ int main(int argc, char **argv) {
         auto res = GetNCandidateLoopFrameEigen(pKFHF, vKeyFrameDB, 3);
         auto t2 = chrono::steady_clock::now();
         auto t = chrono::duration_cast<chrono::microseconds>(t2 - t1).count();
-        std::cout << "Query cost time: " << t << std::endl;
+        // std::cout << "Found " << res.size() << " candidate loop frames" << std::endl;
+        std::cout << "Query cost time: " << t << " ms" << std::endl;
 
         ShowImageWithText("Query Image", image, std::to_string((int)pKFHF->mnFrameId));
         for (size_t index = 0; index < 3; ++index)
         {
             if (index < res.size()) {
-                cv::Mat image = imread(strDatasetPath + files[res[index]->mnFrameId], IMREAD_GRAYSCALE);
+                cv::Mat image = cv::imread(strDatasetPath + files[res[index]->mnFrameId], cv::IMREAD_GRAYSCALE);
                 ShowImageWithText("Candidate " + std::to_string(index + 1), image,
-                                  std::to_string((int)res[index]->mnFrameId) + ":" + std::to_string(res[index]->mPlaceRecognitionScore));
+                                  "F:" + std::to_string((int)res[index]->mnFrameId) + ", d:" + std::to_string(res[index]->mPlaceRecognitionScore));
             } else {
                 Mat empty = cv::Mat::zeros(ImSize, CV_8U);
                 cv::imshow("Candidate " + std::to_string(index + 1), empty);
@@ -198,8 +205,6 @@ int main(int argc, char **argv) {
 
         command = cv::waitKey();
     }
-
-    system("pause");
 
     return 0;
 }

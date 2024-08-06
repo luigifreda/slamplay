@@ -76,16 +76,25 @@ The following procedure has been successfully tested under **Ubuntu 20.04** (and
   (if you want, skip this step and set the variable `OpenCV_DIR` in `config.sh` with your local OpenCV path)     
 - Build the framework:      
   `$ ./build.sh`
-- If you want to use the DL (Deep Learning) models then run the following command to download both NN weights/checkpoints and data:
-  `$ ./install_dl_models.sh` 
-- Optional: If you want to install and test tensorflow C++ API (e.g. for HFNet), then run:    
+
+Once everything is built, you can enter in the `build` folder and test the different examples. 
+In particular, to test the `full_slam` apps: 
+1. Configure `full_slam/config/kitti.yaml` (or `full_slam/config/euroc.yaml`)
+2. Then run the VO (Visual Odometry) app:
+   ```bash 
+   $ cd build/full_slam/apps
+   $ ./run_kitti_stereo # or ./run_euroc_stereo
+   ```
+
+Additional steps: 
+- If you want to smoothly test the examples then dowload the provided testing images and videos (will be deployed in `data` folder):    
+  `$ ./install_data.sh`    
+- If you want to use the DL (Deep Learning) models then run the following command to download both NN weights/checkpoints with their related data:    
+  `$ ./install_dl_models.sh`     
+- If you want to install and test tensorflow C++ API (e.g. for HFNet), then run:     
   `$ ./install_tensorflow_cc.sh`      
   See [tensorflow_cc](https://github.com/luigifreda/tensorflow_cc) for further details. Note that this step will take a long while. 
 
-Once everything is built, you can enter in the `build` folder and test the different examples. 
-In particular, you can enter in the `full_slam` folder: 
-- configure the file `config/kitti.yaml` (or `config/euroc.yaml`)
-- and run the VO app `app/run_kitti_stereo` (or `app/run_euroc_stereo`)
 
 ---
 
@@ -115,6 +124,19 @@ In `frontend/feature_dl` you can find:
 In `frontend/depth_dl` you can find: 
 - A C++ implementation of [Depth-Anything-V2.0](https://github.com/DepthAnything/Depth-Anything-V2) based on TensorRT.
 
+As explained above, if you want to install and test tensorflow C++ API (e.g. for HFNet), then run:    
+  `$ ./install_tensorflow_cc.sh`      
+  See [tensorflow_cc](https://github.com/luigifreda/tensorflow_cc) for further details. Note that this step will take a long while. 
+
+My **current preferred working configuration** (default one) under Ubuntu 20.04:
+- **C++**: 17
+- **TENSORFLOW_VERSION**: 2.9.0 
+- **BAZEL_VERSION**: 5.1.1
+- **CUDA**: 11.6 
+- **CUDNN**: 8.6.0.163-1+cuda11.8   
+     - `sudo apt install -y libcudnn8=8.6.0.163-1+cuda11.8`
+    - `sudo apt install -y libcudnn8-dev=8.6.0.163-1+cuda11.8`
+  
 
 ---
 

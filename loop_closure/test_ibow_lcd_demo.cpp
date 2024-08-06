@@ -24,7 +24,7 @@
 
 #include "ibow-lcd/lcdetector.h"
 
-#include "Files.h"
+#include "file_utils.h"
 #include "macros.h"
 
 using namespace slamplay;

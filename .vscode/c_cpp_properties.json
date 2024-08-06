@@ -10,6 +10,8 @@
                 "${workspaceFolder}/full_slam/include/myslam",
                 "/usr/include",
                 "/usr/include/eigen3",
+                "${workspaceFolder}/thirdparty/dbow2/**",
+                "${workspaceFolder}/thirdparty/dbow3/install/include/**",
                 "${workspaceFolder}/thirdparty/TensorRT/include/**",
                 "${workspaceFolder}/thirdparty/tensorrtbuffers/include/**",
                 "${workspaceFolder}/thirdparty/pangolin/install/include/**",

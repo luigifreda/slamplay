@@ -51,6 +51,13 @@ class ORBextractor {
     // Compute the ORB features and descriptors on an image.
     // ORB are dispersed on the image using an octree.
     // Mask is ignored in the current implementation.
+    void operator()(cv::InputArray _image, cv::InputArray _mask,
+                   std::vector<cv::KeyPoint> &_keypoints,
+                   cv::OutputArray _descriptors);
+
+    // Compute the ORB features and descriptors on an image.
+    // ORB are dispersed on the image using an octree.
+    // Mask is ignored in the current implementation.
     void detectAndCompute(cv::InputArray image, cv::InputArray mask,
                           std::vector<cv::KeyPoint> &keypoints,
                           cv::OutputArray descriptors, bool bComputeDescriptors = true, bool bComputeOrientation = true);

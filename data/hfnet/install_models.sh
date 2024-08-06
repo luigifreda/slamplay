@@ -16,15 +16,6 @@ URL_MY_DRIVE_ID1="13l6Gagk5eXnHXEFgS5gO123Y61G-o0aP" # full file https://drive.g
 FILE_NAME2="hfnet-rt.tar.xz" 
 URL_MY_DRIVE_ID2="12gQr4VQkYgrqRCKqHecWR0ZgBxUQqv5a" # full file https://drive.google.com/file/d/12gQr4VQkYgrqRCKqHecWR0ZgBxUQqv5a/view?usp=sharing
 
-function print_blue(){
-	printf "\033[34;1m"
-	printf "$@ \n"
-	printf "\033[0m"
-}
-
-function gdrive_download () {
-  gdown https://drive.google.com/uc?id=$1
-}
 
 # create install path 
 if [ ! -d $INSTALL_PATH ]; then

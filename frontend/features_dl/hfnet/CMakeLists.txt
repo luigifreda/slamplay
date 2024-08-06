@@ -55,8 +55,10 @@ target_link_libraries(hfnet_features
     PRIVATE ${Tensorflow_LIBS}
 )
 
+# 
+
 # include_directories(${INCLUDE_DIRS} ${EXT_INCLUDE_DIRS})
-set(CORELIBS ${EXT_LIBS})
+set(CORELIBS ${LIBS} ${EXT_LIBS})
 
 if(USE_TENSORFLOW)
     add_executable(test_hfnet_tf_v1 ${CMAKE_CURRENT_SOURCE_DIR}/test_hfnet_tf_v1.cpp)
@@ -81,3 +83,13 @@ target_link_libraries(test_match_global_feats hfnet_features ${CORELIBS})
 
 add_executable(test_match_local_feats ${CMAKE_CURRENT_SOURCE_DIR}/test_match_local_feats.cpp)
 target_link_libraries(test_match_local_feats hfnet_features ${CORELIBS})
+
+# 
+
+add_executable(test_and_compare_extractors ${CMAKE_CURRENT_SOURCE_DIR}/test_and_compare_extractors.cpp)
+target_include_directories(test_and_compare_extractors PRIVATE ${INCLUDE_DIRS} ${EXT_INCLUDE_DIRS})
+target_link_libraries(test_and_compare_extractors hfnet_features ${CORELIBS})
+
+add_executable(test_and_compare_matchers ${CMAKE_CURRENT_SOURCE_DIR}/test_and_compare_matchers.cpp)
+target_include_directories(test_and_compare_matchers PRIVATE ${INCLUDE_DIRS} ${EXT_INCLUDE_DIRS})
+target_link_libraries(test_and_compare_matchers hfnet_features ${CORELIBS})

@@ -15,6 +15,7 @@ sudo apt-get install -y libeigen3-dev
 sudo apt-get install -y libopenni-dev libopenni2-dev libpcl-dev
 sudo apt-get install -y libyaml-cpp-dev
 sudo apt-get install -y libzstd-dev
+sudo apt-get install -y unzip
 
 sudo apt-get install -y liboctomap-dev
 
@@ -32,10 +33,10 @@ sudo apt-get install -y libsuitesparse-dev
 
 # google dev 
 if [[ $UBUNTU_VERSION == *"22.04"* ]] ; then
-    sudo apt-get  install -y libunwind-dev
+    sudo apt-get install -y libunwind-dev
 fi 
 sudo apt-get install -y libgtest-dev
-sudo apt-get install -y libgoogle-glog-dev
+sudo apt-get install -y libgoogle-glog-dev libgflags-dev
 sudo apt-get install -y libprotobuf-dev protobuf-compiler
 
 # pcl 
@@ -46,5 +47,10 @@ sudo apt-get install -y liboctomap-dev octovis
 
 # rerun 
 sudo apt-get install -y cargo 
+
+# python for scripts and post-processing 
+sudo apt-get install -y python3 python3-pip
+sudo pip3 install --upgrade pip
+pip3 install gdown
 
 echo "...done"

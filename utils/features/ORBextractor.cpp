@@ -1053,8 +1053,12 @@ static void computeDescriptors(const Mat& image, vector<KeyPoint>& keypoints, Ma
         computeOrbDescriptor(keypoints[i], image, &pattern[0], descriptors.ptr((int)i));
 }
 
-// void ORBextractor::operator()( InputArray _image, InputArray _mask, vector<KeyPoint>& _keypoints,
-//                       OutputArray _descriptors)
+void ORBextractor::operator()(cv::InputArray _image, cv::InputArray _mask,
+                std::vector<cv::KeyPoint> &_keypoints,
+                cv::OutputArray _descriptors){
+    detectAndCompute(_image, _mask, _keypoints, _descriptors, true, true);
+}
+
 void ORBextractor::detectAndCompute(InputArray _image, InputArray _mask,
                                     std::vector<KeyPoint>& _keypoints,
                                     OutputArray _descriptors,

@@ -121,6 +121,9 @@ int SearchByBoWHFNetSLAM(float mfNNratio, float threshold, bool mutual,
 }
 
 int main(int argc, char* argv[]) {
+    // By default, the Eigen will use the maximum number of threads in OpenMP.
+    // However, this will somehow slow down the calculation of dense matrix multiplication.
+    // Therefore, use only half of the thresds.
     Eigen::setNbThreads(std::max(Eigen::nbThreads() / 2, 1));
 
     std::string strDatasetPath;
@@ -154,61 +157,88 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    cv::Vec4i inputShape{1, ImSize.height, ImSize.width, 1};
-    InitAllModels(strModelPath, kHFNetRTModel, ImSize, 4, 1.2f);
-    // InitAllModels(strModelPath, kHFNetTFModel, ImSize, 4, 1.2f);
+    // cv::Vec4i inputShape{1, ImSize.height, ImSize.width, 1};
+
+    const ModelType modelType = kHFNetRTModel;
+    // const ModelType modelType = kHFNetTFModel;  // only when tensorflow is available and USE_TENSORFLOW is defined
+    InitAllModels(strModelPath, kHFNetRTModel, ImSize, nLevels, scaleFactor);
+
     auto vpModels = GetModelVec();
 
-    std::default_random_engine generator;
-    std::uniform_int_distribution<unsigned int> distribution(0, files.size());
+    std::default_random_engine generator(chrono::system_clock::now().time_since_epoch().count());
+    std::uniform_int_distribution<unsigned int> distribution(0, files.size() - 20);
 
     int nFeatures = 700;
     float threshold = 0.02;
-    HFextractor extractorHF(nFeatures, threshold, 1.2f, 4, vpModels);
+    HFextractor extractorHF(nFeatures, threshold, scaleFactor, nLevels, vpModels);
 
     const cv::Mat cameraMatrix = cv::Mat::eye(3, 3, CV_32F);
     char command = ' ';
     float matchThreshold = 0.6;
     float ratioThreshold = 0.9;
     bool showWholeMatches = false;
+    const int deltaSelect = 10;
     int select = 0;
     do {
-        if (command == 'w')
+        bool show_key_interation = false;
+        if (command == 'x') {
+            break;
+        } else if (command == 'w') {
+            show_key_interation = true;
             select += 1;
-        else if (command == 's')
+        } else if (command == 's') {
+            show_key_interation = true;
             select -= 1;
-        else if (command == 'a')
+        } else if (command == 'a') {
+            show_key_interation = true;
             threshold = std::max(threshold - 0.001, 0.005);
-        else if (command == 'd')
+        } else if (command == 'd') {
+            show_key_interation = true;
             threshold += 0.001;
-        else if (command == 'q')
+        } else if (command == 'q') {
+            show_key_interation = true;
             matchThreshold -= 0.05;
-        else if (command == 'e')
+        } else if (command == 'e') {
+            show_key_interation = true;
             matchThreshold += 0.05;
-        else if (command == 'r')
+        } else if (command == 'r') {
+            show_key_interation = true;
             ratioThreshold -= 0.1;
-        else if (command == 'f')
+        } else if (command == 'f') {
+            show_key_interation = true;
             ratioThreshold = std::min(ratioThreshold + 0.1, 1.0);
-        else if (command == 'i')
+        } else if (command == 'i') {
+            show_key_interation = true;
             showWholeMatches = !showWholeMatches;
-        else if (command == ' ')
+        } else if (command == 'g') {
+            show_key_interation = true;
             select = distribution(generator);
+        } else {
+            select++;
+        }
+        if (show_key_interation) {
+            cout << "command: " << command << endl;
+            cout << "select: " << select << endl;
+            cout << "threshold: " << threshold << endl;
+            cout << "matchThreshold: " << matchThreshold << endl;
+            cout << "ratioThreshold: " << ratioThreshold << endl;
+        }
 
-        cout << "command: " << command << endl;
-        cout << "select: " << select << endl;
-        cout << "threshold: " << threshold << endl;
-        cout << "matchThreshold: " << matchThreshold << endl;
-        cout << "ratioThreshold: " << ratioThreshold << endl;
-        cv::Mat image1 = imread(strDatasetPath + files[select], IMREAD_GRAYSCALE);
-        cv::Mat image2 = imread(strDatasetPath + files[select + 10], IMREAD_GRAYSCALE);
+        if (select >= files.size() - deltaSelect) break;
+
+        size_t select1 = std::clamp((size_t)select, (size_t)0, files.size() - 1);
+        size_t select2 = std::clamp((size_t)select + deltaSelect, (size_t)0, files.size() - 1);
+        // std::cout << "reading: " << files[select1] << " and " << files[select2] << std::endl;
+
+        cv::Mat image1 = cv::imread(strDatasetPath + files[select1], cv::IMREAD_GRAYSCALE);
+        cv::Mat image2 = cv::imread(strDatasetPath + files[select2], cv::IMREAD_GRAYSCALE);
 
         std::vector<cv::KeyPoint> keypointsHF1, keypointsHF2;
-        cv::Mat descriptorsHF1, descriptorsHF2;
-        cv::Mat globalDescriptorsHF;
+        cv::Mat descriptorsHF1, descriptorsHF2, globalDescriptorsHF;
         extractorHF(image1, keypointsHF1, descriptorsHF1, globalDescriptorsHF);
         extractorHF(image2, keypointsHF2, descriptorsHF2, globalDescriptorsHF);
 
-        cout << "-------------------------------------------------------" << endl;
+        cout << "====================================================" << endl;
         {
             std::vector<cv::DMatch> matchesHF, thresholdMatchesHF, inlierMatchesHF, wrongMatchesHF;
             TicToc timer;
@@ -225,11 +255,11 @@ int main(int argc, char* argv[]) {
             cv::Mat plotHF = showCorrectMatches(image1, image2, keypointsHF1, keypointsHF2, inlierMatchesHF, wrongMatchesHF, showWholeMatches);
             cv::imshow("HF + BFMatcher_L2", plotHF);
             cout << "HF + BFMatcher_L2:" << endl;
-            cout << "match costs time: " << timer.timeBuff[0] << "ms" << endl;
-            cout << "matches total number: " << matchesHF.size() << endl;
-            cout << "threshold matches total number: " << thresholdMatchesHF.size() << endl;
-            cout << "correct matches number: " << inlierMatchesHF.size() << endl;
-            cout << "match correct percentage: " << (float)inlierMatchesHF.size() / thresholdMatchesHF.size() << endl;
+            cout << "\t match costs time: " << timer.timeBuff[0] << "ms" << endl;
+            cout << "\t matches total number: " << matchesHF.size() << endl;
+            cout << "\t threshold matches total number: " << thresholdMatchesHF.size() << endl;
+            cout << "\t correct matches number: " << inlierMatchesHF.size() << endl;
+            cout << "\t match correct percentage: " << (float)inlierMatchesHF.size() / thresholdMatchesHF.size() << endl;
         }
         {
             std::vector<cv::DMatch> matchesHF, thresholdMatchesHF, inlierMatchesHF, wrongMatchesHF;
@@ -247,11 +277,11 @@ int main(int argc, char* argv[]) {
             cv::Mat plotHF = showCorrectMatches(image1, image2, keypointsHF1, keypointsHF2, inlierMatchesHF, wrongMatchesHF, showWholeMatches);
             cv::imshow("HF + BFMatcher_L1", plotHF);
             cout << "HF + BFMatcher_L1:" << endl;
-            cout << "match costs time: " << timer.timeBuff[0] << "ms" << endl;
-            cout << "matches total number: " << matchesHF.size() << endl;
-            cout << "threshold matches total number: " << thresholdMatchesHF.size() << endl;
-            cout << "correct matches number: " << inlierMatchesHF.size() << endl;
-            cout << "match correct percentage: " << (float)inlierMatchesHF.size() / thresholdMatchesHF.size() << endl;
+            cout << "\t match costs time: " << timer.timeBuff[0] << "ms" << endl;
+            cout << "\t matches total number: " << matchesHF.size() << endl;
+            cout << "\t threshold matches total number: " << thresholdMatchesHF.size() << endl;
+            cout << "\t correct matches number: " << inlierMatchesHF.size() << endl;
+            cout << "\t match correct percentage: " << (float)inlierMatchesHF.size() / thresholdMatchesHF.size() << endl;
         }
         {  // The speed is faster than BFMather, but rhe correct percentage is lower
             std::vector<cv::DMatch> matchesHF, inlierMatchesHF, wrongMatchesHF;
@@ -263,10 +293,10 @@ int main(int argc, char* argv[]) {
             cv::Mat plotHF = showCorrectMatches(image1, image2, keypointsHF1, keypointsHF2, inlierMatchesHF, wrongMatchesHF, showWholeMatches);
             cv::imshow("HF + SearchByBoWHFNetSLAM", plotHF);
             cout << "HF + SearchByBoWHFNetSLAM:" << endl;
-            cout << "match costs time: " << timer.timeBuff[0] << "ms" << endl;
-            cout << "matches total number: " << matchesHF.size() << endl;
-            cout << "correct matches number: " << inlierMatchesHF.size() << endl;
-            cout << "match correct percentage: " << (float)inlierMatchesHF.size() / matchesHF.size() << endl;
+            cout << "\t match costs time: " << timer.timeBuff[0] << "ms" << endl;
+            cout << "\t matches total number: " << matchesHF.size() << endl;
+            cout << "\t correct matches number: " << inlierMatchesHF.size() << endl;
+            cout << "\t match correct percentage: " << (float)inlierMatchesHF.size() / matchesHF.size() << endl;
         }
     } while ((command = cv::waitKey()) != 'q');
 

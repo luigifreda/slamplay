@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
 
-source bash_utils.sh
-
 CONFIG_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 CONFIG_DIR=$(readlink -f $CONFIG_DIR)  # this reads the actual path if a symbolic directory is used
 cd $CONFIG_DIR # this brings us in the actual folder of this config script (not the symbolic one)
 #echo CONFIG_DIR: $CONFIG_DIR
+
+
+source $CONFIG_DIR/bash_utils.sh
 
 # ====================================================
 # OpenCV Settings 
@@ -56,10 +57,12 @@ export TENSORRT_VERSION="8"
 # This is working with the configuration <>
 export USE_TENSORFLOW=0  # use Tensorflow (will locally install Tensorflow and use it. Only available if you installed tensorflow_cc from source)
 export TENSORFLOW_ROOT="$HOME/.tensorflow"
-if [ ! -d "$TENSORFLOW_ROOT" ]; then
-	echo "TENSORFLOW_ROOT: $TENSORFLOW_ROOT does not exist"
-	USE_TENSORFLOW=0
-fi
+if [ $USE_TENSORFLOW -eq 1 ]; then
+	if [ ! -d "$TENSORFLOW_ROOT" ]; then
+		echo "TENSORFLOW_ROOT: $TENSORFLOW_ROOT does not exist"
+		USE_TENSORFLOW=0
+	fi
+fi 
 
 # ====================================================
 # Check and Manage Settings 
