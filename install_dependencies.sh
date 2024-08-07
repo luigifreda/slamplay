@@ -52,5 +52,6 @@ sudo apt-get install -y cargo
 sudo apt-get install -y python3 python3-pip
 sudo pip3 install --upgrade pip
 pip3 install gdown
+pip3 install torch # for processing/exporting DL models 
 
 echo "...done"
