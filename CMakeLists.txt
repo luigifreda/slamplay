@@ -356,6 +356,7 @@ set(EXT_INCLUDE_DIRS
 set(LIBS
   orbslam2_features  
   bal_dataset 
+  #hfnet_features  # We treat this separately for safety since it may be linked with a tensorflow_cc, which may use a different version of Eigen
 )
 
 link_directories( 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "extractors/HFextractor.h"
+#include "features_dl/hfnet/HFextractor.h"
 
 #include "macros.h"
 #include "yaml_utils.h"

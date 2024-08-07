@@ -1,4 +1,4 @@
-#include "extractors/HFNetTFModelV2.h"
+#include "features_dl/hfnet/HFNetTFModelV2.h"
 #ifdef USE_TENSORFLOW
 #include <tensorflow/core/public/version.h>
 #endif

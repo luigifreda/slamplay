@@ -1,5 +1,5 @@
 
-#include "extractors/HFNetSettings.h"
+#include "features_dl/hfnet/HFNetSettings.h"
 
 #include <iostream>
 

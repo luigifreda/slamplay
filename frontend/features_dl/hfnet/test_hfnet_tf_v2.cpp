@@ -54,7 +54,7 @@ detect global costs: 2.79904 ± 0.0640896
 #include <cv/matches_utils.h>
 #include "Frame.h"
 #include "HFNetSettings.h"
-#include "extractors/HFNetTFModelV2.h"
+#include "features_dl/hfnet/HFNetTFModelV2.h"
 
 #ifdef USE_TENSORFLOW
 

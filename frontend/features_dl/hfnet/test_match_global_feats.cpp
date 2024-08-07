@@ -19,8 +19,8 @@ Query cost time: 259
 
 #include <cv/matches_utils.h>
 #include <io/image_io.h>
-#include "extractors/HFNetSettings.h"
-#include "extractors/HFextractor.h"
+#include "features_dl/hfnet/HFNetSettings.h"
+#include "features_dl/hfnet/HFextractor.h"
 
 using namespace cv;
 using namespace std;

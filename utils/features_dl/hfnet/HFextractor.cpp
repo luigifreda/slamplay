@@ -6,7 +6,7 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <vector>
 
-#include "extractors/HFextractor.h"
+#include "features_dl/hfnet/HFextractor.h"
 
 using namespace cv;
 using namespace std;

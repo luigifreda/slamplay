@@ -1,4 +1,4 @@
-#include "extractors/HFNetVINOModel.h"
+#include "features_dl/hfnet/HFNetVINOModel.h"
 
 using namespace cv;
 using namespace std;

@@ -1,4 +1,4 @@
-#include "extractors/HFNetTFModel.h"
+#include "features_dl/hfnet/HFNetTFModel.h"
 namespace hfnet {
 
 #ifdef USE_TENSORFLOW

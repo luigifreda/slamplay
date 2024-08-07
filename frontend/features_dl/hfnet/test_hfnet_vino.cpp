@@ -52,7 +52,7 @@ detect global costs: 9.03912 ± 0.139315
 #include <cv/matches_utils.h>
 #include "Frame.h"
 #include "HFNetSettings.h"
-#include "extractors/HFNetVINOModel.h"
+#include "features_dl/hfnet/HFNetVINOModel.h"
 
 #ifdef USE_OPENVINO
 

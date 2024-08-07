@@ -1,9 +1,9 @@
-#include "extractors/BaseModel.h"
-#include "extractors/HFNetRTModel.h"
-#include "extractors/HFNetSettings.h"
-#include "extractors/HFNetTFModel.h"
-#include "extractors/HFNetTFModelV2.h"
-#include "extractors/HFNetVINOModel.h"
+#include "features_dl/hfnet/BaseModel.h"
+#include "features_dl/hfnet/HFNetRTModel.h"
+#include "features_dl/hfnet/HFNetSettings.h"
+#include "features_dl/hfnet/HFNetTFModel.h"
+#include "features_dl/hfnet/HFNetTFModelV2.h"
+#include "features_dl/hfnet/HFNetVINOModel.h"
 
 #include <unordered_map>
 #include <unordered_set>

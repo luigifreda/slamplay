@@ -5,10 +5,10 @@
 
 #include <Eigen/Core>
 
-#include "extractors/HFNetSettings.h"
-#include "extractors/HFextractor.h"
 #include "features/ORBVocabulary.h"
 #include "features/ORBextractor.h"
+#include "features_dl/hfnet/HFNetSettings.h"
+#include "features_dl/hfnet/HFextractor.h"
 
 #include <cv/matches_utils.h>
 #include <io/file_utils.h>

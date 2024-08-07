@@ -156,8 +156,8 @@ total costs: 60.0883 ± 4.10698
 #include <cv/matches_utils.h>
 #include <io/image_io.h>
 #include <time/TicToc.h>
-#include "extractors/HFNetSettings.h"
-#include "extractors/HFextractor.h"
+#include "features_dl/hfnet/HFNetSettings.h"
+#include "features_dl/hfnet/HFextractor.h"
 
 #include "macros.h"
 #include "messages.h"

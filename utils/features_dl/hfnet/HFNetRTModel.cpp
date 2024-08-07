@@ -1,4 +1,4 @@
-#include "extractors/HFNetRTModel.h"
+#include "features_dl/hfnet/HFNetRTModel.h"
 
 #ifdef USE_TENSORRT
 #include <NvOnnxParser.h>

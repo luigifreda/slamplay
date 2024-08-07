@@ -5,7 +5,7 @@
 #include <memory>
 #include <opencv2/opencv.hpp>
 #include <string>
-#include "extractors/BaseModel.h"
+#include "features_dl/hfnet/BaseModel.h"
 
 #ifdef USE_TENSORFLOW
 #include "tensorflow/c/c_api.h"

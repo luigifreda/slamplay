@@ -16,8 +16,8 @@ outputs[3].shape(): [1,4096]
 
 #include <cv/matches_utils.h>
 #include "HFNetSettings.h"
-#include "extractors/HFNetTFModel.h"
-#include "extractors/HFextractor.h"
+#include "features_dl/hfnet/HFNetTFModel.h"
+#include "features_dl/hfnet/HFextractor.h"
 
 #ifdef USE_TENSORFLOW
 
