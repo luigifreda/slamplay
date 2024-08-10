@@ -154,14 +154,14 @@ int main(int argc, char **argv) {
         cur += step;
     }
 
-    cv::namedWindow("Query Image");
-    cv::moveWindow("Query Image", 0, 0);
-    cv::namedWindow("Candidate 1");
-    cv::moveWindow("Candidate 1", 820, 0);
-    cv::namedWindow("Candidate 2");
-    cv::moveWindow("Candidate 2", 0, 540);
-    cv::namedWindow("Candidate 3");
-    cv::moveWindow("Candidate 3", 820, 540);
+    // cv::namedWindow("Query Image");
+    // cv::moveWindow("Query Image", 0, 0);
+    // cv::namedWindow("Candidate 1");
+    // cv::moveWindow("Candidate 1", 820, 0);
+    // cv::namedWindow("Candidate 2");
+    // cv::moveWindow("Candidate 2", 0, 540);
+    // cv::namedWindow("Candidate 3");
+    // cv::moveWindow("Candidate 3", 820, 540);
 
     char command = ' ';
     int select = 0;
@@ -191,17 +191,26 @@ int main(int argc, char **argv) {
         std::cout << "Query cost time: " << t << " ms" << std::endl;
 
         ShowImageWithText("Query Image", image, std::to_string((int)pKFHF->mnFrameId));
-        for (size_t index = 0; index < 3; ++index)
-        {
-            if (index < res.size()) {
-                cv::Mat image = cv::imread(strDatasetPath + files[res[index]->mnFrameId], cv::IMREAD_GRAYSCALE);
-                ShowImageWithText("Candidate " + std::to_string(index + 1), image,
-                                  "F:" + std::to_string((int)res[index]->mnFrameId) + ", d:" + std::to_string(res[index]->mPlaceRecognitionScore));
-            } else {
-                Mat empty = cv::Mat::zeros(ImSize, CV_8U);
-                cv::imshow("Candidate " + std::to_string(index + 1), empty);
+
+        auto showImages = [&](KeyFrameDB &res, const std::string &titlePrefix, const int rowShow = 0) {
+            const int deltaH = 100;
+            const int deltaV = 100;
+            for (size_t index = 0; index < 3; ++index) {
+                std::string windowTile = titlePrefix + " - Candidate " + std::to_string(index + 1);
+                if (index < res.size()) {
+                    const size_t idxChecked = std::clamp((size_t)res[index]->mnFrameId, (size_t)0, files.size() - 1);
+                    cv::Mat image = cv::imread(strDatasetPath + files[idxChecked], cv::IMREAD_GRAYSCALE);
+                    ShowImageWithText(windowTile, image,
+                                      "F:" + std::to_string((int)res[index]->mnFrameId) + ", d:" + std::to_string(res[index]->mPlaceRecognitionScore));
+                } else {
+                    Mat empty = cv::Mat::zeros(ImSize, CV_8U);
+                    cv::imshow(windowTile, empty);
+                }
+                cv::moveWindow(windowTile, image.cols * (index + 1) + deltaH, rowShow * (image.rows + deltaV));
             }
-        }
+        };
+
+        showImages(res, "HFNet", 0);
 
         command = cv::waitKey();
     }

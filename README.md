@@ -28,7 +28,7 @@ Author: [Luigi Freda](https://www.luigifreda.com)
  - front-end tools (*OpenCV*, *pcl*, *TensorRT*, *tensorflow_cc*, etc.),      
  - algebra and geometry libs (*eigen*, *sophus*, *cholmod*, etc.),    
  - viz tools (*pangolin*, *imgui*, *rerun*, etc.),     
- - loop-closure frameworks (*DBOW3*, *iBOW*, etc.),
+ - loop-closure frameworks (*DBOW2*, *DBOW3*, *iBOW*, etc.),
  - deep learning tools (based on *TensorRT*, *tensorflow_cc*, etc.),     
   
 along with some nice examples in order to easily and quickly start with all these tools.  
@@ -113,6 +113,8 @@ See the nice [ascii quick reference](docs/Eigen-AsciiQuickReference.txt).
 
 ## Front-end
 
+A couple of notes about some of the available front-end features. 
+
 ### Features DL (Deep Learning)
 
 In `frontend/feature_dl` you can find: 
@@ -142,7 +144,7 @@ My **current preferred working configuration** (default one) under Ubuntu 20.04:
 
 ## Back-end
 
-Some notes about the back-end frameworks. 
+A couple of notes about some of the available back-end frameworks. 
 
 ### GTSAM examples
 
