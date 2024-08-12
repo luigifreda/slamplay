@@ -107,7 +107,7 @@ if [[ ! -d $TARGET_FOLDER/opencv ]]; then
         install_packages libcudnn8 libcudnn8-dev  # check and install otherwise this is going to update to the latest version (and that's not we necessary want to do)
     fi 
 
-    if [[ $version == *"22.04"* ]] ; then
+    if [[ $version == *"22.04"* || $version == *"24.04"* ]] ; then
         sudo apt install -y libtbb-dev libeigen3-dev 
         sudo apt install -y zlib1g-dev libjpeg-dev libwebp-dev libpng-dev libtiff5-dev 
         sudo add-apt-repository -y "deb http://security.ubuntu.com/ubuntu xenial-security main"  # for libjasper-dev 

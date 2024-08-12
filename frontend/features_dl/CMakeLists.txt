@@ -16,6 +16,6 @@ if(WITH_TENSORRT)
   add_subdirectory(superpointglue_tensorrt)
 endif()
 
-if(WITH_TENSORRT)
+if(WITH_TENSORRT OR WITH_TENSORFLOW)
   add_subdirectory(hfnet)
 endif()

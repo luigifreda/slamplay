@@ -105,3 +105,29 @@ index 24dc07ed..ccef4062 100644
      $<BUILD_INTERFACE:${CMAKE_CURRENT_LIST_DIR}/include>
      $<INSTALL_INTERFACE:include>
  )
+diff --git a/components/pango_packetstream/include/pangolin/log/packetstream_tags.h b/components/pango_packetstream/include/pangolin/log/packetstream_tags.h
+index 2798fecc..6bd0e1a2 100644
+--- a/components/pango_packetstream/include/pangolin/log/packetstream_tags.h
++++ b/components/pango_packetstream/include/pangolin/log/packetstream_tags.h
+@@ -1,6 +1,7 @@
+ #pragma once
+ 
+ #include <string>
++#include <cstdint>
+ 
+ namespace pangolin {
+ 
+diff --git a/components/pango_python/pybind11 b/components/pango_python/pybind11
+index 03764178..3e9dfa28 160000
+--- a/components/pango_python/pybind11
++++ b/components/pango_python/pybind11
+@@ -1 +1 @@
+-Subproject commit 037641780d36d7fd8ac35efaaeb4905b48de8463
++Subproject commit 3e9dfa2866941655c56877882565e7577de6fc7b
+diff --git a/scripts/vcpkg b/scripts/vcpkg
+index 8d9c5219..a34c873a 160000
+--- a/scripts/vcpkg
++++ b/scripts/vcpkg
+@@ -1 +1 @@
+-Subproject commit 8d9c52191e039fe49c580807efee502d22f32786
++Subproject commit a34c873a9717a888f58dc05268dea15592c2f0ff

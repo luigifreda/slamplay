@@ -67,7 +67,7 @@ This repository is structured in the following main folders (with self-explanato
 
 ## Quick start
 
-The following procedure has been successfully tested under **Ubuntu 20.04** (and under Ubuntu 22.04 with partial DL support). 
+The following procedure has been successfully tested under **Ubuntu 20.04** (and under Ubuntu 22.04 and 24.04 with partial DL support). 
 
 - Install basic dependencies:      
   `$ ./install_dependencies.sh`        
@@ -77,7 +77,7 @@ The following procedure has been successfully tested under **Ubuntu 20.04** (and
 - Build the framework:      
   `$ ./build.sh`
 
-Once everything is built, you can enter in the `build` folder and test the different examples. 
+This will take a while. Once everything is built, you can enter in the `build` folder and test the different examples. 
 In particular, to test the `full_slam` apps: 
 1. Configure `full_slam/config/kitti.yaml` (or `full_slam/config/euroc.yaml`)
 2. Then run the VO (Visual Odometry) app:

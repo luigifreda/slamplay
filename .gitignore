@@ -1,6 +1,10 @@
 build 
 __pycache__
 
+# python 
+.venv
+
+# thirdparty 
 thirdparty/pangolin 
 thirdparty/sophus 
 thirdparty/ceres 

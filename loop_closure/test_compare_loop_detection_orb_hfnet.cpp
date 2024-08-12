@@ -9,8 +9,10 @@
 
 #include "features/ORBVocabulary.h"
 #include "features/ORBextractor.h"
+#if USE_TENSORFLOW || USE_TENSORRT
 #include "features_dl/hfnet/HFNetSettings.h"
 #include "features_dl/hfnet/HFextractor.h"
+#endif
 
 #include <cv/matches_utils.h>
 #include <io/file_utils.h>
@@ -24,7 +26,9 @@ using namespace cv;
 using namespace std;
 using namespace Eigen;
 using namespace slamplay;
+#if USE_TENSORFLOW || USE_TENSORRT
 using namespace hfnet;
+#endif
 
 std::string dataDir = STR(DATA_DIR);  // DATA_DIR set by compilers flag
 
@@ -33,6 +37,7 @@ struct TestKeyFrame {
     float mPlaceRecognitionScore = 1.0;
 };
 
+#if USE_TENSORFLOW || USE_TENSORRT
 struct KeyFrameHFNetSLAM : public TestKeyFrame {
     cv::Mat mGlobalDescriptors;
 
@@ -43,6 +48,7 @@ struct KeyFrameHFNetSLAM : public TestKeyFrame {
         pModel->Detect(im, vKeyPoints, localDescriptors, mGlobalDescriptors, 1000, 0.01);
     }
 };
+#endif
 
 std::vector<cv::Mat> toDescriptorVector(const cv::Mat &Descriptors) {
     std::vector<cv::Mat> vDesc;
@@ -88,6 +94,7 @@ KeyFrameDB GetNCandidateLoopFrameORBSLAM3(ORBVocabulary *mpVoc, KeyFrameORBSLAM3
     return res;
 }
 
+#if USE_TENSORFLOW || USE_TENSORRT
 KeyFrameDB GetNCandidateLoopFrameHFNetSLAM(KeyFrameHFNetSLAM *query, const KeyFrameDB &db, int k) {
     if (db.front()->mnFrameId >= query->mnFrameId - 30) return KeyFrameDB();
 
@@ -107,6 +114,7 @@ KeyFrameDB GetNCandidateLoopFrameHFNetSLAM(KeyFrameHFNetSLAM *query, const KeyFr
     });
     return res;
 }
+#endif
 
 void ShowImageWithText(const string &title, const cv::Mat &image, const string &str) {
     cv::Mat plot;
@@ -122,7 +130,9 @@ int main(int argc, char **argv) {
     int nLevels = 4;
     float scaleFactor = 1.2f;
 
+#if USE_TENSORFLOW || USE_TENSORRT
     hfnet::HFNetSettings settings;
+#endif
 
     if (argc == 4) {
         strDatasetPath = std::string(argv[1]);
@@ -131,10 +141,12 @@ int main(int argc, char **argv) {
     } else
     {
         std::cout << "Usage: compare_loop_detection path_to_dataset path_to_model path_to_vocabulary" << endl;
+#if USE_TENSORFLOW || USE_TENSORRT
         strDatasetPath = settings.strDatasetPath();
         strModelPath = settings.strModelPath();
         nLevels = settings.nLevels();
         scaleFactor = settings.scaleFactor();
+#endif
         strVocFileORB = dataDir + "/dbow2_vocabulary/ORBvoc.bin";
     }
 
@@ -155,8 +167,10 @@ int main(int argc, char **argv) {
     }
     std::cout << "Got [" << files.size() << "] images in dataset" << std::endl;
 
+#if USE_TENSORFLOW || USE_TENSORRT
     BaseModel *pModel = InitRTModel(strModelPath, kImageToLocalAndGlobal, {1, ImSize.height, ImSize.width, 1});
     // BaseModel *pModel = InitTFModel(strModelPath, kImageToLocalAndGlobal, {1, ImSize.height, ImSize.width, 1});
+#endif
 
     ORBextractor extractorORB(1000, 1.2, 8, 20, 7);
 
@@ -197,8 +211,10 @@ int main(int argc, char **argv) {
         int select = cur;
         cv::Mat image = imread(strDatasetPath + files[select], IMREAD_GRAYSCALE);
 
+#if USE_TENSORFLOW || USE_TENSORRT
         KeyFrameHFNetSLAM *pKFHF = new KeyFrameHFNetSLAM(select, image, pModel);
         vKeyFrameDBHFNetSLAM.emplace_back(pKFHF);
+#endif
 
         KeyFrameORBSLAM3 *pKFORB = new KeyFrameORBSLAM3(select, image, &vocabORB, &extractorORB);
         vKeyFrameDBORBSLAM3.emplace_back(pKFORB);
@@ -235,25 +251,31 @@ int main(int argc, char **argv) {
 
         cv::Mat image = imread(strDatasetPath + files[selectChecked], IMREAD_GRAYSCALE);
 
+#if USE_TENSORFLOW || USE_TENSORRT
         KeyFrameHFNetSLAM *pKFHF = new KeyFrameHFNetSLAM(selectChecked, image, pModel);
+#endif
 
         KeyFrameORBSLAM3 *pKFORB = new KeyFrameORBSLAM3(selectChecked, image, &vocabORB, &extractorORB);
 
         vector<TestKeyFrame *> resOrb;
         vector<TestKeyFrame *> resHfnet;
 
+#if USE_TENSORFLOW || USE_TENSORRT
         auto t1_H = chrono::steady_clock::now();
         resHfnet = GetNCandidateLoopFrameHFNetSLAM(pKFHF, vKeyFrameDBHFNetSLAM, 3);
         auto t2_H = chrono::steady_clock::now();
         auto tH = chrono::duration_cast<chrono::microseconds>(t2_H - t1_H).count();
+#endif
 
         auto t1_O = chrono::steady_clock::now();
         resOrb = GetNCandidateLoopFrameORBSLAM3(&vocabORB, pKFORB, vKeyFrameDBORBSLAM3, 3);
         auto t2_O = chrono::steady_clock::now();
         auto tO = chrono::duration_cast<chrono::microseconds>(t2_O - t1_O).count();
 
+#if USE_TENSORFLOW || USE_TENSORRT
         std::cout << "HFNet-SLAM: " << std::endl;
         std::cout << "\t Query cost time: " << tH << std::endl;
+#endif
 
         std::cout << "ORB-SLAM3: " << std::endl;
         std::cout << "\t Query cost time: " << tO << std::endl;
@@ -279,13 +301,15 @@ int main(int argc, char **argv) {
             }
         };
 
+#if USE_TENSORFLOW || USE_TENSORRT
         showImages(resHfnet, "HFNet", 0);
+#endif
 
         showImages(resOrb, "ORB", 1);
 
         command = cv::waitKey();
 
-        std::cout << "===========================================================" << std::endl; 
+        std::cout << "===========================================================" << std::endl;
     }
 
     system("pause");

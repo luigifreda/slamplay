@@ -90,7 +90,7 @@ if [ ! -d pangolin ]; then
 fi
 cd pangolin
 make_buid_dir
-if [[ ! -f build/src/libpangolin.so && ! -f build/libpango_core.so ]]; then
+if [[ ! -f build/src/libpangolin.so || ! -f build/libpango_core.so ]]; then
 	cd build
     PANGOLIN_OPTIONS="-DBUILD_EXAMPLES=OFF"
     cmake .. -DCMAKE_INSTALL_PREFIX="`pwd`/../install" -DCMAKE_BUILD_TYPE=Release $PANGOLIN_OPTIONS $EXTERNAL_OPTION
@@ -139,9 +139,13 @@ if [ ! -d ceres ]; then
     sudo apt-get install -y libprotobuf-dev protobuf-compiler
 
 	git clone https://ceres-solver.googlesource.com/ceres-solver ceres
-    #git fetch --all --tags # to fetch tags 
+    #git fetch --all --tags # to fetch tags   
     cd ceres
-    git checkout tags/2.1.0  # f68321e7de8929fbcdb95dd42877531e64f72f66  
+    if [[ $version == *"24.04"* ]] ; then
+        git checkout tags/2.2.0 
+    else       
+        git checkout tags/2.1.0  # f68321e7de8929fbcdb95dd42877531e64f72f66  
+    fi 
     cd .. 
 fi
 cd ceres
@@ -275,6 +279,7 @@ if [ ! -d sesync ]; then
     git submodule init
     git submodule update 
     git apply ../sesync.patch 
+    cp -f C++/changes/LSChol.cpp C++/Preconditioners/Preconditioners/LSChol/src/
     cd .. 
 fi
 cd sesync/C++

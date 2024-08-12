@@ -44,7 +44,6 @@ ${CMAKE_CURRENT_SOURCE_DIR}/HFNetVINOModel.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/HFNetSettings.cpp
 )
 
-#add_library(hfnet_features ${HFNET_SOURCES})
 add_library(hfnet_features STATIC)
 target_sources(hfnet_features PRIVATE ${HFNET_SOURCES})
 #set_property(TARGET hfnet_features PROPERTY INTERFACE_INCLUDE_DIRECTORIES ${HFNET_EXT_INCLUDE_DIRS} ${EIGEN_EXTERNAL_INCLUDES})

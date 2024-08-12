@@ -9,6 +9,22 @@ cd $CONFIG_DIR # this brings us in the actual folder of this config script (not 
 source $CONFIG_DIR/bash_utils.sh
 
 # ====================================================
+# Python Settings 
+# ====================================================
+
+if [[ $UBUNTU_VERSION == *"24.04"* ]] ; then
+    cd $CONFIG_DIR
+	if [ ! -d "$CONFIG_DIR/.venv" ]; then
+		echo "installing virtualenv under Ubuntu 24.04"
+		sudo apt install -y python3-venv
+		python3 -m venv .venv
+	fi 
+	echo "activating python venv $CONFIG_DIR/.venv"
+    source $CONFIG_DIR/.venv/bin/activate
+    cd -
+fi 
+
+# ====================================================
 # OpenCV Settings 
 # ====================================================
 

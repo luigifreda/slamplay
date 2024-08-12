@@ -29,6 +29,18 @@ index 5b2fa17..a87a1c5 100644
      };
  
      /// Hidden Main Window Constructor (for using ImGui windows exclusively)
+diff --git a/include/Mahi/Gui/Color.hpp b/include/Mahi/Gui/Color.hpp
+index 114e6a2..4cd33e5 100644
+--- a/include/Mahi/Gui/Color.hpp
++++ b/include/Mahi/Gui/Color.hpp
+@@ -18,6 +18,7 @@
+ 
+ #include <string>
+ #include <nanovg.h>
++#include <cstdint>
+ 
+ namespace mahi {
+ namespace gui {
 diff --git a/src/Mahi/Gui/Application.cpp b/src/Mahi/Gui/Application.cpp
 index 34d418f..a470279 100644
 --- a/src/Mahi/Gui/Application.cpp

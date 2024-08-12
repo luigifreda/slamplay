@@ -14,20 +14,26 @@ index 9541cd7..8e7dee3 100644
  PROJECT(DBoW3)
  set(PROJECT_VERSION "0.0.1")
 diff --git a/src/BowVector.h b/src/BowVector.h
-index d8c17e0..650984b 100644
+index d8c17e0..e9daf2e 100644
 --- a/src/BowVector.h
 +++ b/src/BowVector.h
-@@ -11,7 +11,9 @@
+@@ -11,11 +11,12 @@
  #define __D_T_BOW_VECTOR__
  
  #include <map>
 +#include <ostream>
  #include <vector>
+-#include "exports.h"
+-#if _WIN32
 +
- #include "exports.h"
- #if _WIN32
  #include <cstdint>
-@@ -28,90 +30,84 @@ typedef double WordValue;
+-#endif
++#include "exports.h"
++
+ namespace DBoW3 {
+ 
+ /// Id of words
+@@ -28,90 +29,84 @@ typedef double WordValue;
  typedef unsigned int NodeId;
  
  /// L-norms for normalization

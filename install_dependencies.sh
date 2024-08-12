@@ -1,5 +1,8 @@
 #!/usr/bin/env bash
 
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+SCRIPT_DIR=$(readlink -f $SCRIPT_DIR)  # this reads the actual path if a symbolic directory is used
+
 echo "Installing main dependencies ..."
 
 set -e
@@ -49,9 +52,21 @@ sudo apt-get install -y liboctomap-dev octovis
 sudo apt-get install -y cargo 
 
 # python for scripts and post-processing 
-sudo apt-get install -y python3 python3-pip
-sudo pip3 install --upgrade pip
+sudo apt-get install -y python3 python3-pip python3-dev
+if [[ $UBUNTU_VERSION == *"24.04"* ]] ; then
+    cd $SCRIPT_DIR
+	if [ ! -d "$SCRIPT_DIR/.venv" ]; then
+		echo "installing virtualenv under Ubuntu 24.04"
+		sudo apt install -y python3-venv
+		python3 -m venv .venv
+	fi 
+    source $SCRIPT_DIR/.venv/bin/activate
+    cd -
+else 
+    sudo pip3 install --upgrade pip
+fi 
 pip3 install gdown
 pip3 install torch # for processing/exporting DL models 
+
 
 echo "...done"
