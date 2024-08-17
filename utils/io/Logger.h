@@ -3,8 +3,8 @@
 #include <pthread.h>
 #include <fstream>
 #include <iostream>
-#include "Log.h"
-#include "LogColors.h"
+#include "io/Log.h"
+#include "io/LogColors.h"
 
 namespace slamplay {
 
@@ -100,6 +100,5 @@ class LoggerFile {
     std::fstream _ofile;
     std::string _filename;
 };
-
 
 }  // namespace slamplay

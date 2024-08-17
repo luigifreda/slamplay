@@ -8,10 +8,10 @@
 #include <Eigen/Dense>
 #include <Eigen/SparseCore>
 
-#include "SparseMatUtils.h"
+#include "sparse/SparseMatUtils.h"
 
-#include "Log.h"
-#include "Logger.h"
+#include "io/Log.h"
+#include "io/Logger.h"
 
 // #define CHOLMOD_SOLVER_DEBUG
 

@@ -11,7 +11,7 @@
 #include <thread>
 
 #include "macros.h"
-#include "yaml_utils.h"
+#include "yaml/yaml_utils.h"
 
 using namespace slamplay;
 

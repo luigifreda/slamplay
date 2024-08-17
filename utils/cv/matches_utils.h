@@ -1,6 +1,5 @@
 #pragma once
 
-#include <dirent.h>
 #include <algorithm>
 #include <chrono>
 #include <fstream>
@@ -8,55 +7,6 @@
 #include <opencv2/opencv.hpp>
 
 namespace slamplay {
-
-void showKeypoints(const std::string &title, cv::Mat image, const std::vector<cv::KeyPoint> &keypoints) {
-    cv::Mat image_show;
-    cvtColor(image, image_show, cv::COLOR_GRAY2BGR);
-    for (const cv::KeyPoint &kp : keypoints) {
-        cv::circle(image_show, kp.pt, 2, cv::Scalar(0, 255, 0), -1);
-    }
-    cv::imshow(title.c_str(), image_show);
-}
-
-cv::Mat showCorrectMatches(const cv::Mat &image1, const cv::Mat &image2,
-                           const std::vector<cv::KeyPoint> &keypoints1, const std::vector<cv::KeyPoint> &keypoints2,
-                           const std::vector<cv::DMatch> &inlierMatches, const std::vector<cv::DMatch> &wrongMatches, bool showSinglePoints = false) {
-    cv::Mat outImage;
-    cv::drawMatches(image1, keypoints1, image2, keypoints2, wrongMatches, outImage, cv::Scalar(0, 0, 255), cv::Scalar(-1, -1, -1), std::vector<char>(), cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
-    cv::drawMatches(image1, keypoints1, image2, keypoints2, inlierMatches, outImage, cv::Scalar(0, 255, 0), cv::Scalar(-1, -1, -1), std::vector<char>(), cv::DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS | cv::DrawMatchesFlags::DRAW_OVER_OUTIMG);
-    if (showSinglePoints)
-    {
-        std::vector<bool> matched1(keypoints1.size(), true);
-        std::vector<bool> matched2(keypoints2.size(), true);
-        for (auto m : inlierMatches)
-        {
-            matched1[m.queryIdx] = false;
-            matched2[m.trainIdx] = false;
-        }
-        for (auto m : wrongMatches)
-        {
-            matched1[m.queryIdx] = false;
-            matched2[m.trainIdx] = false;
-        }
-        std::vector<cv::KeyPoint> singlePoint1, singlePoint2;
-        for (size_t index = 0; index < matched1.size(); ++index)
-        {
-            if (matched1[index])
-            {
-                singlePoint1.emplace_back(keypoints1[index]);
-            }
-        }
-        for (size_t index = 0; index < matched2.size(); ++index)
-        {
-            if (matched2[index])
-            {
-                singlePoint2.emplace_back(keypoints2[index]);
-            }
-        }
-        cv::drawMatches(image1, singlePoint1, image2, singlePoint2, std::vector<cv::DMatch>(), outImage, cv::Scalar(0, 255, 0), cv::Scalar(-1, -1, -1), std::vector<char>(), cv::DrawMatchesFlags::DRAW_OVER_OUTIMG);
-    }
-    return outImage;
-}
 
 cv::Mat findCorrectMatchesByHomography(const std::vector<cv::KeyPoint> &keypoints1, const std::vector<cv::KeyPoint> &keypoints2,
                                        const std::vector<cv::DMatch> &matches, std::vector<cv::DMatch> &inlierMatches, std::vector<cv::DMatch> &wrongMatches) {
@@ -175,5 +125,4 @@ cv::Mat findCorrectMatchesByPnP(const std::vector<cv::KeyPoint> &keypoints1, con
     return cv::Mat();
 }
 
-
-}
+}  // namespace slamplay

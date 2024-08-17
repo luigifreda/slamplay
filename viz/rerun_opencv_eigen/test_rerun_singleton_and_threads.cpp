@@ -10,10 +10,10 @@
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/imgproc.hpp>
 
-#include "rerun_collection_adapters.hpp"
 #include "macros.h"
+#include "viz/rerun_collection_adapters.hpp"
 
-#include "RerunSingleton.h"
+#include "viz/RerunSingleton.h"
 
 rerun::Collection<rerun::TensorDimension> tensor_shape(const cv::Mat& img) {
     return {img.rows, img.cols, img.channels()};
@@ -38,7 +38,7 @@ void threadImgTask(const std::string& threadName, const std::chrono::steady_cloc
         const double t = elapsed.count();
         rec.set_time_seconds("timestamp", t);
 
-        //rec.set_time_sequence("frame_number", frame_number++);
+        // rec.set_time_sequence("frame_number", frame_number++);
 
         // Generate random pixel values for each channel
         cv::randu(randimg, cv::Scalar(0, 0, 0), cv::Scalar(255, 255, 255));

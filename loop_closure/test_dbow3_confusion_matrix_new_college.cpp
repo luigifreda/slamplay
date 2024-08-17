@@ -6,9 +6,9 @@
 #include <vector>
 #include "DBoW3/DBoW3.h"
 
-#include "FeatureManager.h"
-#include "NewCollege.h"
-#include "file_utils.h"
+#include "datasets/NewCollege.h"
+#include "features/FeatureManager.h"
+#include "io/file_utils.h"
 #include "macros.h"
 
 using namespace cv;

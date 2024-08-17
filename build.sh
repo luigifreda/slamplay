@@ -52,6 +52,12 @@ if [ $USE_TENSORFLOW -eq 1 ]; then
     EXTERNAL_OPTION="$EXTERNAL_OPTION -DWITH_TENSORFLOW=ON -DTENSORFLOW_ROOT=$TENSORFLOW_ROOT"
 fi
 
+# check TORCH options
+if [ $USE_TORCH -eq 1 ]; then
+    echo "USE_TORCH: $USE_TORCH" 
+    EXTERNAL_OPTION="$EXTERNAL_OPTION -DWITH_TORCH=ON -DTorch_DIR=$TORCH_DIR"
+fi
+
 # check Tracy option 
 if [ $USE_TRACY -eq 1 ]; then
     echo "USE_TRACY: $USE_TRACY" 

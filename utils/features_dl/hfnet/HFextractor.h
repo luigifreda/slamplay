@@ -4,18 +4,18 @@
 #include <list>
 #include <opencv2/opencv.hpp>
 #include <vector>
-#include "features_dl/hfnet/BaseModel.h"
+#include "features_dl/hfnet/HFNetBaseModel.h"
 
 namespace hfnet {
 
-class BaseModel;
+class HFNetBaseModel;
 
 class HFextractor {
    public:
-    HFextractor(int nfeatures, float threshold, BaseModel *pModels);
+    HFextractor(int nfeatures, float threshold, HFNetBaseModel *pModels);
 
     HFextractor(int nfeatures, float threshold, float scaleFactor,
-                int nlevels, const std::vector<BaseModel *> &vpModels);
+                int nlevels, const std::vector<HFNetBaseModel *> &vpModels);
 
     ~HFextractor() {}
 
@@ -53,7 +53,7 @@ class HFextractor {
     int nfeatures;
     float threshold;
 
-    std::vector<BaseModel *> mvpModels;
+    std::vector<HFNetBaseModel *> mvpModels;
 
    protected:
     double scaleFactor;

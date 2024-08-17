@@ -20,12 +20,13 @@ using namespace Eigen;
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
 
-#include "PointCloudViz.h"
-#include "cam_utils.h"
-#include "image_error.h"
+#include "camera/cam_utils.h"
+#include "image/image_error.h"
+#include "io/messages.h"
+#include "pointcloud/pointcloud_from_image_depth.h"
+#include "viz/PointCloudViz.h"
+
 #include "macros.h"
-#include "messages.h"
-#include "pointcloud_from_image_depth.h"
 
 using Sophus::SE3d;
 using namespace std;

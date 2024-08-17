@@ -6,13 +6,18 @@ SCRIPT_DIR=$(readlink -f $SCRIPT_DIR)  # this reads the actual path if a symboli
 . config.sh  # source configuration file and utils
 
 print_blue '================================================'
-print_blue "Downloading hfnet models ..."
+print_blue "Downloading and preparing hfnet models ..."
 
-"$SCRIPT_DIR"/data/hfnet/install_models.sh
+"$SCRIPT_DIR"/data/hfnet/download_and_convert_models.sh
 
 
 print_blue '================================================'
-print_blue "Downloading depth-anything models ..."
+print_blue "Downloading and preparing depth-anything models ..."
 
-python "$SCRIPT_DIR"/data/depth_anything/install_models.py
+"$SCRIPT_DIR"/data/depth_anything/download_and_convert_models.py
 
+
+print_blue '================================================'
+print_blue "Downloading and preparing segment-anything models ..."
+
+"$SCRIPT_DIR"/data/segment_anything/download_and_convert_models.py

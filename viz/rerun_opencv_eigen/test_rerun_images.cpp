@@ -10,8 +10,8 @@
 
 #include <thread>
 
-#include "rerun_collection_adapters.hpp"
 #include "macros.h"
+#include "viz/rerun_collection_adapters.hpp"
 
 std::string dataDir = STR(DATA_DIR);  // DATA_DIR set by compilers flag
 

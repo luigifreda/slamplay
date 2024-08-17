@@ -7,11 +7,13 @@
 #include "features_dl/hfnet/HFNetSettings.h"
 #include "features_dl/hfnet/HFextractor.h"
 
-#include <cv/matches_utils.h>
-#include <io/image_io.h>
+#include "cv/matches_utils.h"
+#include "io/image_io.h"
+
+#include "io/messages.h"
+#include "viz/viz_matches.h"
 
 #include "macros.h"
-#include "messages.h"
 
 using namespace cv;
 using namespace std;

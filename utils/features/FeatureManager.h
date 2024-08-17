@@ -8,7 +8,7 @@
 #include <opencv2/xfeatures2d/nonfree.hpp>
 #endif
 
-#include "string_utils.h"
+#include "io/string_utils.h"
 
 namespace slamplay {
 

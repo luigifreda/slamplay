@@ -17,7 +17,7 @@ const int PATCH_SIZE = 31;
 const int HALF_PATCH_SIZE = 15;
 const int EDGE_THRESHOLD = 19;
 
-HFextractor::HFextractor(int _nfeatures, float _threshold, BaseModel *_pModels) : nfeatures(_nfeatures), threshold(_threshold) {
+HFextractor::HFextractor(int _nfeatures, float _threshold, HFNetBaseModel *_pModels) : nfeatures(_nfeatures), threshold(_threshold) {
     mvpModels.resize(1);
     mvpModels[0] = _pModels;
     scaleFactor = 1.0;
@@ -76,7 +76,7 @@ HFextractor::HFextractor(int _nfeatures, float _threshold, BaseModel *_pModels) 
 }
 
 HFextractor::HFextractor(int _nfeatures, float _threshold, float _scaleFactor,
-                         int _nlevels, const std::vector<BaseModel *> &_vpModels) : nfeatures(_nfeatures), threshold(_threshold), mvpModels(_vpModels) {
+                         int _nlevels, const std::vector<HFNetBaseModel *> &_vpModels) : nfeatures(_nfeatures), threshold(_threshold), mvpModels(_vpModels) {
     scaleFactor = _scaleFactor;
     nlevels = _nlevels;
     mvScaleFactor.resize(nlevels);

@@ -5,8 +5,8 @@
 //
 
 #include <gflags/gflags.h>
+#include "io/messages.h"
 #include "macros.h"
-#include "messages.h"
 #include "myslam/visual_odometry.h"
 
 DEFINE_string(config_file, "../config/euroc.yaml", "config file path");

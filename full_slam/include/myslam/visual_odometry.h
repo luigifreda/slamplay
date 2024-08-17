@@ -11,7 +11,7 @@
 #include "myslam/frontend.h"
 #include "myslam/viewer.h"
 
-#include "ChronoFps.h"
+#include "time/ChronoFps.h"
 
 #include <memory>
 

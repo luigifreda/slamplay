@@ -5,7 +5,7 @@
 #include <memory>
 #include <opencv2/opencv.hpp>
 #include <string>
-#include "features_dl/hfnet/BaseModel.h"
+#include "features_dl/hfnet/HFNetBaseModel.h"
 
 #ifdef USE_TENSORFLOW
 #include "tensorflow/c/c_api.h"
@@ -20,7 +20,7 @@ namespace hfnet {
 
 #ifdef USE_TENSORFLOW
 
-class HFNetTFModelV2 : public BaseModel {
+class HFNetTFModelV2 : public HFNetBaseModel {
    public:
     HFNetTFModelV2(const std::string &strModelDir, ModelDetectionMode mode, const cv::Vec4i inputShape);
     virtual ~HFNetTFModelV2(void) = default;
@@ -68,7 +68,7 @@ class HFNetTFModelV2 : public BaseModel {
 
 #else  // USE_TENSORFLOW
 
-class HFNetTFModelV2 : public BaseModel {
+class HFNetTFModelV2 : public HFNetBaseModel {
    public:
     HFNetTFModelV2(const std::string &strModelDir, ModelDetectionMode mode, const cv::Vec4i inputShape) {
         std::cerr << "You must set USE_TENSORFLOW in CMakeLists.txt to enable TensorFlow function." << std::endl;

@@ -4,7 +4,7 @@
 #include <Eigen/SparseCore>
 #include <fstream>
 #include <iostream>
-#include "LogColors.h"
+#include "io/LogColors.h"
 
 #include <limits>
 

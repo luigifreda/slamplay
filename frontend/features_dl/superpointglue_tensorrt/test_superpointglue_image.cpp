@@ -4,9 +4,11 @@
 
 #include <chrono>
 #include <memory>
-#include "super_glue.h"
-#include "super_point.h"
-#include "utils.h"
+
+#include "features_dl/superpointglue_tensorrt/SuperGlue.h"
+#include "features_dl/superpointglue_tensorrt/SuperPoint.h"
+
+#include "viz/viz_matches.h"
 
 #include "macros.h"
 

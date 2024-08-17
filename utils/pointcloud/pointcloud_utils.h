@@ -9,7 +9,7 @@
 namespace slamplay {
 
 template <typename PointT>
-inline pcl::PointCloud<PointT>::Ptr createCylinderPointCloud(float radiusx = 0.5, float radiusy = 1.0, float zMin = -1.0, float zMax = 1.0, float zDelta = 0.05) {
+inline typename pcl::PointCloud<PointT>::Ptr createCylinderPointCloud(float radiusx = 0.5, float radiusy = 1.0, float zMin = -1.0, float zMax = 1.0, float zDelta = 0.05) {
     // -----Create example point cloud-----
     typename pcl::PointCloud<PointT>::Ptr cloud_ptr(new pcl::PointCloud<PointT>);
 
@@ -49,7 +49,7 @@ inline pcl::PointCloud<PointT>::Ptr createCylinderPointCloud(float radiusx = 0.5
 }
 
 template <typename PointT>
-inline pcl::PointCloud<PointT>::Ptr createRandomCubePointCloud(size_t num_points = 100, float box_size = 1.0) {
+inline typename pcl::PointCloud<PointT>::Ptr createRandomCubePointCloud(size_t num_points = 100, float box_size = 1.0) {
     typename pcl::PointCloud<PointT>::Ptr cloud_ptr(new pcl::PointCloud<PointT>(num_points, 1));
 
     // Fill in the CloudIn data

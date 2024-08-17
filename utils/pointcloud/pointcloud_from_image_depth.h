@@ -8,9 +8,9 @@
 #include <pcl/common/common_headers.h>
 #include <pcl/point_types.h>
 
-#include <cam_utils.h>
+#include <camera/cam_utils.h>
 
-#include "messages.h"
+#include "io/messages.h"
 
 namespace slamplay {
 

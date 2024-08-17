@@ -46,11 +46,11 @@ export OPENCV_VERSION="4" # default opencv version
 # USE_LOCAL_OPENCV=1
 
 # 1: ON, 0: OFF
-export USE_CUDA=0  # use CUDA 
-export CUDA_VERSION="cuda-11.8"  # must be an installed CUDA path in "/usr/local"; 
-                                 # if available, you can use the simple path "/usr/local/cuda" which should be a symbolic link to the last installed cuda version 
+export USE_CUDA=0  # Use CUDA 
+export CUDA_VERSION_NUMBER=11.8
+export CUDA_VERSION="cuda-$CUDA_VERSION_NUMBER"  # Must be an installed CUDA path in "/usr/local"
 if [ ! -d /usr/local/$CUDA_VERSION ]; then
-    CUDA_VERSION="cuda"  # use last installed CUDA path (standard path)
+    CUDA_VERSION="cuda"  # Use last installed CUDA path (standard path, which is usually a symbolic link to the last installed CUDA version)
 fi 
 
 export PATH=/usr/local/$CUDA_VERSION/bin${PATH:+:${PATH}}
@@ -62,17 +62,45 @@ export CUDADIR=/usr/local/$CUDA_VERSION
 # TensorRT Settings
 # ====================================================
 
-export USE_TENSORRT=1  # use TensorRT (will locally install TensorRT and use it. Only available if you installed CUDA and this is properly detected)
-#export TENSORRT_VERSION="10" # WIP, does not work yet 
+export USE_TENSORRT=1  # Use TensorRT. The scripts will locally install TensorRT and cmake will use it. 
+                       # Only available if you installed CUDA and this is properly detected.
 export TENSORRT_VERSION="8"
+#export TENSORRT_VERSION="10" # WIP, does not work yet 
+
+export TENSORRT_DIR=$CONFIG_DIR/thirdparty/TensorRT # Default value. This is the install path used by the script install_local_tensorrt.sh.
+
+# ====================================================
+# Torch Settings
+# ====================================================
+
+# Will be used by segment anything 
+export USE_TORCH=1  # Use Torch. The scripts will locally install Torch and use it. 
+                    # Only available if you installed CUDA and this is properly detected)
+
+export USE_CUDA_TORCH=0  # Use Torch with CUDA. 1: ON, 0: OFF
+						 # It seems that Torch with CUDA is not working properly (for different mixed deps). 
+						 # It's very likely we need to build from source. WIP.
+
+export TORCH_DIR=$CONFIG_DIR/thirdparty/libtorch/share/cmake/Torch # Default value. This is the install path used by the script install_local_libtorch.sh.
 
 # ====================================================
 # Tensorflow Settings
 # ====================================================
 
-# This is working with the configuration <>
-export USE_TENSORFLOW=0  # use Tensorflow (will locally install Tensorflow and use it. Only available if you installed tensorflow_cc from source)
-export TENSORFLOW_ROOT="$HOME/.tensorflow"
+# Will be used by HFNet (one of the available HFNet implementations is based on tensorflow C++ API).
+# Tested configuration reported in the README file (check the notes therein):
+# - **C++**: 17
+# - **TENSORFLOW_VERSION**: 2.9.0 
+# - **BAZEL_VERSION**: 5.1.1
+# - **CUDA**: 11.6 
+# - **CUDNN**: 8.6.0.163-1+cuda11.8       
+#
+export USE_TENSORFLOW=0  # Use Tensorflow C++ API. Only available if you installed tensorflow_cc from source.
+                         # You can use the script install_tensorflow_cc.sh, which will locally install Tensorflow.  
+						 # NOTE: This procedures will take a while (~2 hours or so depending on your machine). 
+						 #       For this reason, it is required that you manually launch the script install_tensorflow_cc.sh.
+
+export TENSORFLOW_ROOT="$HOME/.tensorflow" # Default value. This is the install path used by the script install_tensorflow_cc.sh.
 if [ $USE_TENSORFLOW -eq 1 ]; then
 	if [ ! -d "$TENSORFLOW_ROOT" ]; then
 		echo "TENSORFLOW_ROOT: $TENSORFLOW_ROOT does not exist"
@@ -101,12 +129,16 @@ export CUDA_FOUND=0
 if [ -f /usr/local/$CUDA_VERSION/bin/nvcc ] || [ -f /usr/bin/nvcc ]; then
 	CUDA_FOUND=1
 	echo "CUDA found: $CUDA_VERSION"
+	CUDA_VERSION_NUMBER=$(get_cuda_version)
+	echo "CUDA_VERSION_NUMBER: $CUDA_VERSION_NUMBER"	
 fi
 
-# reset env var if CUDA lib is not installed 
+# Reset env var if CUDA lib is not installed 
 if [ $CUDA_FOUND -eq 0 ]; then
 	USE_CUDA=0
+	CUDA_VERSION_NUMBER=0
 	USE_TENSORRT=0	
+	USE_TORCH=0
 	echo 'CUDA env var reset, check your CUDA installation'
 	echo 'TensorRT env var reser'
 fi
@@ -114,6 +146,7 @@ fi
 # ====================================================
 # OPENCV 
 
+# Check OpenCV directory exists 
 if [[ -n "$OpenCV_DIR" ]]; then
 	if [ ! -d $OpenCV_DIR ]; then 
 		echo OpenCV_DIR does not exist: $OpenCV_DIR
@@ -121,7 +154,7 @@ if [[ -n "$OpenCV_DIR" ]]; then
 	fi 
 fi 
 
-# install a local opencv with CUDA support and more
+# Install a local opencv with CUDA support and more
 if [ $USE_LOCAL_OPENCV -eq 1 ] && [[ ! -n "$OpenCV_DIR" ]]; then
 	. install_local_opencv.sh   # source it in order to run it and get the env var OPENCV_VERSION
 	echo OpenCV version: $OPENCV_VERSION
@@ -140,4 +173,4 @@ fi
 
 # Tracy is a great profiler. Details here https://github.com/wolfpld/tracy
 
-export USE_TRACY=1  # use Tracy, you will be able to profile your apps with the profiler
+export USE_TRACY=1  # Use Tracy. The script will automatically install it. You will be able to profile your apps with this great profiler.

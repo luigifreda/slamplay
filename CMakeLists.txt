@@ -10,11 +10,16 @@ set(SET_RPATH               ON  CACHE BOOL   "Set RPATH instead of the default R
 set(BUILD_WITH_MARCH_NATIVE ON  CACHE BOOL   "Build with \"-march native\"")
 set(WITH_OPENMP             ON  CACHE BOOL    "Add OpenMP support") # useful for PCL (since we use the macro PCL_NO_PRECOMPILE!)
 set(WITH_TRACY_PROFILER     OFF  CACHE BOOL   "Add Tracy profiler support.")
+
 set(WITH_TENSORRT           OFF  CACHE BOOL   "Add TensorRT support with DL features.")
 set(TensorRT_DIR            "${PROJECT_SOURCE_DIR}/thirdparty/TensorRT" CACHE STRING "Desired TensorRT path") # this is the first target version that is searched for 
 set(TENSORRTBUFFER_DIR      "${PROJECT_SOURCE_DIR}/thirdparty/tensorrtbuffers" CACHE STRING "Desired tensorrtbuffers path")
+
 set(WITH_TENSORFLOW         OFF  CACHE BOOL   "Add Tensorflow support with DL features.")
 set(TENSORFLOW_ROOT         "$ENV{HOME}/.tensorflow" CACHE STRING "Desired Tensorflow path")
+
+set(WITH_TORCH              OFF  CACHE BOOL   "Add Torch support with DL features.")
+set(Torch_DIR               "${CMAKE_CURRENT_SOURCE_DIR}/thirdparty/libtorch/share/cmake/Torch" CACHE STRING "Desired Torch path")
 
 # NOTE: this is to remove the tons of cmake warning coming from importing ext packages 
 # see here: https://github.com/PointCloudLibrary/pcl/issues/3680
@@ -296,6 +301,14 @@ if(WITH_TENSORFLOW)
   #find_package(Protobuf REQUIRED)
 endif()
 
+# Torch 
+if(WITH_TORCH)
+  ADD_DEFINITIONS(-DUSE_TORCH)
+  message(STATUS "Torch_DIR: ${Torch_DIR}")
+  find_package(Torch REQUIRED)   # sudo apt install libtorch3-dev under ubuntu 20.04
+  message(STATUS "Torch_VERSION: ${Torch_VERSION}")
+  message(STATUS "TORCH_INCLUDE_DIRS: ${TORCH_INCLUDE_DIRS}")
+endif()
 
 # Tracy 
 if(WITH_TRACY_PROFILER)
@@ -315,10 +328,10 @@ set(INCLUDE_DIRS
   ${PROJECT_SOURCE_DIR}/utils/
 )
 # add all subdirs of utils 
-subdirlist(SUBDIRS ${PROJECT_SOURCE_DIR}/utils) # macro from cmake/macros.cmake
-foreach(subdir ${SUBDIRS})
-  set(INCLUDE_DIRS ${INCLUDE_DIRS} ${PROJECT_SOURCE_DIR}/utils/${subdir})
-endforeach() 
+# subdirlist(SUBDIRS ${PROJECT_SOURCE_DIR}/utils) # macro from cmake/macros.cmake
+# foreach(subdir ${SUBDIRS})
+#   set(INCLUDE_DIRS ${INCLUDE_DIRS} ${PROJECT_SOURCE_DIR}/utils/${subdir})
+# endforeach() 
 
 set(EXT_INCLUDE_DIRS
   ${fmt_INCLUDE_DIRS}
@@ -347,6 +360,7 @@ set(EXT_INCLUDE_DIRS
   ${TRACY_INCLUDE_DIR}
   #${Tensorflow_INCLUDE_DIRS}  # may use a different version of Eigen 
   ${PROTOBUF_INCLUDE_DIRS}
+  #${TORCH_INCLUDE_DIRS}      # may use a different version of cuDNN
 )
 
 #====================================
@@ -357,6 +371,7 @@ set(LIBS
   orbslam2_features  
   bal_dataset 
   #hfnet_features  # We treat this separately for safety since it may be linked with a tensorflow_cc, which may use a different version of Eigen
+  #superpointglue 
 )
 
 link_directories( 
@@ -396,6 +411,7 @@ set(EXT_LIBS
   ${TRACY_LIBS}
   #${Tensorflow_LIBS}  # may use a different version of Eigen 
   ${PROTOBUF_LIBRARY}
+  #${TORCH_LIBRARIES}  # may use a different version of cuDNN 
 )
 
 #====================================
@@ -411,6 +427,7 @@ set(FOLDERS
   loop_closure
   dense_mapping
   full_slam
+  semantics
 )
 
 foreach(folder ${FOLDERS})

@@ -1,7 +1,7 @@
 #include <ceres/ceres.h>
 #include <iostream>
-#include "BALProblem.h"
-#include "SnavelyReprojectionError.h"
+#include "camera/SnavelyReprojectionError.h"
+#include "datasets/BALProblem.h"
 #include "macros.h"
 
 using namespace std;

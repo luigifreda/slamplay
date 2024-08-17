@@ -2,5 +2,5 @@
 # folders to build 
 
 if(WITH_TENSORRT)
-  add_subdirectory(depth_anything_tensorrt)
+  add_subdirectory(depth_anything)
 endif()

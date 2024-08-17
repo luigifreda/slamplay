@@ -27,5 +27,5 @@ if [[ ! -d $HOME/.tensorflow ]]; then
         git clone https://github.com/luigifreda/tensorflow_cc
     fi 
     cd tensorflow_cc
-    $ ./build.sh 
+    $ ./build.sh   # will use the default configuration reported in the main README file
 fi 

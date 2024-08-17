@@ -35,7 +35,7 @@ include_directories(${INCLUDE_DIRS} ${CMAKE_CURRENT_SOURCE_DIR})
 set(EIGEN_EXTERNAL_INCLUDES "${TENSORFLOW_ROOT}/include/tensorflow/bazel-bin/tensorflow/include/") # to privatly include the tensorflow Eigen
 
 set(HFNET_SOURCES 
-${CMAKE_CURRENT_SOURCE_DIR}/BaseModel.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/HFNetBaseModel.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/HFextractor.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/HFNetTFModel.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/HFNetTFModelV2.cpp

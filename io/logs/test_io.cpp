@@ -10,8 +10,8 @@
 #include <string>
 #include <thread>
 
-#include "Log.h"
-#include "Logger.h"
+#include "io/Log.h"
+#include "io/Logger.h"
 
 using namespace slamplay;
 using namespace std::chrono_literals;

@@ -5,7 +5,14 @@ Author: [Luigi Freda](https://www.luigifreda.com)
 <!-- TOC -->
 
 - [slamplay](#slamplay)
-  - [Quick start](#quick-start)
+  - [How to start](#how-to-start)
+    - [Configuration](#configuration)
+    - [Install data](#install-data)
+    - [Deep learning (DL)](#deep-learning-dl)
+      - [Intall DL models](#intall-dl-models)
+      - [GPU support with `CUDA`, `cuDNN`, `TensorRT`](#gpu-support-with-cuda-cudnn-tensorrt)
+      - [Install tensorflow C++ API](#install-tensorflow-c-api)
+  - [Docker](#docker)
   - [Eigen Tutorials](#eigen-tutorials)
   - [Front-end](#front-end)
     - [Features DL (Deep Learning)](#features-dl-deep-learning)
@@ -16,24 +23,24 @@ Author: [Luigi Freda](https://www.luigifreda.com)
     - [g2o examples](#g2o-examples)
   - [IO](#io)
     - [chrono](#chrono)
-  - [Utils](#utils)
+  - [Profiling](#profiling)
     - [Tracy](#tracy)
   - [Credits](#credits)
 
 <!-- /TOC -->
 
 
- **slamplay** is a collection of powerful tools to start playing and experimenting with **SLAM in C++**. It's a work in progress. It installs and makes available in a single cmake framework some of the most important    
+ **slamplay** is a collection of powerful tools to start playing and experimenting with **SLAM in C++**. It automatically installs and makes available in a single cmake framework some of the most important    
  - back-end frameworks (*g2o*, *gtsam*, *ceres*, *se-sync*, etc.),     
- - front-end tools (*OpenCV*, *pcl*, *TensorRT*, *tensorflow_cc*, etc.),      
+ - front-end tools (*OpenCV*, *pcl*, etc.),      
  - algebra and geometry libs (*eigen*, *sophus*, *cholmod*, etc.),    
  - viz tools (*pangolin*, *imgui*, *rerun*, etc.),     
- - loop-closure frameworks (*DBOW2*, *DBOW3*, *iBOW*, etc.),
- - deep learning tools (based on *TensorRT*, *tensorflow_cc*, etc.),     
+ - loop-closure frameworks (*DBoW2*, *DBoW3*, *iBoW*, etc.),
+ - deep learning tools (based on *TensorRT*, *tensorflow_cc*, *libtorch*, *onnxruntime*, etc.),     
   
 along with some nice examples in order to easily and quickly start with all these tools.  
 
-I created **slamplay** for a computer vision class I recently taught. I started developing it for fun, during my free time, taking inspiration from some repos available on the web.  
+I created **slamplay** for a computer vision class I taught. I started developing it for fun, during my free time, taking inspiration from some repos available on the web.  
 
 <p align="center">
 <img src="images/kitti-VO.png"
@@ -46,6 +53,10 @@ alt="KITTI direct method for feature tracking" height="180" border="1"/>
 alt="Pointcloud visulization" height="180" border="1"/> 
 <img src="images/slamplay-depth-anything.png"
 alt="Pointcloud visulization of DepthAnythingV2" height="180" border="1"/> 
+<img src="images/slamplay-kitti-sam.png"
+alt="Segment Anything Model on Kitti" height="180" border="1"/> 
+<img src="images/slamplay-segment-anything.png"
+alt="Segment Anything Model" height="180" border="1"/> 
 </p>
   
 This repository is structured in the following main folders (with self-explanatory names): 
@@ -54,31 +65,32 @@ This repository is structured in the following main folders (with self-explanato
 - `data`
 - `dense_mapping`
 - `docs`
-- `frontend`  (with **new** C++ tools based on *TensorRT* and *tensorflow_cc*, e.g, *SuperPoint*, *SuperGlue*, *Depth-Anything*, *HFNet*)
-- `full_slam`
+- `frontend`  
+- `full_slam`**(*)**
 - `io`
 - `loop_closure`
 - `dense_mapping`
 - `scripts`
+- `semantics` **(*)**
 - `utils`
 - `viz`
   
+**(*)** With **new** C++ tools based on *TensorRT*, *tensorflow_cc*, *onnxruntime*, e.g, *SuperPoint*, *SuperGlue*, *Depth-Anything*, *HFNet*, *Segment-Anthing-Model* *(SAM)*.
+
 ---
 
-## Quick start
+## How to start
 
-The following procedure has been successfully tested under **Ubuntu 20.04** (and under Ubuntu 22.04 and 24.04 with partial DL support). 
+The following procedure has been successfully tested under **Ubuntu 20.04**, **22.04** and **24.04**. 
 
-- Install basic dependencies:      
+- Install required basic dependencies:      
   `$ ./install_dependencies.sh`        
 - Install OpenCV in a local folder:                
-  `$ ./install_local_opencv.sh`     
-  (if you want, skip this step and set the variable `OpenCV_DIR` in `config.sh` with your local OpenCV path)     
+  `$ ./install_local_opencv.sh`        
 - Build the framework:      
   `$ ./build.sh`
 
-This will take a while. Once everything is built, you can enter in the `build` folder and test the different examples. 
-In particular, to test the `full_slam` apps: 
+This will take a while. Once everything is built, you can enter in the `build` folder and test the different examples. In particular, to test the `full_slam` apps: 
 1. Configure `full_slam/config/kitti.yaml` (or `full_slam/config/euroc.yaml`)
 2. Then run the VO (Visual Odometry) app:
    ```bash 
@@ -86,15 +98,47 @@ In particular, to test the `full_slam` apps:
    $ ./run_kitti_stereo # or ./run_euroc_stereo
    ```
 
-Additional steps: 
-- If you want to smoothly test the examples then dowload the provided testing images and videos (will be deployed in `data` folder):    
-  `$ ./install_data.sh`    
-- If you want to use the DL (Deep Learning) models then run the following command to download both NN weights/checkpoints with their related data:    
-  `$ ./install_dl_models.sh`     
-- If you want to install and test tensorflow C++ API (e.g. for HFNet), then run:     
-  `$ ./install_tensorflow_cc.sh`      
-  See [tensorflow_cc](https://github.com/luigifreda/tensorflow_cc) for further details. Note that this step will take a long while. 
 
+### Configuration 
+
+The file `config.sh` with its environment variable defines your working configuration. This will be automatically sourced by all the main install/build scripts. 
+
+For instance, if you want to skip the OpenCV install step then set the variable `OpenCV_DIR` in `config.sh` with your local OpenCV path. This is not recommended though since  different dep libs can be mixed (with undefined behavior) and you may lose some of the available features too.  
+
+### Install data
+
+If you want to smoothly run the *slamplay* examples using default input data then dowload the provided testing images and videos (will be deployed in the `data` folder):    
+  `$ ./install_data.sh`    
+
+### Deep learning (DL)
+
+#### Intall DL models 
+
+If you want to use the DL (Deep Learning) models then run the following command to download both neural network weights/checkpoints with their related data:    
+  `$ ./install_dl_models.sh`     
+
+#### GPU support with `CUDA`, `cuDNN`, `TensorRT`
+
+ I recommend the following configuration with `CUDA` ecosystem: 
+- `CUDA` 11.8 (or 11.6). 
+  * Install instructions [here](https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html). 
+- `cuDNN` 8.6.0.163-1+cuda11.8. 
+  * Install instructions [here](https://docs.nvidia.com/deeplearning/cudnn/latest/installation/linux.html).    
+  * Once you downloaded the proper deb package, run the following command:         
+`sudo apt install -y libcudnn8=8.6.0.163-1+cuda11.8 libcudnn8-dev=8.6.0.163-1+cuda11.8`       
+- `TensorRT` 8.5.1.7 will be automatically installed by the main script `build.sh` in `thirdparty/TensorRT` (once `CUDA` has been installed) and cmake will automatically use it by default.
+
+#### Install tensorflow C++ API
+
+If you want to install and test tensorflow C++ API (for HFNet), then run:     
+  `$ ./install_tensorflow_cc.sh`      
+  See the repository [tensorflow_cc](https://github.com/luigifreda/tensorflow_cc) for further details. This step will take a long while and for this reason you are required to manually launch the script `install_tensorflow_cc.sh`.  
+  
+--- 
+
+## Docker 
+
+If you prefer to use docker for working with *slamplay*, you may want to use [rosdocker](https://github.com/luigifreda/rosdocker) with one of its provided images (w/ or w/o `CUDA` support).
 
 ---
 
@@ -121,24 +165,25 @@ In `frontend/feature_dl` you can find:
 - A C++ implementation of SuperPoint and SuperGlue under TensorRT
 - A C++ implementation of [HFNet](https://github.com/ethz-asl/hfnet) under TensorRT and Tensorflow. 
 
+**Warning**: The first time you run a TensorRT model, it will take some time to convert the input *onnx* model to its *engine* format. 
+
 ### Depth DL
 
 In `frontend/depth_dl` you can find: 
 - A C++ implementation of [Depth-Anything-V2.0](https://github.com/DepthAnything/Depth-Anything-V2) based on TensorRT.
 
-As explained above, if you want to install and test tensorflow C++ API (e.g. for HFNet), then run:    
-  `$ ./install_tensorflow_cc.sh`      
-  See [tensorflow_cc](https://github.com/luigifreda/tensorflow_cc) for further details. Note that this step will take a long while. 
+**Warning**: The first time you run a TensorRT model, it will take some time to convert the input *onnx* model to its *engine* format. 
 
-My **current preferred working configuration** (default one) under Ubuntu 20.04:
+As explained above, if you want to install and test tensorflow C++ API (e.g. for HFNet), then run: `$ ./install_tensorflow_cc.sh`      
+See [tensorflow_cc](https://github.com/luigifreda/tensorflow_cc) for further details. Note that this step will take a long while and for this reason it is required you manually launch `install_tensorflow_cc.sh`.  
+
+My **working configuration** (default one for [tensorflow_cc](https://github.com/luigifreda/tensorflow_cc)) under Ubuntu 20.04:
 - **C++**: 17
 - **TENSORFLOW_VERSION**: 2.9.0 
 - **BAZEL_VERSION**: 5.1.1
 - **CUDA**: 11.6 
-- **CUDNN**: 8.6.0.163-1+cuda11.8   
-     - `sudo apt install -y libcudnn8=8.6.0.163-1+cuda11.8`
-    - `sudo apt install -y libcudnn8-dev=8.6.0.163-1+cuda11.8`
-  
+- **CUDNN**: 8.6.0.163-1+cuda11.8       
+  `sudo apt install -y libcudnn8=8.6.0.163-1+cuda11.8 libcudnn8-dev=8.6.0.163-1+cuda11.8`
 
 ---
 
@@ -156,14 +201,14 @@ Documentation
 * https://gtsam.org/tutorials/intro.html 
 * See `docs` folder for further documentation.  
 
-**ISSUES**
-Apparently, in order to avoid *double free or corruption* errors with gtsam on exit, we need to disable the compile option `-march=native` when building apps that use gtsam. This can be done locally by modifying the compile flags at the folder level and removing march native optimization for gtsam-related files. Further details are in the following links: 
+**Known issues**
+Apparently, in order to avoid *double free or corruption* errors with gtsam on exit, we need to disable the compile option `-march=native` when building apps that use gtsam. This can be done locally by modifying the compile flags at the folder level and removing march native optimization for gtsam-related files. Further details are available in the following links: 
 - https://bitbucket.org/gtborg/gtsam/issues/414/compiling-with-march-native-results-in
 - https://groups.google.com/g/gtsam-users/c/jdySXchYVQg 
 
 ### Ceres examples 
 
-Installed tag 2.1.0 
+Installed tag **2.1.0**
 * https://ceres-solver.googlesource.com/ceres-solver/+/refs/tags/2.1.0/examples/
 
 Documentation
@@ -178,10 +223,10 @@ https://github.com/RainerKuemmerle/g2o/tree/20230223_git/g2o/examples).
 **Issues:**
   - The built g2o-dependant binaries link to the system g2o (instead of the locally compiled and installed g2o) and this brings to crashes (a different g2o version is linked). There are different solutions to this problem: 
     * Standard one (uncomfortable): use `LD_LIBRARY_PATH` to make the built binaries correctly link to the locally compiled and installed g2o.
-    * Otherwise, we can use and set `RPATH` (instead of `RUNPATH`) at build time. In particular, this can be done by using some compiler options. This is what I set in my cmake configuration: 
+    * Otherwise, we can use and set `RPATH` (instead of `RUNPATH`) at build time. In particular, this can be done by using some compiler options. This is what I set in the main cmake file: 
   `set(MY_FLAGS "${MY_FLAGS} -Wl,--disable-new-dtags")`
   https://stackoverflow.com/questions/47117443/dynamic-linking-with-rpath-not-working-under-ubuntu-17-10 
-  This configuration is enabled/disabled by the cmake option flag `SET_RPATH` I added. 
+  This configuration is enabled/disabled by the cmake option flag `SET_RPATH`. 
   - If you get a *double free or corruption* error with g2o (on exit), then it is very likely you used `-march=native` option when compiling this project but you didn't use the same option for building g2o itself. This may cause some alignment inconsistencies between g2o and this project. Then, in that case, build g2o with `-march=native` (i.e. use the cmake option `-DBUILD_WITH_MARCH_NATIVE=ON`)   
 
 
@@ -189,7 +234,7 @@ https://github.com/RainerKuemmerle/g2o/tree/20230223_git/g2o/examples).
 
 ##  IO
 
-A couple of notes about the IO library utils. 
+A couple of notes about the IO library utils and examples. 
 
 ### chrono
 
@@ -212,11 +257,12 @@ If you're holding a *steady_clock* in your hand, you would call it a stopwatch, 
 
 ---
 
-## Utils
+## Profiling
 
 ### Tracy 
 
-Tracy is a great profiler. Repository link: https://github.com/wolfpld/tracy. Documentation is [here](https://github.com/wolfpld/tracy/releases/latest/download/tracy.pdf).
+Tracy is a great profiler that will be automatically installed by the main build script `build.sh`. 
+Repository link: https://github.com/wolfpld/tracy. Documentation is [here](https://github.com/wolfpld/tracy/releases/latest/download/tracy.pdf).
 
 - Include `profiler/profiler_tracy.h` in every file you are interested in profiling.
 - Check `TRACY_ENABLE` is defined for the WHOLE project (`slamplay` automatically takes care of that if you set `USE_TRACY=1` in `config.h`).
@@ -232,6 +278,7 @@ Tracy is a great profiler. Repository link: https://github.com/wolfpld/tracy. Do
 
 * This repo imported some of the C++ examples (updated, improved, and commented) of the repository https://github.com/gaoxiang12/slambook2. Thanks to the Author for his great work. 
 * Thanks to the Author of the repository https://github.com/nicolov/simple_slam_loop_closure/. I imported a couple of scripts (updated and improved) from his repository (for computing the confusion matrix). 
-* Thanks to yuefanhao for his repo https://github.com/yuefanhao/SuperPoint-SuperGlue-TensorRT
-* Thanks to the Authors of the repository https://github.com/LiuLimingCode/HFNet_SLAM. I adapted their C++ implementation of HFNet NN.
-* Thanks to the Authors of the repositories https://github.com/spacewalk01/depth-anything-tensorrt and https://github.com/ojh6404/depth_anything_ros. I adapted some of their C++ classes and script for DepthAnything v2 NN.
+* Thanks to yuefanhao for his repo https://github.com/yuefanhao/SuperPoint-SuperGlue-TensorRT .
+* Thanks to the Authors of the repository https://github.com/LiuLimingCode/HFNet_SLAM. I integrated and adapted part of their C++ implementation of HFNet NN.
+* Thanks to the Authors of the repositories https://github.com/spacewalk01/depth-anything-tensorrt and https://github.com/ojh6404/depth_anything_ros. I adapted and integrated some parts of their C++ classes and script for DepthAnything v2 NN.
+

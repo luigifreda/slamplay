@@ -19,8 +19,8 @@
 #include <io/image_io.h>
 #include <time/TicToc.h>
 
+#include "io/messages.h"
 #include "macros.h"
-#include "messages.h"
 
 using namespace cv;
 using namespace std;
@@ -41,7 +41,7 @@ struct TestKeyFrame {
 struct KeyFrameHFNetSLAM : public TestKeyFrame {
     cv::Mat mGlobalDescriptors;
 
-    KeyFrameHFNetSLAM(const int id, const cv::Mat im, BaseModel *pModel) {
+    KeyFrameHFNetSLAM(const int id, const cv::Mat im, HFNetBaseModel *pModel) {
         mnFrameId = id;
         vector<cv::KeyPoint> vKeyPoints;
         cv::Mat localDescriptors, intermediate;
@@ -168,8 +168,8 @@ int main(int argc, char **argv) {
     std::cout << "Got [" << files.size() << "] images in dataset" << std::endl;
 
 #if USE_TENSORFLOW || USE_TENSORRT
-    BaseModel *pModel = InitRTModel(strModelPath, kImageToLocalAndGlobal, {1, ImSize.height, ImSize.width, 1});
-    // BaseModel *pModel = InitTFModel(strModelPath, kImageToLocalAndGlobal, {1, ImSize.height, ImSize.width, 1});
+    HFNetBaseModel *pModel = InitRTModel(strModelPath, kImageToLocalAndGlobal, {1, ImSize.height, ImSize.width, 1});
+    // HFNetBaseModel *pModel = InitTFModel(strModelPath, kImageToLocalAndGlobal, {1, ImSize.height, ImSize.width, 1});
 #endif
 
     ORBextractor extractorORB(1000, 1.2, 8, 20, 7);

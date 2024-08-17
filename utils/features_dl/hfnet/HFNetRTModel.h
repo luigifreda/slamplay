@@ -5,7 +5,7 @@
 #include <memory>
 #include <opencv2/opencv.hpp>
 #include <string>
-#include "features_dl/hfnet/BaseModel.h"
+#include "features_dl/hfnet/HFNetBaseModel.h"
 
 #ifdef USE_TENSORRT
 #include <NvInfer.h>
@@ -32,7 +32,7 @@ class RTTensor {
     nvinfer1::Dims shape;
 };
 
-class HFNetRTModel : public BaseModel {
+class HFNetRTModel : public HFNetBaseModel {
     using BufferManager = tensorrt_buffers::BufferManager;
 
    public:
@@ -97,7 +97,7 @@ class HFNetRTModel : public BaseModel {
 
 #else  // USE_TENSORRT
 
-class HFNetRTModel : public BaseModel {
+class HFNetRTModel : public HFNetBaseModel {
    public:
     HFNetRTModel(const std::string &strModelDir, ModelDetectionMode mode, const cv::Vec4i inputShape) {
         std::cerr << "You must set USE_TENSORRT in CMakeLists.txt to enable tensorRT function." << std::endl;

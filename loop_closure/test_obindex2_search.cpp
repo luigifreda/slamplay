@@ -30,7 +30,7 @@
 
 #include "obindex2/binary_index.h"
 
-#include "file_utils.h"
+#include "io/file_utils.h"
 #include "macros.h"
 
 using namespace slamplay;

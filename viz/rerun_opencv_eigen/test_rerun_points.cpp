@@ -8,7 +8,7 @@
 #include <opencv2/imgproc.hpp>
 #include <rerun.hpp>
 
-#include "rerun_collection_adapters.hpp"
+#include "viz/rerun_collection_adapters.hpp"
 
 #include "macros.h"
 

@@ -3,7 +3,7 @@
 #include "features_dl/hfnet/HFextractor.h"
 
 #include "macros.h"
-#include "yaml_utils.h"
+#include "yaml/yaml_utils.h"
 
 #include <opencv2/opencv.hpp>
 

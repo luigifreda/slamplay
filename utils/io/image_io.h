@@ -5,6 +5,8 @@
 #include <iostream>
 #include <vector>
 
+#include "io/string_utils.h"
+
 namespace slamplay {
 
 std::vector<std::string> GetPngFiles(const std::string& strPngDir) {
@@ -34,7 +36,12 @@ std::vector<std::string> GetImageFiles(const std::string& strImageDir, const std
 
     for (const auto& entry : std::filesystem::directory_iterator(strImageDir)) {
         const std::string& filename = entry.path().filename().string();
+// check if c++20
+#if __cplusplus >= 202002L
         if (filename.ends_with(typeName)) {
+#else
+        if (hasEnding(filename, typeName)) {
+#endif
             ret.push_back(entry.path().string());
         }
     }

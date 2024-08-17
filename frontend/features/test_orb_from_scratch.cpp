@@ -7,8 +7,8 @@
 #include <opencv2/opencv.hpp>
 #include <string>
 
+#include "io/messages.h"
 #include "macros.h"
-#include "messages.h"
 
 using namespace std;
 

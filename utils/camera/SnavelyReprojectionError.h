@@ -1,8 +1,9 @@
 #pragma once
 
+#include <ceres/ceres.h>
 #include <iostream>
-#include "ceres/ceres.h"
-#include "rotation.h"
+
+#include "geometry/rotation.h"
 
 namespace slamplay {
 

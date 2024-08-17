@@ -2,7 +2,7 @@
 
 #include <opencv2/opencv.hpp>
 
-#include "string_utils.h"
+#include "io/string_utils.h"
 
 namespace slamplay {
 

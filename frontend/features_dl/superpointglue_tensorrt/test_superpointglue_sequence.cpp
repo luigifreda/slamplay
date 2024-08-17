@@ -4,9 +4,12 @@
 
 #include <chrono>
 #include <memory>
-#include "super_glue.h"
-#include "super_point.h"
-#include "utils.h"
+
+#include "features_dl/superpointglue_tensorrt/SuperGlue.h"
+#include "features_dl/superpointglue_tensorrt/SuperPoint.h"
+
+#include "io/file_utils.h"
+#include "viz/viz_matches.h"
 
 #include "macros.h"
 
@@ -34,7 +37,7 @@ int main(int argc, char** argv) {
     }
 
     std::vector<std::string> image_names;
-    GetFileNames(image_path, image_names);
+    slamplay::getFilenames(image_path, image_names);
     Configs configs(config_path, model_dir);
     int width = configs.superglue_config.image_width;
     int height = configs.superglue_config.image_height;
@@ -102,7 +105,7 @@ int main(int argc, char** argv) {
             keypoints1.emplace_back(x, y, 8, -1, score);
         }
 
-        VisualizeMatching(image0, keypoints0, image1, keypoints1, superglue_matches, match_image, duration.count());
+        slamplay::visualizeMatches(image0, keypoints0, image1, keypoints1, superglue_matches, match_image, duration.count());
         cv::imshow("match_image", match_image);
 
         std::cout << "press a key to proceed..." << std::endl;

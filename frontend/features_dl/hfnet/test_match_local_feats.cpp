@@ -44,6 +44,8 @@ match correct percentage: 0.797645
 #include "features_dl/hfnet/HFNetSettings.h"
 #include "features_dl/hfnet/HFextractor.h"
 
+#include "viz/viz_matches.h"
+
 using namespace cv;
 using namespace std;
 using namespace hfnet;
@@ -274,7 +276,7 @@ int main(int argc, char* argv[]) {
                 thresholdMatchesHF.emplace_back(match);
             }
             cv::Mat E = findCorrectMatchesByEssentialMat(keypointsHF1, keypointsHF2, thresholdMatchesHF, cv::Mat::eye(3, 3, CV_32F), inlierMatchesHF, wrongMatchesHF);
-            cv::Mat plotHF = showCorrectMatches(image1, image2, keypointsHF1, keypointsHF2, inlierMatchesHF, wrongMatchesHF, showWholeMatches);
+            cv::Mat plotHF = slamplay::showCorrectMatches(image1, image2, keypointsHF1, keypointsHF2, inlierMatchesHF, wrongMatchesHF, showWholeMatches);
             cv::imshow("HF + BFMatcher_L1", plotHF);
             cout << "HF + BFMatcher_L1:" << endl;
             cout << "\t match costs time: " << timer.timeBuff[0] << "ms" << endl;
@@ -290,7 +292,7 @@ int main(int argc, char* argv[]) {
             SearchByBoWHFNetSLAM(ratioThreshold, matchThreshold * matchThreshold, true, descriptorsHF1, descriptorsHF2, matchesHF);
             timer.Toc();
             cv::Mat E = findCorrectMatchesByEssentialMat(keypointsHF1, keypointsHF2, matchesHF, cv::Mat::eye(3, 3, CV_32F), inlierMatchesHF, wrongMatchesHF);
-            cv::Mat plotHF = showCorrectMatches(image1, image2, keypointsHF1, keypointsHF2, inlierMatchesHF, wrongMatchesHF, showWholeMatches);
+            cv::Mat plotHF = slamplay::showCorrectMatches(image1, image2, keypointsHF1, keypointsHF2, inlierMatchesHF, wrongMatchesHF, showWholeMatches);
             cv::imshow("HF + SearchByBoWHFNetSLAM", plotHF);
             cout << "HF + SearchByBoWHFNetSLAM:" << endl;
             cout << "\t match costs time: " << timer.timeBuff[0] << "ms" << endl;

@@ -33,7 +33,7 @@ struct KeyFrameHFNetSLAM {
     int mnFrameId;
     float mPlaceRecognitionScore = 1.0;
 
-    KeyFrameHFNetSLAM(int id, const cv::Mat im, BaseModel *pModel) {
+    KeyFrameHFNetSLAM(int id, const cv::Mat im, HFNetBaseModel *pModel) {
         mnFrameId = id;
         vector<cv::KeyPoint> vKeyPoints;
         cv::Mat localDescriptors, intermediate;

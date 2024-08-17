@@ -4,8 +4,8 @@
 #include <sophus/se3.hpp>
 
 #include "DirectPoseEstimation.h"
-#include "image_pyramids.h"
-#include "image_utils.h"
+#include "image/image_pyramids.h"
+#include "image/image_utils.h"
 #include "macros.h"
 
 using namespace std;

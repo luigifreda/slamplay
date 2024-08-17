@@ -159,8 +159,9 @@ total costs: 60.0883 ± 4.10698
 #include "features_dl/hfnet/HFNetSettings.h"
 #include "features_dl/hfnet/HFextractor.h"
 
+#include "io/messages.h"
+#include "viz/viz_matches.h"
 #include "macros.h"
-#include "messages.h"
 
 using namespace cv;
 using namespace std;
@@ -191,7 +192,7 @@ void PrintTimer(int nLevels) {
 
 struct TestExtractor : public HFextractor {
     TestExtractor(int nfeatures, float threshold, float scaleFactor,
-                  int nlevels, const std::vector<BaseModel *> &vpModels) : HFextractor(nfeatures, threshold, scaleFactor, nlevels, vpModels) {}
+                  int nlevels, const std::vector<HFNetBaseModel *> &vpModels) : HFextractor(nfeatures, threshold, scaleFactor, nlevels, vpModels) {}
 
     int ExtractUsingFor(const cv::Mat &image, std::vector<cv::KeyPoint> &vKeyPoints,
                         cv::Mat &localDescriptors, cv::Mat &globalDescriptors) {

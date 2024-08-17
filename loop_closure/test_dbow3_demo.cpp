@@ -21,8 +21,8 @@
 #endif
 #include "DBoW3/DescManip.h"
 
-#include "CmdLineParser.h"
-#include "file_utils.h"
+#include "io/CmdLineParser.h"
+#include "io/file_utils.h"
 
 using namespace DBoW3;
 using namespace std;

@@ -5,7 +5,7 @@
 
 SCRIPT_DIR=`pwd`
 SCRIPT_DIR=$(readlink -f $SCRIPT_DIR)  # this reads the actual path if a symbolic directory is used
-echo "current dir: $SCRIPT_DIR"
+#echo "current dir: $SCRIPT_DIR"
 cd $SCRIPT_DIR # this brings us in the actual used folder (not the symbolic one)
 
 export TENSORRT_DIR="$SCRIPT_DIR/../../thirdparty/TensorRT"

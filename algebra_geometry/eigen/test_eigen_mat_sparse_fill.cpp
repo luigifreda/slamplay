@@ -6,9 +6,9 @@
 #include <Eigen/Dense>
 #include <Eigen/SparseCore>
 
-#include "SparseMatUtils.h"
+#include "sparse/SparseMatUtils.h"
 
-#include "LogColors.h"
+#include "io/LogColors.h"
 
 using namespace std;
 using namespace Eigen;

@@ -7,7 +7,7 @@
 #include <memory>
 #include <opencv2/opencv.hpp>
 #include <string>
-#include "features_dl/hfnet/BaseModel.h"
+#include "features_dl/hfnet/HFNetBaseModel.h"
 
 #ifdef USE_OPENVINO
 #include "openvino/openvino.hpp"
@@ -16,7 +16,7 @@
 namespace hfnet {
 
 #ifdef USE_OPENVINO
-class HFNetVINOModel : public BaseModel {
+class HFNetVINOModel : public HFNetBaseModel {
    public:
     HFNetVINOModel(const std::string &strXmlPath, const std::string &strBinPath, ModelDetectionMode mode, const cv::Vec4i inputShape);
     virtual ~HFNetVINOModel(void) = default;
@@ -70,7 +70,7 @@ class HFNetVINOModel : public BaseModel {
 
 #else  // USE_OPENVINO
 
-class HFNetVINOModel : public BaseModel {
+class HFNetVINOModel : public HFNetBaseModel {
    public:
     HFNetVINOModel(const std::string &strXmlPath, const std::string &strBinPath, ModelDetectionMode mode, const cv::Vec4i inputShape) {
         std::cerr << "You must set USE_OPENVINO in CMakeLists.txt to enable OpenVINO function." << std::endl;

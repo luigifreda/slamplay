@@ -1,5 +1,5 @@
-#include "CholmodDenseMatrix.h"
-#include "CholmodDenseVector.h"
+#include "sparse/CholmodDenseMatrix.h"
+#include "sparse/CholmodDenseVector.h"
 
 int main (void)
 {

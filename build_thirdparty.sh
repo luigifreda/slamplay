@@ -46,16 +46,19 @@ if [ $USE_TENSORRT -eq 1 ]; then
 fi
 
 echo "external option: $EXTERNAL_OPTION"
+
 # ====================================================
 
 # install ubuntu dependancies!
 #./install_dependencies.sh
 
+# ====================================================
+
 if [ $USE_TENSORRT -eq 1 ]; then
     print_blue '================================================'
     print_blue "Configuring and installing thirdparty/TensorRT ..."
 
-    ./install_tensorrt.sh
+    ./install_local_tensorrt.sh
 
     if [[ ! -L "$SCRIPT_DIR/thirdparty/tensorrtbuffers" ]]; then
         if [[ $TENSORRT_VERSION == 10* ]]; then 
@@ -71,6 +74,15 @@ if [ $USE_TENSORRT -eq 1 ]; then
     fi
 fi
 
+
+# ====================================================
+
+if [ $USE_TORCH -eq 1 ]; then
+    print_blue '================================================'
+    print_blue "Configuring and installing thirdparty/libtorch..."
+
+    ./install_local_torchcpp.sh   # needed by segment anything 
+fi
 
 # ====================================================
 
@@ -90,7 +102,7 @@ if [ ! -d pangolin ]; then
 fi
 cd pangolin
 make_buid_dir
-if [[ ! -f build/src/libpangolin.so || ! -f build/libpango_core.so ]]; then
+if [[ ! -f install/lib/libpango_core.so ]]; then
 	cd build
     PANGOLIN_OPTIONS="-DBUILD_EXAMPLES=OFF"
     cmake .. -DCMAKE_INSTALL_PREFIX="`pwd`/../install" -DCMAKE_BUILD_TYPE=Release $PANGOLIN_OPTIONS $EXTERNAL_OPTION
@@ -427,7 +439,6 @@ if [ $USE_TENSORRT -eq 1 ]; then
     fi 
     cd $SCRIPT_DIR
 fi 
-
 
 # ====================================================
 

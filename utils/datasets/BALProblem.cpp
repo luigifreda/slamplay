@@ -7,7 +7,7 @@
 #include <vector>
 
 #include "BALProblem.h"
-#include "rotation.h"
+#include "geometry/rotation.h"
 
 typedef Eigen::Map<Eigen::VectorXd> VectorRef;
 typedef Eigen::Map<const Eigen::VectorXd> ConstVectorRef;

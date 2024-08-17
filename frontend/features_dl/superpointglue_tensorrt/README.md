@@ -1,27 +1,11 @@
 # SuperPoint SuperGlue TensorRT
+
 SuperPoint and SuperGlue with TensorRT. Deploy with C++.
 
 This is a modified version of the repository https://github.com/yuefanhao/SuperPoint-SuperGlue-TensorRT. 
 The slamplay project provides TensorRT install scripts, better cmake integration in the full project with a separation of the tensorrt buffer library (see thirdparty/tensorrtbuffers).
 
 **Note**: It takes some minutes to build TensorRT engine at the first call. 
-
-## Baseline
-
-|             Image Size: 320 x 240              |      RTX3080      |   Quadro P620    |
-| :--------------------------------------------: | :---------------: | :--------------: |
-|            SuperPoint (250 points)             |      1.04 MS      |     13.61 MS     |
-|            SuperPoint (257 points)             |      1.03 MS      |     13.32 MS     |
-|              SuperGlue (256 dims)              |      7.47 MS      |     58.83 MS     |
-| FPS (superpoint one time + superglue one time) | $\approx$ 117 FPS | $\approx$ 13 FPS |
-
-
-## Environment required
-* CUDA==11.6
-* TensorRT==8.4.1.5
-* OpenCV>=4.0
-* EIGEN
-* yaml-cpp
 
 ## Convert model(Optional)
 The converted model is already provided in the [weights](./weights) folder, if you are using the pretrained model officially provided by [SuperPoint and SuperGlue](https://github.com/magicleap/SuperGluePretrainedNetwork), you do not need to go through this step.
@@ -71,4 +55,8 @@ superglue->matching_points(feature_points0, feature_points1, superglue_matches);
 ```
 
 ## Acknowledgements
-[SuperPoint](https://github.com/magicleap/SuperPointPretrainedNetwork) [SuperGlue](https://github.com/magicleap/SuperGluePretrainedNetwork) [TensorRT](https://github.com/NVIDIA/TensorRT) [AirVO](https://github.com/xukuanHIT/AirVO)
+
+[SuperPoint](https://github.com/magicleap/SuperPointPretrainedNetwork)    
+[SuperGlue](https://github.com/magicleap/SuperGluePretrainedNetwork)     
+[TensorRT](https://github.com/NVIDIA/TensorRT)     
+[AirVO](https://github.com/xukuanHIT/AirVO)     
