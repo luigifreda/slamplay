@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Author: Luigi Freda 
 
 # ====================================================
 
@@ -58,7 +59,7 @@ function get_usable_cuda_version(){
 
 export TARGET_FOLDER=thirdparty
 
-export OPENCV_VERSION="4.8.0"   # 4.7.0 4.3.0 4.2.0 4.0.0 3.4.6 3.4.4 3.4.3 3.4.2 3.4.1 
+export OPENCV_VERSION="4.10.0"   # OpenCV version to download and install. See tags in https://github.com/opencv/opencv 
 
 # ====================================================
 print_blue  "Configuring and building $TARGET_FOLDER/opencv ..."
@@ -104,7 +105,11 @@ if [[ ! -d $TARGET_FOLDER/opencv ]]; then
     sudo apt-get install -y curl software-properties-common unzip
     sudo apt-get install -y build-essential cmake 
     if [[ "$CUDA_ON" == "ON" ]]; then 
-        install_packages libcudnn8 libcudnn8-dev  # check and install otherwise this is going to update to the latest version (and that's not we necessary want to do)
+        if [[ $version == *"24.04"* ]] ; then
+            install_packages libcudnn-dev
+        else 
+            install_packages libcudnn8 libcudnn8-dev  # check and install otherwise this is going to update to the latest version (and that's not we necessary want to do)
+        fi
     fi 
 
     if [[ $version == *"22.04"* || $version == *"24.04"* ]] ; then
