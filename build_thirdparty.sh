@@ -165,6 +165,9 @@ make_buid_dir
 if [[ ! -f install/lib/libceres.a ]]; then
 	cd build
     CERES_OPTIONS="-DBUILD_EXAMPLES=OFF"
+    if [ $CUDA_FOUND -eq 1 ]; then
+        CERES_OPTIONS="$CERES_OPTIONS -DCMAKE_CUDA_COMPILER=`which nvcc`"
+    fi  
     cmake .. -DCMAKE_INSTALL_PREFIX="`pwd`/../install" -DCMAKE_BUILD_TYPE=Release $CERES_OPTIONS $EXTERNAL_OPTION
 	make -j 8
     make install 

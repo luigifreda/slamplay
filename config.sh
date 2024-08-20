@@ -12,6 +12,7 @@ source $CONFIG_DIR/bash_utils.sh
 # Python Settings 
 # ====================================================
 
+UBUNTU_VERSION=$(lsb_release -a 2>&1)  # ubuntu version 
 if [[ $UBUNTU_VERSION == *"24.04"* ]] ; then
     cd $CONFIG_DIR
 	if [ ! -d "$CONFIG_DIR/.venv" ]; then
@@ -46,7 +47,7 @@ export OPENCV_VERSION="4" # default opencv version
 # USE_LOCAL_OPENCV=1
 
 # 1: ON, 0: OFF
-export USE_CUDA=0  # Use CUDA 
+export USE_CUDA=0  # Use CUDA in slamplay code 
 export CUDA_VERSION_NUMBER=11.8
 export CUDA_VERSION="cuda-$CUDA_VERSION_NUMBER"  # Must be an installed CUDA path in "/usr/local"
 if [ ! -d /usr/local/$CUDA_VERSION ]; then
