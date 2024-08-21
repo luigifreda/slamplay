@@ -14,7 +14,9 @@ set -euxo pipefail
 if [ ! -d $DATA_DIR/remode_test_data ]; then
     cd $DATA_DIR
 
-    wget http://rpg.ifi.uzh.ch/datasets/remode_test_data.zip
+    if [ ! -f remode_test_data.zip ]; then
+        wget http://rpg.ifi.uzh.ch/datasets/remode_test_data.zip -O remode_test_data.zip
+    fi 
     unzip remode_test_data.zip -d remode_test_data
     rm remode_test_data.zip
 fi 

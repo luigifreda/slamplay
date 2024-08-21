@@ -373,6 +373,9 @@ set(LIBS
   #hfnet_features  # We treat this separately for safety since it may be linked with a tensorflow_cc, which may use a different version of Eigen
   #superpointglue 
 )
+if(WITH_TENSORRT)
+  set(LIBS ${LIBS} tensorrtutils)
+endif()
 
 link_directories( 
   ${G2O_LIB_DIR}  

@@ -1,12 +1,13 @@
 #pragma once
 
-#include "tensorrt/DeviceBuffer.h"
+#include "tensorrt/GenericBuffer.h"
 
 #include <algorithm>
 #include <opencv2/opencv.hpp>
 
 #include <torch/torch.h>
 
+#include "io/messages.h"
 #include "tensorrt/tensorrt_utils.h"
 
 // using namespace torch::indexing;
@@ -84,24 +85,30 @@ SamEmbedding::SamEmbedding(std::string bufferName, nvinfer1::ICudaEngine *engine
     context = mEngine->createExecutionContext();
     if (!context)
     {
-        std::cerr << "create context error" << std::endl;
+        MSG_WARN("create context error");
     }
 
     checkCudaStatus(cudaStreamCreate(&stream));
     checkCudaStatus(cudaEventCreateWithFlags(&start, cudaEventBlockingSync));
     checkCudaStatus(cudaEventCreateWithFlags(&end, cudaEventBlockingSync));
 
+    // bool isVerbose = true;  // force locally for debug
+
+#if NV_TENSORRT_VERSION_CODE < 100000L  // If we are using TensorRT 8
     for (int i = 0; i < mEngine->getNbBindings(); i++)
     {
         auto dims = mEngine->getBindingDimensions(i);
-        auto tensor_name = mEngine->getBindingName(i);
+        const auto tensor_name = mEngine->getBindingName(i);
         if (isVerbose)
             std::cout << "tensor_name: " << tensor_name << std::endl;
-        // dims2str(dims);
+        if (isVerbose)
+            slamplay::dims2str(dims);
         nvinfer1::DataType type = mEngine->getBindingDataType(i);
-        // index2srt(type);
+        if (isVerbose)
+            slamplay::index2srt(type);
         int vecDim = mEngine->getBindingVectorizedDim(i);
-        // std::cout << "vecDim:" << vecDim << std::endl;
+        if (isVerbose)
+            std::cout << "vecDim:" << vecDim << std::endl;
         if (-1 != vecDim)  // i.e., 0 != lgScalarsPerVector
         {
             int scalarsPerVec = mEngine->getBindingComponentsPerElement(i);
@@ -113,6 +120,34 @@ SamEmbedding::SamEmbedding(std::string bufferName, nvinfer1::ICudaEngine *engine
         mDeviceBindings.emplace_back(device_buffer->data());
         mInOut[tensor_name] = std::move(device_buffer);
     }
+#else
+    for (int i = 0; i < mEngine->getNbIOTensors(); i++)
+    {
+        const auto tensor_name = mEngine->getIOTensorName(i);
+        auto dims = mEngine->getTensorShape(tensor_name);
+        if (isVerbose)
+            std::cout << "tensor_name: " << tensor_name << std::endl;
+        if (isVerbose)
+            slamplay::dims2str(dims);
+        nvinfer1::DataType type = mEngine->getTensorDataType(tensor_name);
+        if (isVerbose)
+            slamplay::index2srt(type);
+        int vecDim = mEngine->getTensorVectorizedDim(tensor_name);
+        if (isVerbose)
+            std::cout << "vecDim:" << vecDim << std::endl;
+        if (-1 != vecDim)  // i.e., 0 != lgScalarsPerVector
+        {
+            int scalarsPerVec = mEngine->getTensorComponentsPerElement(tensor_name);
+            if (isVerbose)
+                std::cout << "scalarsPerVec" << scalarsPerVec << std::endl;
+        }
+        auto vol = std::accumulate(dims.d, dims.d + dims.nbDims, int64_t{1}, std::multiplies<int64_t>{});
+        MSG_ASSERT(vol > 0, "vol <= 0");
+        std::unique_ptr<slamplay::DeviceBuffer> device_buffer{new slamplay::DeviceBuffer(vol, type)};
+        mDeviceBindings.emplace_back(device_buffer->data());
+        mInOut[tensor_name] = std::move(device_buffer);
+    }
+#endif
 }
 
 SamEmbedding::~SamEmbedding() {
@@ -123,6 +158,7 @@ SamEmbedding::~SamEmbedding() {
     checkCudaStatusNoAbort(cudaEventDestroy(end));
     checkCudaStatusNoAbort(cudaStreamDestroy(stream));
 
+#if NV_TENSORRT_VERSION_CODE < 100000L  // If we are using TensorRT 8
     if (context)
     {
         context->destroy();
@@ -131,6 +167,8 @@ SamEmbedding::~SamEmbedding() {
     {
         mEngine->destroy();
     }
+#endif
+
     std::cout << "SamEmbedding::~SamEmbedding() - end " << std::endl;
 }
 
@@ -175,7 +213,11 @@ int SamEmbedding::prepareInput() {
 
 bool SamEmbedding::infer() {
     checkCudaStatus(cudaEventRecord(start, stream));
+#if NV_TENSORRT_VERSION_CODE < 100000L  // If we are using TensorRT 8
     auto ret = context->enqueueV2(mDeviceBindings.data(), stream, nullptr);
+#else
+    auto ret = context->executeV2(mDeviceBindings.data());
+#endif
     return ret;
 }
 
@@ -187,8 +229,8 @@ at::Tensor SamEmbedding::verifyOutput() {
 
     auto dim0 = mEngine->getTensorShape("image_embeddings");
 
-    // dims2str(dim0);
-    // dims2str(dim1);
+    // slamplay::dims2str(dim0);
+    // slamplay::dims2str(dim1);
     at::Tensor preds;
     preds = at::zeros({dim0.d[0], dim0.d[1], dim0.d[2], dim0.d[3]}, at::kFloat);
     mInOut["image_embeddings"]->device2host((void *)(preds.data_ptr<float>()), stream);
@@ -209,8 +251,8 @@ at::Tensor SamEmbedding::verifyOutput(std::string output_name) {
 
     auto dim0 = mEngine->getTensorShape(output_name.c_str());
 
-    // dims2str(dim0);
-    // dims2str(dim1);
+    // slamplay::dims2str(dim0);
+    // slamplay::dims2str(dim1);
     at::Tensor preds;
     preds = at::zeros({dim0.d[0], dim0.d[1], dim0.d[2], dim0.d[3]}, at::kFloat);
     mInOut[output_name]->device2host((void *)(preds.data_ptr<float>()), stream);
@@ -261,15 +303,16 @@ SamEmbedding2::SamEmbedding2(std::string bufferName, nvinfer1::ICudaEngine *engi
     checkCudaStatus(cudaEventCreateWithFlags(&start, cudaEventBlockingSync));
     checkCudaStatus(cudaEventCreateWithFlags(&end, cudaEventBlockingSync));
 
+#if NV_TENSORRT_VERSION_CODE < 100000L  // If we are using TensorRT 8
     for (int i = 0; i < mEngine->getNbBindings(); i++)
     {
         auto dims = mEngine->getBindingDimensions(i);
         auto tensor_name = mEngine->getBindingName(i);
         if (isVerbose)
             std::cout << "tensor_name: " << tensor_name << std::endl;
-        // dims2str(dims);
+        // slamplay::dims2str(dims);
         nvinfer1::DataType type = mEngine->getBindingDataType(i);
-        // index2srt(type);
+        // slamplay::index2srt(type);
         int vecDim = mEngine->getBindingVectorizedDim(i);
         // std::cout << "vecDim:" << vecDim << std::endl;
         if (-1 != vecDim)  // i.e., 0 != lgScalarsPerVector
@@ -283,6 +326,30 @@ SamEmbedding2::SamEmbedding2(std::string bufferName, nvinfer1::ICudaEngine *engi
         mDeviceBindings.emplace_back(device_buffer->data());
         mInOut[tensor_name] = std::move(device_buffer);
     }
+#else
+    for (int i = 0; i < mEngine->getNbIOTensors(); i++)
+    {
+        const auto tensor_name = mEngine->getIOTensorName(i);
+        auto dims = mEngine->getTensorShape(tensor_name);
+        if (isVerbose)
+            std::cout << "tensor_name: " << tensor_name << std::endl;
+        // slamplay::dims2str(dims);
+        nvinfer1::DataType type = mEngine->getTensorDataType(tensor_name);
+        // slamplay::index2srt(type);
+        int vecDim = mEngine->getTensorVectorizedDim(tensor_name);
+        // std::cout << "vecDim:" << vecDim << std::endl;
+        if (-1 != vecDim)  // i.e., 0 != lgScalarsPerVector
+        {
+            int scalarsPerVec = mEngine->getTensorComponentsPerElement(tensor_name);
+            if (isVerbose)
+                std::cout << "scalarsPerVec" << scalarsPerVec << std::endl;
+        }
+        auto vol = std::accumulate(dims.d, dims.d + dims.nbDims, int64_t{1}, std::multiplies<int64_t>{});
+        std::unique_ptr<slamplay::DeviceBuffer> device_buffer{new slamplay::DeviceBuffer(vol, type)};
+        mDeviceBindings.emplace_back(device_buffer->data());
+        mInOut[tensor_name] = std::move(device_buffer);
+    }
+#endif
 }
 
 SamEmbedding2::~SamEmbedding2() {
@@ -292,6 +359,7 @@ SamEmbedding2::~SamEmbedding2() {
     checkCudaStatusNoAbort(cudaEventDestroy(end));
     checkCudaStatusNoAbort(cudaStreamDestroy(stream));
 
+#if NV_TENSORRT_VERSION_CODE < 100000L  // If we are using TensorRT 8
     if (context)
     {
         context->destroy();
@@ -300,6 +368,7 @@ SamEmbedding2::~SamEmbedding2() {
     {
         mEngine->destroy();
     }
+#endif
 }
 
 int SamEmbedding2::prepareInput(at::Tensor input_image_torch) {
@@ -309,7 +378,11 @@ int SamEmbedding2::prepareInput(at::Tensor input_image_torch) {
 
 bool SamEmbedding2::infer() {
     checkCudaStatus(cudaEventRecord(start, stream));
+#if NV_TENSORRT_VERSION_CODE < 100000L  // If we are using TensorRT 8
     auto ret = context->enqueueV2(mDeviceBindings.data(), stream, nullptr);
+#else
+    auto ret = context->executeV2(mDeviceBindings.data());
+#endif
     return ret;
 }
 
@@ -321,8 +394,8 @@ at::Tensor SamEmbedding2::verifyOutput() {
 
     auto dim0 = mEngine->getTensorShape("image_embeddings_part_2");
 
-    // dims2str(dim0);
-    // dims2str(dim1);
+    // slamplay::dims2str(dim0);
+    // slamplay::dims2str(dim1);
     at::Tensor preds;
     preds = at::zeros({dim0.d[0], dim0.d[1], dim0.d[2], dim0.d[3]}, at::kFloat);
     mInOut["image_embeddings_part_2"]->device2host((void *)(preds.data_ptr<float>()), stream);
@@ -365,6 +438,7 @@ class SamPromptEncoderAndMaskDecoder {
 
     std::vector<void *> mDeviceBindings;
     std::map<std::string, std::unique_ptr<slamplay::DeviceBuffer>> mInOut;
+    std::map<std::string, nvinfer1::Dims> mInOutDims;
     std::vector<float> pad_info;
     std::vector<std::string> names;
 
@@ -379,49 +453,98 @@ SamPromptEncoderAndMaskDecoder::SamPromptEncoderAndMaskDecoder(std::string buffe
     context = mEngine->createExecutionContext();
     if (!context)
     {
-        std::cerr << "create context error" << std::endl;
+        MSG_ERROR("create context error");
     }
+
+    std::cout << "create context success" << std::endl;
 
     if (isVitH)
     {
+#if NV_TENSORRT_VERSION_CODE < 100000L  // If we are using TensorRT 8
         // set input dims whichs name "point_coords "
         context->setBindingDimensions(1, nvinfer1::Dims3(1, 5, 2));
-        // set input dims whichs name "point_label "
+        // set input dims whichs name "point_labels "
         context->setBindingDimensions(2, nvinfer1::Dims2(1, 5));
-        // set input dims whichs name "point_label "
+        // set input dims whichs name "point_labels"
         // context->setBindingDimensions(5, nvinfer1::Dims2(frame.rows,frame.cols));
+#endif
+        mInOutDims["point_coords"] = nvinfer1::Dims3(1, 5, 2);
+        mInOutDims["point_labels"] = nvinfer1::Dims2(1, 5);
     } else
     {
+#if NV_TENSORRT_VERSION_CODE < 100000L  // If we are using TensorRT 8
         // set input dims whichs name "point_coords "
         context->setBindingDimensions(1, nvinfer1::Dims3(1, 2, 2));
         // set input dims whichs name "point_label "
         context->setBindingDimensions(2, nvinfer1::Dims2(1, 2));
-        // set input dims whichs name "point_label "
+        // set input dims whichs name "point_labels"
         // context->setBindingDimensions(5, nvinfer1::Dims2(frame.rows,frame.cols));
+#endif
+        mInOutDims["point_coords"] = nvinfer1::Dims3(1, 2, 2);
+        mInOutDims["point_labels"] = nvinfer1::Dims2(1, 2);
     }
+
     checkCudaStatus(cudaStreamCreate(&stream));
     checkCudaStatus(cudaEventCreateWithFlags(&start, cudaEventBlockingSync));
     checkCudaStatus(cudaEventCreateWithFlags(&end, cudaEventBlockingSync));
 
     int nbopts = mEngine->getNbOptimizationProfiles();
-    // std::cout << "nboopts: " << nbopts << std::endl;
+    if (isVerbose)
+        std::cout << "nboopts: " << nbopts << std::endl;
+
+        // bool isVerbose = true;  // force locally for debug
+
+#if NV_TENSORRT_VERSION_CODE < 100000L  // If we are using TensorRT 8
     for (int i = 0; i < mEngine->getNbBindings(); i++)
     {
-        // auto dims = mEngine->getBindingDimensions(i);
         auto tensor_name = mEngine->getBindingName(i);
         if (isVerbose)
             std::cout << "tensor_name: " << tensor_name << std::endl;
         auto dims = context->getBindingDimensions(i);
         if (isVerbose)
-            dims2str(dims);
+            slamplay::dims2str(dims);
         nvinfer1::DataType type = mEngine->getBindingDataType(i);
         if (isVerbose)
-            index2srt(type);
+            slamplay::index2srt(type);
         auto vol = std::accumulate(dims.d, dims.d + dims.nbDims, int64_t{1}, std::multiplies<int64_t>{});
+        if (isVerbose)
+            std::cout << "\t vol: " << vol << std::endl;
         std::unique_ptr<slamplay::DeviceBuffer> device_buffer{new slamplay::DeviceBuffer(vol, type)};
         mDeviceBindings.emplace_back(device_buffer->data());
         mInOut[tensor_name] = std::move(device_buffer);
     }
+#else
+    for (int i = 0; i < mEngine->getNbIOTensors(); i++)
+    {
+        auto tensor_name = mEngine->getIOTensorName(i);
+        if (isVerbose)
+            std::cout << "tensor_name: " << tensor_name << std::endl;
+        auto dims = mEngine->getTensorShape(tensor_name);
+        nvinfer1::DataType type = mEngine->getTensorDataType(tensor_name);
+        auto vol = std::accumulate(dims.d, dims.d + dims.nbDims, int64_t{1}, std::multiplies<int64_t>{});
+        if (vol < 0) {
+            if (isVerbose) {
+                std::cout << "\t Fixing vol < 0" << std::endl;
+            }
+            MSG_ASSERT(mInOutDims.count(tensor_name), "Cannot find dims for tensor: " + std::string(tensor_name));
+            dims = mInOutDims[tensor_name];
+            if (!context->setInputShape(tensor_name, dims)) {
+                MSG_WARN("setInputShape failed for tensor: " + std::string(tensor_name));
+            }
+            vol = std::accumulate(dims.d, dims.d + dims.nbDims, int64_t{1}, std::multiplies<int64_t>{});
+        }
+        if (isVerbose) {
+            slamplay::dims2str(dims);
+        }
+        if (isVerbose)
+            slamplay::index2srt(type);
+        if (isVerbose)
+            std::cout << "\t vol: " << vol << std::endl;
+        std::unique_ptr<slamplay::DeviceBuffer> device_buffer{new slamplay::DeviceBuffer(vol, type)};
+        mDeviceBindings.emplace_back(device_buffer->data());
+        mInOut[tensor_name] = std::move(device_buffer);
+    }
+#endif
 }
 
 SamPromptEncoderAndMaskDecoder::~SamPromptEncoderAndMaskDecoder() {
@@ -432,6 +555,7 @@ SamPromptEncoderAndMaskDecoder::~SamPromptEncoderAndMaskDecoder() {
     checkCudaStatusNoAbort(cudaEventDestroy(end));
     checkCudaStatusNoAbort(cudaStreamDestroy(stream));
 
+#if NV_TENSORRT_VERSION_CODE < 100000L  // If we are using TensorRT 8
     if (context)
     {
         context->destroy();
@@ -440,6 +564,8 @@ SamPromptEncoderAndMaskDecoder::~SamPromptEncoderAndMaskDecoder() {
     {
         mEngine->destroy();
     }
+#endif
+
     std::cout << "SamPromptEncoderAndMaskDecoder::~SamPromptEncoderAndMaskDecoder() - end" << std::endl;
 }
 
@@ -463,28 +589,64 @@ int SamPromptEncoderAndMaskDecoder::prepareInput(int x, int y, const cv::Mat &im
     auto trt_mask_input = at::zeros({1, 1, 256, 256}, at::kFloat);
     auto trt_has_mask_input = at::zeros(1, at::kFloat);
 
+#if NV_TENSORRT_VERSION_CODE < 100000L  // If we are using TensorRT 8
     context->setBindingDimensions(1, nvinfer1::Dims3(trt_coord.size(0), trt_coord.size(1), trt_coord.size(2)));
     // set input dims whichs name "point_label "
     context->setBindingDimensions(2, nvinfer1::Dims2(trt_coord.size(0), trt_coord.size(1)));
+#endif
     int nbopts = mEngine->getNbOptimizationProfiles();
     if (isVerbose)
         std::cout << "nboopts: " << nbopts << std::endl;
+
+        // bool isVerbose = true;  // force locally for debug
+
+#if NV_TENSORRT_VERSION_CODE < 100000L  // If we are using TensorRT 8
     for (int i = 0; i < mEngine->getNbBindings(); i++)
     {
-        // auto dims = mEngine->getBindingDimensions(i);
         auto tensor_name = mEngine->getBindingName(i);
         if (isVerbose)
             std::cout << "tensor_name: " << tensor_name << std::endl;
         auto dims = context->getBindingDimensions(i);
         if (isVerbose)
-            dims2str(dims);
+            slamplay::dims2str(dims);
         nvinfer1::DataType type = mEngine->getBindingDataType(i);
         if (isVerbose)
-            index2srt(type);
+            slamplay::index2srt(type);
         auto vol = std::accumulate(dims.d, dims.d + dims.nbDims, int64_t{1}, std::multiplies<int64_t>{});
 
         mInOut[tensor_name]->resize(dims);
     }
+#else
+    for (int i = 0; i < mEngine->getNbIOTensors(); i++)
+    {
+        const auto tensor_name = mEngine->getIOTensorName(i);
+        if (isVerbose)
+            std::cout << "tensor_name: " << tensor_name << std::endl;
+        auto dims = mEngine->getTensorShape(tensor_name);
+        nvinfer1::DataType type = mEngine->getTensorDataType(tensor_name);
+        auto vol = std::accumulate(dims.d, dims.d + dims.nbDims, int64_t{1}, std::multiplies<int64_t>{});
+        if (vol < 0) {
+            if (isVerbose) {
+                std::cout << "\t Fixing vol < 0" << std::endl;
+            }
+            MSG_ASSERT(mInOutDims.count(tensor_name), "Cannot find dims for tensor: " + std::string(tensor_name));
+            dims = mInOutDims[tensor_name];
+            context->setInputShape(tensor_name, dims);
+            vol = std::accumulate(dims.d, dims.d + dims.nbDims, int64_t{1}, std::multiplies<int64_t>{});
+        }
+
+        if (isVerbose)
+            slamplay::dims2str(dims);
+        if (isVerbose)
+            slamplay::index2srt(type);
+        if (vol > 0) {
+            mInOut[tensor_name]->resize(dims);
+        } else
+        {
+            MSG_ERROR("volume of " << tensor_name << " is zero or negative!");
+        }
+    }
+#endif
 
     checkCudaStatus(mInOut["image_embeddings"]->host2device((void *)(image_embeddings.data_ptr<float>()), true, stream));
     checkCudaStatus(cudaStreamSynchronize(stream));
@@ -525,30 +687,54 @@ int SamPromptEncoderAndMaskDecoder::prepareInput_h(int x, int y, const cv::Mat &
     auto trt_mask_input = at::zeros({1, 1, 256, 256}, at::kFloat);
     auto trt_has_mask_input = at::zeros(1, at::kFloat);
 
+#if NV_TENSORRT_VERSION_CODE < 100000L  // If we are using TensorRT 8
     // NOTE: setting the context binding dimensions here does not seem to have a noticeable effect
     context->setBindingDimensions(1, nvinfer1::Dims3(1, 5, 2));
     // set input dims whichs name "point_label "
     context->setBindingDimensions(2, nvinfer1::Dims2(1, 5));
+#endif
 
     int nbopts = mEngine->getNbOptimizationProfiles();
     if (isVerbose)
         std::cout << "nboopts: " << nbopts << std::endl;
+
+#if NV_TENSORRT_VERSION_CODE < 100000L  // If we are using TensorRT 8
     for (int i = 0; i < mEngine->getNbBindings(); i++)
     {
-        // auto dims = mEngine->getBindingDimensions(i);
-        auto tensor_name = mEngine->getBindingName(i);
+        const auto tensor_name = mEngine->getBindingName(i);
         if (isVerbose)
             std::cout << "tensor_name: " << tensor_name << std::endl;
         auto dims = context->getBindingDimensions(i);
         if (isVerbose)
-            dims2str(dims);
+            slamplay::dims2str(dims);
         nvinfer1::DataType type = mEngine->getBindingDataType(i);
         if (isVerbose)
-            index2srt(type);
+            slamplay::index2srt(type);
         auto vol = std::accumulate(dims.d, dims.d + dims.nbDims, int64_t{1}, std::multiplies<int64_t>{});
 
         mInOut[tensor_name]->resize(dims);
     }
+#else
+    for (int i = 0; i < mEngine->getNbIOTensors(); i++)
+    {
+        const auto tensor_name = mEngine->getIOTensorName(i);
+        if (isVerbose)
+            std::cout << "tensor_name: " << tensor_name << std::endl;
+        auto dims = mEngine->getTensorShape(tensor_name);
+        if (isVerbose)
+            slamplay::dims2str(dims);
+        nvinfer1::DataType type = mEngine->getTensorDataType(tensor_name);
+        if (isVerbose)
+            slamplay::index2srt(type);
+        auto vol = std::accumulate(dims.d, dims.d + dims.nbDims, int64_t{1}, std::multiplies<int64_t>{});
+        if (vol > 0) {
+            mInOut[tensor_name]->resize(dims);
+        } else
+        {
+            MSG_ERROR("volume of " << tensor_name << " is zero or negative!");
+        }
+    }
+#endif
 
     checkCudaStatus(mInOut["image_embeddings"]->host2device((void *)(image_embeddings.data_ptr<float>()), true, stream));
     checkCudaStatus(cudaStreamSynchronize(stream));
@@ -581,26 +767,49 @@ int SamPromptEncoderAndMaskDecoder::prepareInput(int x, int y, int x1, int y1, i
     auto trt_mask_input = at::zeros({1, 1, 256, 256}, at::kFloat);
     auto trt_has_mask_input = at::zeros(1, at::kFloat);
 
+#if NV_TENSORRT_VERSION_CODE < 100000L  // If we are using TensorRT 8
     context->setBindingDimensions(1, nvinfer1::Dims3(trt_coord.size(0), trt_coord.size(1), trt_coord.size(2)));
     // set input dims whichs name "point_label "
     context->setBindingDimensions(2, nvinfer1::Dims2(trt_coord.size(0), trt_coord.size(1)));
+#endif
 
+#if NV_TENSORRT_VERSION_CODE < 100000L  // If we are using TensorRT 8
     for (int i = 0; i < mEngine->getNbBindings(); i++)
     {
-        // auto dims = mEngine->getBindingDimensions(i);
-        auto tensor_name = mEngine->getBindingName(i);
+        const auto tensor_name = mEngine->getBindingName(i);
         if (isVerbose)
             std::cout << "tensor_name: " << tensor_name << std::endl;
         auto dims = context->getBindingDimensions(i);
         if (isVerbose)
-            dims2str(dims);
+            slamplay::dims2str(dims);
         nvinfer1::DataType type = mEngine->getBindingDataType(i);
         if (isVerbose)
-            index2srt(type);
+            slamplay::index2srt(type);
         auto vol = std::accumulate(dims.d, dims.d + dims.nbDims, int64_t{1}, std::multiplies<int64_t>{});
 
         mInOut[tensor_name]->resize(dims);
     }
+#else
+    for (int i = 0; i < mEngine->getNbIOTensors(); i++)
+    {
+        const auto tensor_name = mEngine->getIOTensorName(i);
+        if (isVerbose)
+            std::cout << "tensor_name: " << tensor_name << std::endl;
+        auto dims = mEngine->getTensorShape(tensor_name);
+        if (isVerbose)
+            slamplay::dims2str(dims);
+        nvinfer1::DataType type = mEngine->getTensorDataType(tensor_name);
+        if (isVerbose)
+            slamplay::index2srt(type);
+        auto vol = std::accumulate(dims.d, dims.d + dims.nbDims, int64_t{1}, std::multiplies<int64_t>{});
+        if (vol > 0) {
+            mInOut[tensor_name]->resize(dims);
+        } else
+        {
+            MSG_ERROR("volume of " << tensor_name << " is zero or negative!");
+        }
+    }
+#endif
 
     checkCudaStatus(mInOut["image_embeddings"]->host2device((void *)(image_embeddings.data_ptr<float>()), true, stream));
     checkCudaStatus(cudaStreamSynchronize(stream));
@@ -635,26 +844,49 @@ int SamPromptEncoderAndMaskDecoder::prepareInput(std::vector<int> mult_pts, cons
     auto trt_mask_input = at::zeros({1, 1, 256, 256}, at::kFloat);
     auto trt_has_mask_input = at::zeros(1, at::kFloat);
 
+#if NV_TENSORRT_VERSION_CODE < 100000L  // If we are using TensorRT 8
     context->setBindingDimensions(1, nvinfer1::Dims3(trt_coord.size(0), trt_coord.size(1), trt_coord.size(2)));
     // set input dims whichs name "point_label "
     context->setBindingDimensions(2, nvinfer1::Dims2(trt_coord.size(0), trt_coord.size(1)));
+#endif
 
+#if NV_TENSORRT_VERSION_CODE < 100000L  // If we are using TensorRT 8
     for (int i = 0; i < mEngine->getNbBindings(); i++)
     {
-        // auto dims = mEngine->getBindingDimensions(i);
         auto tensor_name = mEngine->getBindingName(i);
         if (isVerbose)
             std::cout << "tensor_name: " << tensor_name << std::endl;
         auto dims = context->getBindingDimensions(i);
         if (isVerbose)
-            dims2str(dims);
+            slamplay::dims2str(dims);
         nvinfer1::DataType type = mEngine->getBindingDataType(i);
         if (isVerbose)
-            index2srt(type);
+            slamplay::index2srt(type);
         auto vol = std::accumulate(dims.d, dims.d + dims.nbDims, int64_t{1}, std::multiplies<int64_t>{});
 
         mInOut[tensor_name]->resize(dims);
     }
+#else
+    for (int i = 0; i < mEngine->getNbIOTensors(); i++)
+    {
+        const auto tensor_name = mEngine->getIOTensorName(i);
+        if (isVerbose)
+            std::cout << "tensor_name: " << tensor_name << std::endl;
+        auto dims = mEngine->getTensorShape(tensor_name);
+        if (isVerbose)
+            slamplay::dims2str(dims);
+        nvinfer1::DataType type = mEngine->getTensorDataType(tensor_name);
+        if (isVerbose)
+            slamplay::index2srt(type);
+        auto vol = std::accumulate(dims.d, dims.d + dims.nbDims, int64_t{1}, std::multiplies<int64_t>{});
+        if (vol > 0) {
+            mInOut[tensor_name]->resize(dims);
+        } else
+        {
+            MSG_ERROR("volume of " << tensor_name << " is zero or negative!");
+        }
+    }
+#endif
 
     checkCudaStatus(mInOut["image_embeddings"]->host2device((void *)(image_embeddings.data_ptr<float>()), true, stream));
     checkCudaStatus(cudaStreamSynchronize(stream));
@@ -671,7 +903,11 @@ int SamPromptEncoderAndMaskDecoder::prepareInput(std::vector<int> mult_pts, cons
 
 bool SamPromptEncoderAndMaskDecoder::infer() {
     checkCudaStatus(cudaEventRecord(start, stream));
+#if NV_TENSORRT_VERSION_CODE < 100000L  // If we are using TensorRT 8
     auto ret = context->enqueueV2(mDeviceBindings.data(), stream, nullptr);
+#else
+    auto ret = context->executeV2(mDeviceBindings.data());
+#endif
     return ret;
 }
 
@@ -683,8 +919,8 @@ int SamPromptEncoderAndMaskDecoder::verifyOutput() {
 
     auto dim0 = mEngine->getTensorShape("masks");
     auto dim1 = mEngine->getTensorShape("scores");
-    // dims2str(dim0);
-    // dims2str(dim1);
+    // slamplay::dims2str(dim0);
+    // slamplay::dims2str(dim1);
     at::Tensor masks;
     masks = at::zeros({dim0.d[0], dim0.d[1], dim0.d[2], dim0.d[3]}, at::kFloat);
     mInOut["masks"]->device2host((void *)(masks.data_ptr<float>()), stream);
@@ -760,12 +996,15 @@ int SamPromptEncoderAndMaskDecoder::verifyOutput(cv::Mat &roi, float *iou) {
 
     auto dim0 = mEngine->getTensorShape("masks");
     auto dim1 = mEngine->getTensorShape("scores");
+
+    // bool isVerbose = true;  // force locally for debug
+
     if (isVerbose)
     {
         std::cout << "dim0: " << std::endl;
-        dims2str(dim0);
+        slamplay::dims2str(dim0);
         std::cout << "dim1: " << std::endl;
-        dims2str(dim1);
+        slamplay::dims2str(dim1);
     }
     at::Tensor masks;
     masks = at::zeros({dim0.d[0], dim0.d[1], dim0.d[2], dim0.d[3]}, at::kFloat);

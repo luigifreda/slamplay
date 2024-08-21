@@ -6,6 +6,7 @@ import os
 import numpy as np
 import onnx
 import torch
+import sys 
 
 import superglue
 
@@ -19,7 +20,9 @@ def reduce_l2(desc):
     desc = desc / np.expand_dims(dn, 1)  # Divide by norm to normalize.
     return desc
 
-
+'''
+The models can be downloaded from https://github.com/magicleap/SuperGluePretrainedNetwork/tree/master/models/weights
+'''
 def main():
     parser = argparse.ArgumentParser(
         description='script to convert superpoint model from pytorch to onnx')
@@ -34,16 +37,16 @@ def main():
     weight_file = args.weight_file
 
     # load model
-    superpoint_model = superglue.SuperGlue()
-    pytorch_total_params = sum(p.numel() for p in superpoint_model.parameters())
+    superglue_model = superglue.SuperGlue()
+    pytorch_total_params = sum(p.numel() for p in superglue_model.parameters())
     print('total number of params: ', pytorch_total_params)
 
     # initialize model with the pretrained weights
     map_location = lambda storage, loc: storage
     if torch.cuda.is_available():
         map_location = None
-    superpoint_model.load_state_dict(torch.load(weight_file, map_location=map_location))
-    superpoint_model.eval()
+    superglue_model.load_state_dict(torch.load(weight_file, map_location=map_location))
+    superglue_model.eval()
 
     # create input to the model for onnx trace
     x0 = torch.from_numpy(np.random.randint(low=0, high=751, size=(1, 512)))
@@ -60,7 +63,7 @@ def main():
                                  weight_file.split("/")[-1].split(".")[0] + ".onnx")
 
     # Export the model
-    torch.onnx.export(superpoint_model,  # model being run
+    torch.onnx.export(superglue_model,  # model being run
                       (kpts0, scores0, desc0, kpts1, scores1, desc1),  # model input (or a tuple for multiple inputs)
                       onnx_filename,  # where to save the model (can be a file or file-like object)
                       export_params=True,  # store the trained parameter weights inside the model file
@@ -85,10 +88,18 @@ def main():
 
     # check onnx model
     onnx_model = onnx.load(onnx_filename)
-    onnx.checker.check_model(onnx_model)
+    try: 
+        onnx.checker.check_model(onnx_model, full_check=True)   
+    except Exception as e:
+        print(f'onnx check failed: {e}')     
+        sys.exit(1)
 
     print("Exported model has been checked with ONNXRuntime.")
 
 
 if __name__ == '__main__':
-    main()
+    try: 
+        main()
+    except Exception as e:
+        print(f'Error: {e}')
+        sys.exit(1)

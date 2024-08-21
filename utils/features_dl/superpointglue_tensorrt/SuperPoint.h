@@ -6,6 +6,7 @@
 #define SUPER_POINT_H_
 
 #include <NvInfer.h>
+#include <NvInferRuntime.h>
 #include <NvOnnxParser.h>
 #include <Eigen/Core>
 #include <memory>
@@ -31,6 +32,8 @@ class SuperPoint {
 
     bool deserialize_engine();
 
+    void getInputOutputNames();
+
    private:
     SuperPointConfig super_point_config_;
     nvinfer1::Dims input_dims_{};
@@ -41,6 +44,12 @@ class SuperPoint {
     std::vector<std::vector<int>> keypoints_;
     std::vector<std::vector<double>> descriptors_;
 
+    std::map<std::string, std::string> inOut_;  //!< Input and output mapping of the network
+    std::map<std::string, nvinfer1::Dims> inOutDims_;
+    TensorRTUniquePtr<nvinfer1::IRuntime> runtime_;
+
+    bool isVerbose_{false};
+
     bool construct_network(TensorRTUniquePtr<nvinfer1::IBuilder> &builder,
                            TensorRTUniquePtr<nvinfer1::INetworkDefinition> &network,
                            TensorRTUniquePtr<nvinfer1::IBuilderConfig> &config,
@@ -48,8 +57,7 @@ class SuperPoint {
 
     bool process_input(const tensorrt_buffers::BufferManager &buffers, const cv::Mat &image);
 
-    bool
-    process_output(const tensorrt_buffers::BufferManager &buffers, Eigen::Matrix<double, 259, Eigen::Dynamic> &features);
+    bool process_output(const tensorrt_buffers::BufferManager &buffers, Eigen::Matrix<double, 259, Eigen::Dynamic> &features);
 
     void remove_borders(std::vector<std::vector<int>> &keypoints, std::vector<float> &scores, int border, int height,
                         int width);

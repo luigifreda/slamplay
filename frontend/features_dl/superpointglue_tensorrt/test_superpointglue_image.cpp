@@ -8,6 +8,7 @@
 #include "features_dl/superpointglue_tensorrt/SuperGlue.h"
 #include "features_dl/superpointglue_tensorrt/SuperPoint.h"
 
+#include "tensorrt/tensorrt_utils.h"
 #include "viz/viz_matches.h"
 
 #include "macros.h"
@@ -17,6 +18,8 @@ std::string dataDir = STR(DATA_DIR);  // DATA_DIR set by compilers flag
 static void help() {
     std::cout << "\n./test_superpointglue_image <config_path> <model_dir> <first_image_absolutely_path> <second_image_absolutely_path>" << std::endl;
 }
+
+#define SHOW_STUFF 0
 
 int main(int argc, char** argv) {
     std::string image0_path = dataDir + "/superpointglue/image0.png";
@@ -53,12 +56,13 @@ int main(int argc, char** argv) {
     std::cout << "First image size: " << image0.cols << "x" << image0.rows << std::endl;
     std::cout << "Second image size: " << image1.cols << "x" << image1.rows << std::endl;
 
-    std::cout << "Building inference engine......" << std::endl;
+    std::cout << "Building inference engine for superpoint......" << std::endl;
     auto superpoint = std::make_shared<SuperPoint>(configs.superpoint_config);
     if (!superpoint->build()) {
         std::cerr << "Error in SuperPoint building engine. Please check your onnx model path." << std::endl;
         return 0;
     }
+    std::cout << "Building inference engine for superglue......" << std::endl;
     auto superglue = std::make_shared<SuperGlue>(configs.superglue_config);
     if (!superglue->build()) {
         std::cerr << "Error in SuperGlue building engine. Please check your onnx model path." << std::endl;
@@ -76,7 +80,9 @@ int main(int argc, char** argv) {
     constexpr int num_times = 10;
     std::cout << "SuperPoint and SuperGlue test in " << num_times << " times." << std::endl;
 
+#if SHOW_STUFF
     cv::namedWindow("match_image", cv::WINDOW_NORMAL);
+#endif
 
     for (int i = 0; i <= num_times; ++i) {
         std::cout << "---------------------------------------------------------" << std::endl;
@@ -130,12 +136,14 @@ int main(int argc, char** argv) {
         keypoints1.emplace_back(x, y, 8, -1, score);
     }
 
+#if SHOW_STUFF
     cv::drawMatches(image0, keypoints0, image1, keypoints1, superglue_matches, match_image);
     cv::imwrite("match_image.png", match_image);
     //  visualize
     cv::imshow("match_image", match_image);
     std::cout << "press a key to proceed..." << std::endl;
     cv::waitKey(-1);
+#endif
 
     return 0;
 }

@@ -19,6 +19,8 @@ thirdparty/obindex2
 thirdparty/ibow-lcd
 thirdparty/rerun
 thirdparty/tensorrtbuffers/lib/libtensorrtbuffers.so
+thirdparty/tensorrtbuffers10.0/lib/libtensorrtbuffers.so
+thirdparty/tensorrtbuffers8.5/lib/libtensorrtbuffers.so
 libtensorrtbuffers.so
 thirdparty/TensorRT
 thirdparty/rerun
@@ -27,10 +29,12 @@ thirdparty/tracy-profiler
 thirdparty/tensorrtbuffers
 thirdparty/TensorRT-8.5.1.7.Linux.x86_64-gnu.cuda-11.8.cudnn8.6.tar.gz
 thirdparty/TensorRT-10.0.1.6.Linux.x86_64-gnu.cuda-11.8.tar.gz
+thirdparty/TensorRT-10.3.0.26.Linux.x86_64-gnu.cuda-12.5.tar.gz
 thirdparty/dbow3/build 
 thirdparty/dbow3/lib
 thirdparty/libtorch
 thirdparty/libtorch.zip
+thirdparty/dbow2/lib
 
 # data 
 data/new_college
@@ -49,3 +53,7 @@ data/dbow2_vocabulary/ORBvoc.bin
 data/dbow2_vocabulary/ORBvoc.txt
 data/segment_anything/models
 data/segment_anything/weights
+data/remode_test_data.zip
+data/superpointglue/weights/superglue_indoor_sim_int32.engine
+data/superpointglue/weights/superglue_outdoor_sim_int32.engine
+data/superpointglue/weights/superpoint_v1_sim_int32.engine

@@ -9,11 +9,14 @@
 #include <unordered_map>
 #include <utility>
 
+#include "io/file_utils.h"
+#include "io/messages.h"
+#include "tensorrt/tensorrt_utils.h"
+
 using namespace tensorrt_common;
 using namespace tensorrt_log;
 using namespace tensorrt_buffers;
 using namespace nvinfer1;
-
 
 SuperGlue::SuperGlue(const SuperGlueConfig &superglue_config) : superglue_config_(superglue_config), engine_(nullptr) {
     setReportableSeverity(Logger::Severity::kINTERNAL_ERROR);
@@ -26,28 +29,33 @@ bool SuperGlue::build() {
 
     auto builder = TensorRTUniquePtr<nvinfer1::IBuilder>(nvinfer1::createInferBuilder(gLogger.getTRTLogger()));
     if (!builder) {
+        MSG_WARN("Cannot create the inference builder: IBuilder!")
         return false;
     }
 
     const auto explicit_batch = 1U << static_cast<uint32_t>(NetworkDefinitionCreationFlag::kEXPLICIT_BATCH);
     auto network = TensorRTUniquePtr<nvinfer1::INetworkDefinition>(builder->createNetworkV2(explicit_batch));
     if (!network) {
+        MSG_WARN("Cannot create the network definition: INetworkDefinition!")
         return false;
     }
 
     auto config = TensorRTUniquePtr<nvinfer1::IBuilderConfig>(builder->createBuilderConfig());
     if (!config) {
+        MSG_WARN("Cannot create the builder config: IBuilderConfig!")
         return false;
     }
 
     auto parser = TensorRTUniquePtr<nvonnxparser::IParser>(
         nvonnxparser::createParser(*network, gLogger.getTRTLogger()));
     if (!parser) {
+        MSG_WARN("Cannot create the parser: IParser!")
         return false;
     }
 
     auto profile = builder->createOptimizationProfile();
     if (!profile) {
+        MSG_WARN("Cannot create the optimization profile: IOptimizationProfile!")
         return false;
     }
     profile->setDimensions(superglue_config_.input_tensor_names[0].c_str(), OptProfileSelector::kMIN, Dims3(1, 1, 2));
@@ -78,27 +86,33 @@ bool SuperGlue::build() {
 
     auto constructed = construct_network(builder, network, config, parser);
     if (!constructed) {
+        MSG_WARN("Cannot construct the network!")
         return false;
     }
 
     auto profile_stream = makeCudaStream();
     if (!profile_stream) {
+        MSG_WARN("Cannot create the cuda stream!")
         return false;
     }
     config->setProfileStream(*profile_stream);
 
     TensorRTUniquePtr<IHostMemory> plan{builder->buildSerializedNetwork(*network, *config)};
     if (!plan) {
+        MSG_WARN("Cannot create the engine: IHostMemory!")
         return false;
     }
 
     TensorRTUniquePtr<IRuntime> runtime{createInferRuntime(gLogger.getTRTLogger())};
-    if (!runtime) {
+    runtime_ = std::move(runtime);
+    if (!runtime_) {
+        MSG_WARN("Cannot create the inference runtime: IRuntime!")
         return false;
     }
 
-    engine_ = std::shared_ptr<nvinfer1::ICudaEngine>(runtime->deserializeCudaEngine(plan->data(), plan->size()));
+    engine_ = std::shared_ptr<nvinfer1::ICudaEngine>(runtime_->deserializeCudaEngine(plan->data(), plan->size()));
     if (!engine_) {
+        MSG_WARN("Cannot create the engine: ICudaEngine!")
         return false;
     }
 
@@ -124,12 +138,22 @@ bool SuperGlue::construct_network(TensorRTUniquePtr<nvinfer1::IBuilder> &builder
                                   TensorRTUniquePtr<nvinfer1::INetworkDefinition> &network,
                                   TensorRTUniquePtr<nvinfer1::IBuilderConfig> &config,
                                   TensorRTUniquePtr<nvonnxparser::IParser> &parser) const {
+    if (!slamplay::fileExists(superglue_config_.onnx_file)) {
+        MSG_ERROR("File not found: " << superglue_config_.onnx_file);
+        return false;
+    }
+    std::cout << "parsing onnx file: " << superglue_config_.onnx_file << std::endl;
     auto parsed = parser->parseFromFile(superglue_config_.onnx_file.c_str(),
                                         static_cast<int>(gLogger.getReportableSeverity()));
     if (!parsed) {
+        MSG_WARN("Cannot parse the onnx model: " << superglue_config_.onnx_file);
         return false;
     }
+#if NV_TENSORRT_VERSION_CODE < 100000L  // If we are using TensorRT 8
     config->setMaxWorkspaceSize(512_MiB);
+#else
+    config->setMemoryPoolLimit(nvinfer1::MemoryPoolType::kWORKSPACE, 1U << 25);
+#endif
     config->setFlag(BuilderFlag::kFP16);
     enableDLA(builder.get(), config.get(), superglue_config_.dla_core);
     return true;
@@ -141,6 +165,36 @@ bool SuperGlue::infer(const Eigen::Matrix<double, 259, Eigen::Dynamic> &features
                       Eigen::VectorXi &indices1,
                       Eigen::VectorXd &mscores0,
                       Eigen::VectorXd &mscores1) {
+    if (isVerbose_)
+        std::cout << "[SuperGlue] infer - f1: " << features0.size() << ", f2: " << features1.size() << std::endl;
+
+    inOutDims_[superglue_config_.input_tensor_names[0].c_str()] = nvinfer1::Dims3(1, features0.cols(), 2);
+    inOutDims_[superglue_config_.input_tensor_names[1].c_str()] = nvinfer1::Dims2(1, features0.cols());
+    inOutDims_[superglue_config_.input_tensor_names[2].c_str()] = nvinfer1::Dims3(1, 256, features0.cols());
+
+    inOutDims_[superglue_config_.input_tensor_names[3].c_str()] = nvinfer1::Dims3(1, features1.cols(), 2);
+    inOutDims_[superglue_config_.input_tensor_names[4].c_str()] = nvinfer1::Dims2(1, features1.cols());
+    inOutDims_[superglue_config_.input_tensor_names[5].c_str()] = nvinfer1::Dims3(1, 256, features1.cols());
+    for (size_t ii = 0; ii < 6; ++ii) {
+        if (isVerbose_)
+            std::cout << "\t" << superglue_config_.input_tensor_names[ii] << ": " << inOutDims_[superglue_config_.input_tensor_names[ii]].nbDims << std::endl;
+    }
+
+#if NV_TENSORRT_VERSION_CODE >= 100000L  // If we are using TensorRT 10
+    // With TensorRT 10, we need to prepare the buffer manager before the context is created
+    std::vector<int64_t> volumes;
+    volumes.resize(engine_->getNbIOTensors());
+    MSG_ASSERT(engine_->getNbIOTensors() == 7, "Wrong number of I/O tensors: " << engine_->getNbIOTensors());
+    for (size_t ii = 0; ii < 6; ++ii) {  // 6 -> just the input!
+        const auto tensor_name = superglue_config_.input_tensor_names[ii].c_str();
+        const auto dims = inOutDims_[tensor_name];
+        auto vol = std::accumulate(dims.d, dims.d + dims.nbDims, int64_t{1}, std::multiplies<int64_t>{});
+        volumes[ii] = vol * sizeof(float);
+    }
+    volumes[6] = (features0.cols() + 1) * ((features1.cols() + 1));
+    BufferManager buffers(engine_, volumes);
+#endif
+
     if (!context_) {
         context_ = TensorRTUniquePtr<nvinfer1::IExecutionContext>(engine_->createExecutionContext());
         if (!context_) {
@@ -148,19 +202,23 @@ bool SuperGlue::infer(const Eigen::Matrix<double, 259, Eigen::Dynamic> &features
         }
     }
 
-    assert(engine_->getNbBindings() == 7);
+#if NV_TENSORRT_VERSION_CODE < 100000L  // If we are using TensorRT 8
+    MSG_ASSERT(engine_->getNbBindings() == 7, "Wrong number of bindings: " << engine_->getNbBindings());
 
     const int keypoints_0_index = engine_->getBindingIndex(superglue_config_.input_tensor_names[0].c_str());
     const int scores_0_index = engine_->getBindingIndex(superglue_config_.input_tensor_names[1].c_str());
     const int descriptors_0_index = engine_->getBindingIndex(superglue_config_.input_tensor_names[2].c_str());
+
     const int keypoints_1_index = engine_->getBindingIndex(superglue_config_.input_tensor_names[3].c_str());
     const int scores_1_index = engine_->getBindingIndex(superglue_config_.input_tensor_names[4].c_str());
     const int descriptors_1_index = engine_->getBindingIndex(superglue_config_.input_tensor_names[5].c_str());
+
     const int output_score_index = engine_->getBindingIndex(superglue_config_.output_tensor_names[0].c_str());
 
     context_->setBindingDimensions(keypoints_0_index, Dims3(1, features0.cols(), 2));
     context_->setBindingDimensions(scores_0_index, Dims2(1, features0.cols()));
     context_->setBindingDimensions(descriptors_0_index, Dims3(1, 256, features0.cols()));
+
     context_->setBindingDimensions(keypoints_1_index, Dims3(1, features1.cols(), 2));
     context_->setBindingDimensions(scores_1_index, Dims2(1, features1.cols()));
     context_->setBindingDimensions(descriptors_1_index, Dims3(1, 256, features1.cols()));
@@ -168,12 +226,69 @@ bool SuperGlue::infer(const Eigen::Matrix<double, 259, Eigen::Dynamic> &features
     keypoints_0_dims_ = context_->getBindingDimensions(keypoints_0_index);
     scores_0_dims_ = context_->getBindingDimensions(scores_0_index);
     descriptors_0_dims_ = context_->getBindingDimensions(descriptors_0_index);
+
     keypoints_1_dims_ = context_->getBindingDimensions(keypoints_1_index);
     scores_1_dims_ = context_->getBindingDimensions(scores_1_index);
     descriptors_1_dims_ = context_->getBindingDimensions(descriptors_1_index);
-    output_scores_dims_ = context_->getBindingDimensions(output_score_index);
 
+    output_scores_dims_ = context_->getBindingDimensions(output_score_index);
+#else
+    MSG_ASSERT(engine_->getNbIOTensors() == 7, "Wrong number of I/O tensors: " << engine_->getNbIOTensors());
+
+    // const bool isVerbose_ = true;  // force locally for debug
+
+    for (int32_t i = 0, end = engine_->getNbIOTensors(); i < end; i++)
+    {
+        auto const name = engine_->getIOTensorName(i);
+        if (isVerbose_)
+            std::cout << "preparing tensor: " << name << std::endl;
+        if (!context_->setTensorAddress(name, buffers.getDeviceBuffer(name)))
+        {
+            MSG_WARN("Cannot set tensor address: " << name)
+            return false;
+        }
+
+        // MSG_ASSERT(inOutDims_.count(name) > 0, "Invalid binding name: " << name);
+        if (inOutDims_.count(name) == 0)
+        {
+            MSG_WARN("Invalid binding name: " << name)
+            continue;
+        }
+        auto dims = inOutDims_.at(name);
+        if (!context_->setInputShape(name, dims))
+        {
+            MSG_WARN("Setting input shape failed!")
+            return false;
+        }
+    }
+
+    keypoints_0_dims_ = inOutDims_[superglue_config_.input_tensor_names[0]];  // engine_->getTensorShape(superglue_config_.input_tensor_names[0].c_str());
+    if (isVerbose_)
+        std::cout << "[SuperGlue] processing input - keypoints_0_dims_ size: " << keypoints_0_dims_ << std::endl;
+    scores_0_dims_ = context_->getTensorShape(superglue_config_.input_tensor_names[1].c_str());
+    if (isVerbose_)
+        std::cout << "[SuperGlue] processing input - scores_0_dims_ size: " << scores_0_dims_ << std::endl;
+    descriptors_0_dims_ = context_->getTensorShape(superglue_config_.input_tensor_names[2].c_str());
+    if (isVerbose_)
+        std::cout << "[SuperGlue] processing input - descriptors_0_dims_ size: " << descriptors_0_dims_ << std::endl;
+
+    keypoints_1_dims_ = context_->getTensorShape(superglue_config_.input_tensor_names[3].c_str());
+    if (isVerbose_)
+        std::cout << "[SuperGlue] processing input - keypoints_1_dims_ size: " << keypoints_1_dims_ << std::endl;
+    scores_1_dims_ = context_->getTensorShape(superglue_config_.input_tensor_names[4].c_str());
+    if (isVerbose_)
+        std::cout << "[SuperGlue] processing input - scores_1_dims_ size: " << scores_1_dims_ << std::endl;
+    descriptors_1_dims_ = context_->getTensorShape(superglue_config_.input_tensor_names[5].c_str());
+    if (isVerbose_)
+        std::cout << "[SuperGlue] processing input - descriptors_1_dims_ size: " << descriptors_1_dims_ << std::endl;
+    output_scores_dims_ = context_->getTensorShape(superglue_config_.output_tensor_names[0].c_str());
+    if (isVerbose_)
+        std::cout << "[SuperGlue] processing input - output_scores_dims_ size: " << output_scores_dims_ << std::endl;
+#endif
+
+#if NV_TENSORRT_VERSION_CODE < 100000L  // If we are using TensorRT 8
     BufferManager buffers(engine_, 0, context_.get());
+#endif
 
     ASSERT(superglue_config_.input_tensor_names.size() == 6);
     if (!process_input(buffers, features0, features1)) {
@@ -489,16 +604,25 @@ bool SuperGlue::deserialize_engine() {
         char *model_stream = new char[size];
         file.read(model_stream, size);
         file.close();
-        IRuntime *runtime = createInferRuntime(gLogger);
-        if (runtime == nullptr) {
+
+        // IRuntime *runtime = createInferRuntime(gLogger);
+        TensorRTUniquePtr<IRuntime> runtime{createInferRuntime(gLogger)};
+        runtime_ = std::move(runtime);
+
+        if (runtime_ == nullptr) {
             delete[] model_stream;
             return false;
         }
-        engine_ = std::shared_ptr<nvinfer1::ICudaEngine>(runtime->deserializeCudaEngine(model_stream, size));
+        engine_ = std::shared_ptr<nvinfer1::ICudaEngine>(runtime_->deserializeCudaEngine(model_stream, size));
         if (engine_ == nullptr) {
+            MSG_WARN_STREAM("deserialize engine failed");
             delete[] model_stream;
             return false;
         }
+
+        // populates input output map structure
+        getInputOutputNames();
+
         delete[] model_stream;
         return true;
     }
@@ -554,4 +678,35 @@ Eigen::Matrix<double, 259, Eigen::Dynamic> SuperGlue::normalize_keypoints(const 
             (features(2, col) - height / 2) / (std::max(width, height) * 0.7);
     }
     return norm_features;
+}
+
+void SuperGlue::getInputOutputNames() {
+    int32_t nbindings = engine_.get()->getNbIOTensors();
+    ASSERT(nbindings == 7);
+    for (int32_t b = 0; b < nbindings; ++b)
+    {
+        auto const bindingName = engine_.get()->getIOTensorName(b);
+        nvinfer1::Dims dims = engine_.get()->getTensorShape(bindingName);
+        if (isVerbose_)
+            std::cout << "Binding name: " << bindingName << " shape=" << dims << std::endl;
+        if (engine_.get()->getTensorIOMode(bindingName) == TensorIOMode::kINPUT)
+        {
+            if (isVerbose_)
+            {
+                gLogInfo << "Found input: " << bindingName << " shape=" << dims
+                         << " dtype=" << static_cast<int32_t>(engine_.get()->getTensorDataType(bindingName))
+                         << std::endl;
+            }
+            inOut_["input"] = bindingName;
+        } else
+        {
+            if (isVerbose_)
+            {
+                gLogInfo << "Found output: " << bindingName << " shape=" << dims
+                         << " dtype=" << static_cast<int32_t>(engine_.get()->getTensorDataType(bindingName))
+                         << std::endl;
+            }
+            inOut_["output"] = bindingName;
+        }
+    }
 }

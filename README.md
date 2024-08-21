@@ -17,6 +17,7 @@ Author: [Luigi Freda](https://www.luigifreda.com)
   - [Front-end](#front-end)
     - [Features DL (Deep Learning)](#features-dl-deep-learning)
     - [Depth DL](#depth-dl)
+    - [Tensorflow C++ API](#tensorflow-c-api)
   - [Back-end](#back-end)
     - [GTSAM examples](#gtsam-examples)
     - [Ceres examples](#ceres-examples)
@@ -119,14 +120,7 @@ If you want to use the DL (Deep Learning) models then run the following command 
 
 #### GPU support with `CUDA`, `cuDNN`, `TensorRT`
 
- I recommend the following configuration with `CUDA` ecosystem: 
-- `CUDA` 11.8 (or 11.6). 
-  * Install instructions [here](https://docs.nvidia.com/cuda/cuda-installation-guide-linux/index.html). 
-- `cuDNN` 8.6.0.163-1+cuda11.8. 
-  * Install instructions [here](https://docs.nvidia.com/deeplearning/cudnn/latest/installation/linux.html).    
-  * Once you downloaded the proper deb package, run the following command:         
-`sudo apt install -y libcudnn8=8.6.0.163-1+cuda11.8 libcudnn8-dev=8.6.0.163-1+cuda11.8`       
-- `TensorRT` 8.5.1.7 will be automatically installed by the main script `build.sh` in `thirdparty/TensorRT` (once `CUDA` has been installed) and cmake will automatically use it by default.
+ I recommend [these tested configurations](./GPU_support.md) with `CUDA` ecosystem.
 
 #### Install tensorflow C++ API
 
@@ -174,16 +168,14 @@ In `frontend/depth_dl` you can find:
 
 **Warning**: The first time you run a TensorRT model, it will take some time to convert the input *onnx* model to its *engine* format. 
 
-As explained above, if you want to install and test tensorflow C++ API (e.g. for HFNet), then run: `$ ./install_tensorflow_cc.sh`      
+
+### Tensorflow C++ API
+
+As explained above, if you want to install and test tensorflow C++ API (e.g. for HFNet), then run:     
+`$ ./install_tensorflow_cc.sh`      
 See [tensorflow_cc](https://github.com/luigifreda/tensorflow_cc) for further details. Note that this step will take a long while and for this reason it is required you manually launch `install_tensorflow_cc.sh`.  
 
-My **working configuration** (default one for [tensorflow_cc](https://github.com/luigifreda/tensorflow_cc)) under Ubuntu 20.04:
-- **C++**: 17
-- **TENSORFLOW_VERSION**: 2.9.0 
-- **BAZEL_VERSION**: 5.1.1
-- **CUDA**: 11.6 
-- **CUDNN**: 8.6.0.163-1+cuda11.8       
-  `sudo apt install -y libcudnn8=8.6.0.163-1+cuda11.8 libcudnn8-dev=8.6.0.163-1+cuda11.8`
+See [this file](./GPU_support.md) for other notes about GPU support and the used `CUDA` ecosystem.
 
 ---
 

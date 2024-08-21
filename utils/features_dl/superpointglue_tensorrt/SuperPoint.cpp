@@ -1,12 +1,17 @@
 //
 // Created by haoyuefan on 2021/9/22.
+// Updated and adjusted by Luigi Freda on 2024/08/22.
 //
 #include "SuperPoint.h"
+
+#include "io/messages.h"
 
 #include <memory>
 #include <opencv2/opencv.hpp>
 #include <unordered_map>
 #include <utility>
+
+#include "tensorrt/tensorrt_utils.h"
 
 using namespace tensorrt_common;
 using namespace tensorrt_log;
@@ -24,25 +29,30 @@ bool SuperPoint::build() {
     }
     auto builder = TensorRTUniquePtr<nvinfer1::IBuilder>(nvinfer1::createInferBuilder(gLogger.getTRTLogger()));
     if (!builder) {
+        MSG_WARN("Cannot create the inference builder: IBuilder!")
         return false;
     }
     const auto explicit_batch = 1U << static_cast<uint32_t>(NetworkDefinitionCreationFlag::kEXPLICIT_BATCH);
     auto network = TensorRTUniquePtr<nvinfer1::INetworkDefinition>(builder->createNetworkV2(explicit_batch));
     if (!network) {
+        MSG_WARN("Cannot create the network definition: INetworkDefinition!")
         return false;
     }
     auto config = TensorRTUniquePtr<nvinfer1::IBuilderConfig>(builder->createBuilderConfig());
     if (!config) {
+        MSG_WARN("Cannot create the builder config: IBuilderConfig!")
         return false;
     }
     auto parser = TensorRTUniquePtr<nvonnxparser::IParser>(
         nvonnxparser::createParser(*network, gLogger.getTRTLogger()));
     if (!parser) {
+        MSG_WARN("Cannot create the parser: IParser!")
         return false;
     }
 
     auto profile = builder->createOptimizationProfile();
     if (!profile) {
+        MSG_WARN("Cannot create the optimization profile: IOptimizationProfile!")
         return false;
     }
     profile->setDimensions(super_point_config_.input_tensor_names[0].c_str(),
@@ -55,23 +65,29 @@ bool SuperPoint::build() {
 
     auto constructed = construct_network(builder, network, config, parser);
     if (!constructed) {
+        MSG_WARN("Cannot construct the network!")
         return false;
     }
     auto profile_stream = makeCudaStream();
     if (!profile_stream) {
+        MSG_WARN("Cannot create the CUDA stream for the optimization profile: IOptimizationProfile!")
         return false;
     }
     config->setProfileStream(*profile_stream);
     TensorRTUniquePtr<IHostMemory> plan{builder->buildSerializedNetwork(*network, *config)};
     if (!plan) {
+        MSG_WARN("Cannot build the serialized network: IHostMemory!")
         return false;
     }
     TensorRTUniquePtr<IRuntime> runtime{createInferRuntime(gLogger.getTRTLogger())};
-    if (!runtime) {
+    runtime_ = std::move(runtime);
+    if (!runtime_) {
+        MSG_WARN("Cannot create the inference runtime: IRuntime!")
         return false;
     }
-    engine_ = std::shared_ptr<nvinfer1::ICudaEngine>(runtime->deserializeCudaEngine(plan->data(), plan->size()));
+    engine_ = std::shared_ptr<nvinfer1::ICudaEngine>(runtime_->deserializeCudaEngine(plan->data(), plan->size()));
     if (!engine_) {
+        MSG_WARN("Cannot deserialize the engine: ICudaEngine!")
         return false;
     }
     save_engine();
@@ -90,45 +106,119 @@ bool SuperPoint::construct_network(TensorRTUniquePtr<nvinfer1::IBuilder> &builde
                                    TensorRTUniquePtr<nvinfer1::INetworkDefinition> &network,
                                    TensorRTUniquePtr<nvinfer1::IBuilderConfig> &config,
                                    TensorRTUniquePtr<nvonnxparser::IParser> &parser) const {
+    if (!slamplay::fileExists(super_point_config_.onnx_file)) {
+        MSG_ERROR("File not found: " << super_point_config_.onnx_file);
+        return false;
+    }
+    std::cout << "parsing onnx file: " << super_point_config_.onnx_file << std::endl;
     auto parsed = parser->parseFromFile(super_point_config_.onnx_file.c_str(),
                                         static_cast<int>(gLogger.getReportableSeverity()));
     if (!parsed) {
+        MSG_WARN("Cannot parse the onnx model: " << super_point_config_.onnx_file);
         return false;
     }
+#if NV_TENSORRT_VERSION_CODE < 100000L  // If we are using TensorRT 8
     config->setMaxWorkspaceSize(512_MiB);
-    config->setFlag(BuilderFlag::kFP16);
+#else
+    config->setMemoryPoolLimit(nvinfer1::MemoryPoolType::kWORKSPACE, 1U << 25);
+#endif
+    config->setFlag(nvinfer1::BuilderFlag::kFP16);
     enableDLA(builder.get(), config.get(), super_point_config_.dla_core);
     return true;
 }
 
 bool SuperPoint::infer(const cv::Mat &image, Eigen::Matrix<double, 259, Eigen::Dynamic> &features) {
+    if (isVerbose_)
+        std::cout << "[SuperPoint] infer: " << image.rows << "x" << image.cols << std::endl;
+
+    inOutDims_[super_point_config_.input_tensor_names[0].c_str()] = nvinfer1::Dims4(1, 1, image.rows, image.cols);
+    // inOutDims_["scores"] = nvinfer1::Dims3(1, image.rows, image.cols);
+    // inOutDims_["descriptors"] = nvinfer1::Dims4(1, 256, image.rows / 8, image.cols / 8);
+
+#if NV_TENSORRT_VERSION_CODE >= 100000L  // If we are using TensorRT 10
+    // With TensorRT 10, we need to prepare the buffer manager before the context is created
+    std::vector<int64_t> volumes;
+    volumes.reserve(engine_->getNbIOTensors());
+    MSG_ASSERT(engine_->getNbIOTensors() == 3, "Wrong number of I/O tensors: " << engine_->getNbIOTensors());
+    volumes[0] = image.rows * image.cols * sizeof(uint8_t);                // input_dims_.d[2] = image.rows; input_dims_.d[3] = image.cols;
+    volumes[1] = image.rows * image.cols * sizeof(uint8_t);                // semi_dims_.d[1] = image.rows; semi_dims_.d[2] = image.cols;
+    volumes[2] = image.rows / 8 * image.cols / 8 * 256 * sizeof(uint8_t);  // desc_dims_.d[1] = 256; desc_dims_.d[2] = image.rows / 8; desc_dims_.d[3] = image.cols / 8;
+
+    BufferManager buffers(engine_, volumes);
+#endif
+
     if (!context_) {
         context_ = TensorRTUniquePtr<nvinfer1::IExecutionContext>(engine_->createExecutionContext());
         if (!context_) {
+            MSG_WARN("Cannot create the execution context: IExecutionContext!")
             return false;
         }
     }
 
-    assert(engine_->getNbBindings() == 3);
-
+#if NV_TENSORRT_VERSION_CODE < 100000L  // If we are using TensorRT 8
+    MSG_ASSERT(engine_->getNbBindings() == 3, "Wrong number of bindings: " << engine_->getNbBindings());
     const int input_index = engine_->getBindingIndex(super_point_config_.input_tensor_names[0].c_str());
-
     context_->setBindingDimensions(input_index, Dims4(1, 1, image.rows, image.cols));
+#else
+    MSG_ASSERT(engine_->getNbIOTensors() == 3, "Wrong number of I/O tensors: " << engine_->getNbIOTensors());
+    for (int32_t i = 0, end = engine_->getNbIOTensors(); i < end; i++)
+    {
+        auto const name = engine_->getIOTensorName(i);
+        if (isVerbose_)
+            std::cout << "preparing tensor: " << name << std::endl;
+        if (!context_->setTensorAddress(name, buffers.getDeviceBuffer(name)))
+        {
+            MSG_WARN("Cannot set tensor address: " << name)
+            return false;
+        }
 
+        // MSG_ASSERT(inOutDims_.count(name) > 0, "Invalid binding name: " << name);
+        if (inOutDims_.count(name) == 0)
+        {
+            // MSG_WARN("Invalid binding name: " << name)
+            continue;
+        }
+        const auto dims = inOutDims_.at(name);
+        if (!context_->setInputShape(name, dims))
+        {
+            MSG_WARN("Setting input shape failed!")
+            return false;
+        }
+    }
+#endif
+
+#if NV_TENSORRT_VERSION_CODE < 100000L  // If we are using TensorRT 8
+    // With TensorRT 8, we need to prepare the buffer manager after the context is created
     BufferManager buffers(engine_, 0, context_.get());
+#endif
 
-    ASSERT(super_point_config_.input_tensor_names.size() == 1);
+    if (isVerbose_)
+        std::cout << "processing input" << std::endl;
+    MSG_ASSERT(super_point_config_.input_tensor_names.size() == 1, "Wrong number of inputs: " << super_point_config_.input_tensor_names.size());
     if (!process_input(buffers, image)) {
+        MSG_WARN_STREAM("Cannot process input: " << super_point_config_.input_tensor_names[0]);
         return false;
     }
+    if (isVerbose_)
+        std::cout << "copy input to device" << std::endl;
+    // Memcpy from host input buffers to device input buffers
     buffers.copyInputToDevice();
 
+    if (isVerbose_)
+        std::cout << "executeV2" << std::endl;
     bool status = context_->executeV2(buffers.getDeviceBindings().data());
     if (!status) {
+        MSG_WARN_STREAM("Cannot run executeV2 on the context!");
         return false;
     }
+
+    if (isVerbose_)
+        std::cout << "copy output to host" << std::endl;
     buffers.copyOutputToHost();
+    if (isVerbose_)
+        std::cout << "process output" << std::endl;
     if (!process_output(buffers, features)) {
+        MSG_WARN("Cannot process output: " << super_point_config_.output_tensor_names[0]);
         return false;
     }
     return true;
@@ -142,8 +232,14 @@ bool SuperPoint::process_input(const BufferManager &buffers, const cv::Mat &imag
     desc_dims_.d[1] = 256;
     desc_dims_.d[2] = image.rows / 8;
     desc_dims_.d[3] = image.cols / 8;
+
     auto *host_data_buffer = static_cast<float *>(buffers.getHostBuffer(super_point_config_.input_tensor_names[0]));
 
+    if (!host_data_buffer)
+    {
+        MSG_WARN("Cannot get host buffer: " << super_point_config_.input_tensor_names[0]);
+        return false;
+    }
     for (int row = 0; row < image.rows; ++row) {
         for (int col = 0; col < image.cols; ++col) {
             host_data_buffer[row * image.cols + col] = float(image.at<unsigned char>(row, col)) / 255.0;
@@ -284,10 +380,12 @@ void SuperPoint::sample_descriptors(std::vector<std::vector<int>> &keypoints, fl
 bool SuperPoint::process_output(const BufferManager &buffers, Eigen::Matrix<double, 259, Eigen::Dynamic> &features) {
     keypoints_.clear();
     descriptors_.clear();
+
     auto *output_score = static_cast<float *>(buffers.getHostBuffer(super_point_config_.output_tensor_names[0]));
     auto *output_desc = static_cast<float *>(buffers.getHostBuffer(super_point_config_.output_tensor_names[1]));
     int semi_feature_map_h = semi_dims_.d[1];
     int semi_feature_map_w = semi_dims_.d[2];
+
     std::vector<float> scores_vec(output_score, output_score + semi_feature_map_h * semi_feature_map_w);
     find_high_score_index(scores_vec, keypoints_, semi_feature_map_h, semi_feature_map_w,
                           super_point_config_.keypoint_threshold);
@@ -309,6 +407,7 @@ bool SuperPoint::process_output(const BufferManager &buffers, Eigen::Matrix<doub
             features(i, j) = keypoints_[j][i - 1];
         }
     }
+
     for (int m = 3; m < 259; ++m) {
         for (int n = 0; n < descriptors_.size(); ++n) {
             features(m, n) = descriptors_[n][m - 3];
@@ -334,7 +433,10 @@ void SuperPoint::save_engine() {
     if (engine_ != nullptr) {
         nvinfer1::IHostMemory *data = engine_->serialize();
         std::ofstream file(super_point_config_.engine_file, std::ios::binary);
-        if (!file) return;
+        if (!file) {
+            MSG_WARN_STREAM("Failed to open file: " << super_point_config_.engine_file);
+            return;
+        }
         file.write(reinterpret_cast<const char *>(data->data()), data->size());
     }
 }
@@ -348,18 +450,59 @@ bool SuperPoint::deserialize_engine() {
         char *model_stream = new char[size];
         file.read(model_stream, size);
         file.close();
-        IRuntime *runtime = createInferRuntime(gLogger);
-        if (runtime == nullptr) {
+
+        // IRuntime *runtime = createInferRuntime(gLogger);
+        TensorRTUniquePtr<IRuntime> runtime{createInferRuntime(gLogger)};
+        runtime_ = std::move(runtime);
+
+        if (!runtime_) {
+            MSG_WARN_STREAM("create runtime failed");
             delete[] model_stream;
             return false;
         }
-        engine_ = std::shared_ptr<nvinfer1::ICudaEngine>(runtime->deserializeCudaEngine(model_stream, size));
+        engine_ = std::shared_ptr<nvinfer1::ICudaEngine>(runtime_->deserializeCudaEngine(model_stream, size));
         if (engine_ == nullptr) {
+            MSG_WARN_STREAM("deserialize engine failed");
             delete[] model_stream;
             return false;
         }
+
+        // populates input output map structure
+        getInputOutputNames();
+
         delete[] model_stream;
         return true;
     }
     return false;
+}
+
+void SuperPoint::getInputOutputNames() {
+    int32_t nbindings = engine_.get()->getNbIOTensors();
+    ASSERT(nbindings == 3);
+    for (int32_t b = 0; b < nbindings; ++b)
+    {
+        auto const bindingName = engine_.get()->getIOTensorName(b);
+        nvinfer1::Dims dims = engine_.get()->getTensorShape(bindingName);
+        if (isVerbose_)
+            std::cout << "Binding name: " << bindingName << " shape=" << dims << std::endl;
+        if (engine_.get()->getTensorIOMode(bindingName) == TensorIOMode::kINPUT)
+        {
+            if (isVerbose_)
+            {
+                gLogInfo << "Found input: " << bindingName << " shape=" << dims
+                         << " dtype=" << static_cast<int32_t>(engine_.get()->getTensorDataType(bindingName))
+                         << std::endl;
+            }
+            inOut_["input"] = bindingName;
+        } else
+        {
+            if (isVerbose_)
+            {
+                gLogInfo << "Found output: " << bindingName << " shape=" << dims
+                         << " dtype=" << static_cast<int32_t>(engine_.get()->getTensorDataType(bindingName))
+                         << std::endl;
+            }
+            inOut_["output"] = bindingName;
+        }
+    }
 }

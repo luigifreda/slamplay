@@ -1,9 +1,15 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
+
+function print_blue(){
+    printf "\033[34;1m"
+    printf "$@ \n"
+    printf "\033[0m"
+}
+
 
 # Convert onnx model to TensorRT engine model
 
-
-SCRIPT_DIR=`pwd`
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 SCRIPT_DIR=$(readlink -f $SCRIPT_DIR)  # this reads the actual path if a symbolic directory is used
 echo "current dir: $SCRIPT_DIR"
 cd $SCRIPT_DIR # this brings us in the actual used folder (not the symbolic one)
@@ -40,15 +46,16 @@ onnx_file=$SCRIPT_DIR/models/sam_onnx_example.onnx
 if [ -f "$onnx_file" ]; then
     base_name=$(basename "${onnx_file%.onnx}")
     if [ ! -f "$onnx_models_dir/${base_name}.engine" ]; then
+        print_blue converting $onnx_file to engine file
         # Documentation here https://github.com/NVIDIA/TensorRT/tree/release/8.2/samples/trtexec
         # https://docs.nvidia.com/tao/tao-toolkit/text/trtexec_integration/index.html
         # Options taken from python code
         trtexec --onnx="$onnx_file" --saveEngine="$onnx_models_dir/${base_name}.engine" \
-        --fp16 --allowGPUFallback --explicitBatch --useCudaGraph \
+        --fp16 --allowGPUFallback --useCudaGraph \
         --minShapes=image_embeddings:1x256x64x64,point_coords:1x2x2,point_labels:1x2,mask_input:1x1x256x256,has_mask_input:1  \
         --optShapes=image_embeddings:1x256x64x64,point_coords:1x5x2,point_labels:1x5,mask_input:1x1x256x256,has_mask_input:1  \
         --maxShapes=image_embeddings:1x256x64x64,point_coords:1x10x2,point_labels:1x10,mask_input:1x1x256x256,has_mask_input:1 
-
+        # removed --explicitBatch
         if [ $? -eq 0 ]; then
             echo "Exported $onnx_file to $onnx_dir/${base_name}.engine"
         fi
@@ -61,11 +68,13 @@ onnx_file=$SCRIPT_DIR/models/vit_l_embedding.onnx
 if [ -f "$onnx_file" ]; then
     base_name=$(basename "${onnx_file%.onnx}")
     if [ ! -f "$onnx_models_dir/${base_name}.engine" ]; then
+        print_blue converting $onnx_file to engine file
         # Documentation here https://github.com/NVIDIA/TensorRT/tree/release/8.2/samples/trtexec
         # https://docs.nvidia.com/tao/tao-toolkit/text/trtexec_integration/index.html
         # Options taken from python code
         trtexec --onnx="$onnx_file" --saveEngine="$onnx_models_dir/${base_name}.engine" \
-        --fp16 --allowGPUFallback --explicitBatch --useCudaGraph
+        --fp16 --allowGPUFallback --useCudaGraph
+        # removed --explicitBatch
         if [ $? -eq 0 ]; then   
             echo "Exported $onnx_file to $onnx_dir/${base_name}.engine"
         fi
@@ -78,14 +87,16 @@ onnx_file=$SCRIPT_DIR/models/sam_h_decoder_onnx.onnx
 if [ -f "$onnx_file" ]; then
     base_name=$(basename "${onnx_file%.onnx}")
     if [ ! -f "$onnx_models_dir/${base_name}.engine" ]; then
+        print_blue converting $onnx_file to engine file
         # Documentation here https://github.com/NVIDIA/TensorRT/tree/release/8.2/samples/trtexec
         # https://docs.nvidia.com/tao/tao-toolkit/text/trtexec_integration/index.html
         # Options taken from python code
         trtexec --onnx="$onnx_file" --saveEngine="$onnx_models_dir/${base_name}.engine" \
-        --fp16 --allowGPUFallback --explicitBatch --useCudaGraph \
+        --fp16 --allowGPUFallback --useCudaGraph \
         --minShapes=image_embeddings:1x256x64x64,point_coords:1x2x2,point_labels:1x2,mask_input:1x1x256x256,has_mask_input:1,orig_im_size:1x2  \
         --optShapes=image_embeddings:1x256x64x64,point_coords:1x5x2,point_labels:1x5,mask_input:1x1x256x256,has_mask_input:1,orig_im_size:1x2  \
         --maxShapes=image_embeddings:1x256x64x64,point_coords:1x10x2,point_labels:1x10,mask_input:1x1x256x256,has_mask_input:1,orig_im_size:1x2         
+        # removed --explicitBatch
         #--workspace=6000 --verbose
         if [ $? -eq 0 ]; then   
             echo "Exported $onnx_file to $onnx_dir/${base_name}.engine"

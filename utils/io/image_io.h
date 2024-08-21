@@ -10,7 +10,7 @@
 namespace slamplay {
 
 std::vector<std::string> GetPngFiles(const std::string& strPngDir) {
-    std::cout << "Reding png files from " << strPngDir << std::endl;
+    std::cout << "Reading png files from " << strPngDir << std::endl;
     struct dirent** namelist;
     std::vector<std::string> ret;
     int n = scandir(strPngDir.c_str(), &namelist, [](const struct dirent* cur) -> int {

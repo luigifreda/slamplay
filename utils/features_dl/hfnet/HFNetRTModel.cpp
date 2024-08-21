@@ -1,5 +1,7 @@
 #include "features_dl/hfnet/HFNetRTModel.h"
 
+#include "io/messages.h"
+
 #ifdef USE_TENSORRT
 #include <NvOnnxParser.h>
 #include <cuda_runtime.h>
@@ -36,6 +38,7 @@ void RTLogger::log(Severity severity, AsciiChar const *msg) noexcept {
 }
 
 HFNetRTModel::HFNetRTModel(const std::string &strModelDir, ModelDetectionMode mode, const cv::Vec4i inputShape) {
+    std::cout << "[HFNetRTModel] Loading HFNet model from: " << strModelDir << ", mode: " << mode << ", input shape:" << inputShape << std::endl;
     mStrTRModelDir = strModelDir + "/";
     mMode = mode;
     mInputShape = {inputShape(0), inputShape(1), inputShape(2), inputShape(3)};
@@ -44,14 +47,19 @@ HFNetRTModel::HFNetRTModel(const std::string &strModelDir, ModelDetectionMode mo
 
     std::string engineFileName = DecideEigenFileName(mStrTRModelDir, mMode, mInputShape);
     if (!LoadEngineFromFile(engineFileName)) {
-        std::cout << "HFNetRTModel() - Loading the model and building the engine ... " << std::endl;
+        std::cout << "[HFNetRTModel] Loading the model and building the engine ... " << std::endl;
         mvValid = LoadHFNetTRModel();
     } else {
         mvValid = true;
     }
 
-    if (!mvValid) return;
+    if (!mvValid)
+    {
+        MSG_WARN("[HFNetRTModel] Loading the model and building the engine failed.")
+        return;
+    }
 
+    std::cout << "[HFNetRTModel] Successfully loaded the model and built the engine. Preparing the buffer manager..." << std::endl;
     mpBuffers.reset(new BufferManager(mEngine));
 
     if (mMode == kImageToLocalAndGlobal)
@@ -201,17 +209,33 @@ void HFNetRTModel::GetGlobalDescriptorFromTensor(const RTTensor &tDescriptors, c
 
 bool HFNetRTModel::LoadHFNetTRModel(void) {
     auto builder = unique_ptr<IBuilder>(createInferBuilder(mLogger));
-    if (!builder) return false;
+    if (!builder)
+    {
+        MSG_WARN("Cannot create the inference builder: IBuilder!")
+        return false;
+    }
 
     const auto explicitBatch = 1U << static_cast<uint32_t>(NetworkDefinitionCreationFlag::kEXPLICIT_BATCH);
     auto network = unique_ptr<INetworkDefinition>(builder->createNetworkV2(explicitBatch));
-    if (!network) return false;
+    if (!network)
+    {
+        MSG_WARN("Cannot create the network definition: INetworkDefinition!")
+        return false;
+    }
 
     auto parser = unique_ptr<nvonnxparser::IParser>(nvonnxparser::createParser(*network, mLogger));
-    if (!parser) return false;
+    if (!parser)
+    {
+        MSG_WARN("Cannot create the parser: IParser!")
+        return false;
+    }
 
     auto parsed = parser->parseFromFile(mStrONNXFile.c_str(), 2);
-    if (!parsed) return false;
+    if (!parsed)
+    {
+        MSG_WARN("Cannot parse the ONNX model: " << mStrONNXFile)
+        return false;
+    }
     network->getInput(0)->setDimensions(mInputShape);
 
     if (mMode == kImageToLocal)
@@ -332,7 +356,7 @@ bool HFNetRTModel::LoadEngineFromFile(const std::string &strEngineSaveFile) {
     std::ifstream engineFile(strEngineSaveFile, std::ios::binary);
     if (!engineFile.good())
     {
-        std::cerr << "Error opening engine file: " << strEngineSaveFile << endl;
+        MSG_WARN_STREAM("Error opening engine file: " << strEngineSaveFile);
         return false;
     }
     engineFile.seekg(0, std::ifstream::end);
@@ -343,18 +367,30 @@ bool HFNetRTModel::LoadEngineFromFile(const std::string &strEngineSaveFile) {
     engineFile.read(reinterpret_cast<char *>(vecEngineBlob.data()), fsize);
     if (!engineFile.good())
     {
-        std::cerr << "Error opening engine file: " << strEngineSaveFile << endl;
+        MSG_WARN_STREAM("Error opening engine file: " << strEngineSaveFile);
         return false;
     }
 
+    std::cout << "[HFNetRTModel] Creating runtime ..." << std::endl;
     unique_ptr<IRuntime> runtime{createInferRuntime(mLogger)};
-    if (!runtime) return false;
+    if (!runtime)
+    {
+        MSG_WARN_STREAM("Create runtime failed");
+        return false;
+    }
 
     mEngine.reset(runtime->deserializeCudaEngine(vecEngineBlob.data(), vecEngineBlob.size()));
-    if (!mEngine) return false;
+    if (!mEngine)
+    {
+        MSG_WARN_STREAM("deserialize engine failed");
+        return false;
+    }
 
     mContext = shared_ptr<IExecutionContext>(mEngine->createExecutionContext());
-    if (!mContext) return false;
+    if (!mContext) {
+        MSG_WARN_STREAM("create execution context failed");
+        return false;
+    }
 
     return true;
 }

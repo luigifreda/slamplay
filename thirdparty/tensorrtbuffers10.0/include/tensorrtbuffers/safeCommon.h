@@ -18,6 +18,7 @@
 #ifndef TENSORRT_SAFE_COMMON_H
 #define TENSORRT_SAFE_COMMON_H
 
+#include <algorithm>
 #include <cmath>
 #include <cstdlib>
 #include <fstream>
@@ -320,7 +321,7 @@ inline std::vector<std::string> safeSplitString(std::string str, char delimiter 
     return splitVect;
 }
 
-}  // namespace samplesCommon
+}  // namespace tensorrt_buffers
 
 namespace safetyCompliance {
 inline void initSafeCuda() {

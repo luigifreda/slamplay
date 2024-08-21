@@ -39,6 +39,8 @@ class SuperGlue {
 
     bool deserialize_engine();
 
+    void getInputOutputNames();
+
    private:
     SuperGlueConfig superglue_config_;
     std::vector<int> indices0_;
@@ -56,6 +58,12 @@ class SuperGlue {
 
     std::shared_ptr<nvinfer1::ICudaEngine> engine_;
     std::shared_ptr<nvinfer1::IExecutionContext> context_;
+
+    std::map<std::string, std::string> inOut_;  //!< Input and output mapping of the network
+    std::map<std::string, nvinfer1::Dims> inOutDims_;
+    TensorRTUniquePtr<nvinfer1::IRuntime> runtime_;
+
+    bool isVerbose_{false};
 
     bool construct_network(TensorRTUniquePtr<nvinfer1::IBuilder> &builder,
                            TensorRTUniquePtr<nvinfer1::INetworkDefinition> &network,

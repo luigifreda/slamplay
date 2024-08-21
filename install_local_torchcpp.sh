@@ -17,7 +17,7 @@ fi
 
 export CUDA_VERSION_CODE=""
 if [ $CUDA_FOUND -eq 1 ]; then
-    #CUDA_VERSION_CODE=118 # this stands for 11.8 
+    #CUDA_VERSION_CODE=118 # for instance, this stands for 11.8 
     CUDA_VERSION_CODE=$(echo "$CUDA_VERSION_NUMBER" | sed 's/\.//g')
     echo "CUDA_VERSION_CODE: $CUDA_VERSION_CODE"
 fi 

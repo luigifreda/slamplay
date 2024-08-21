@@ -5,6 +5,7 @@
 
 #include "tensorrt/tensorrt_utils.h"
 
+#include <NvInfer.h>
 #include <NvOnnxConfig.h>
 #include <NvOnnxParser.h>
 
@@ -15,7 +16,7 @@ inline void export_engine_sam_image_encoder(const std::string& f = "vit_l_embedd
     std::cout << "exporting " << f << " to " << output << std::endl;
 
     // create an instance of the builder
-    std::unique_ptr<nvinfer1::IBuilder> builder(nvinfer1::createInferBuilder(logger));
+    std::unique_ptr<nvinfer1::IBuilder> builder(nvinfer1::createInferBuilder(slamplay::NvLogger::instance));
     // create a network definition
     // The kEXPLICIT_BATCH flag is required in order to import models using the ONNX parser.
     uint32_t flag = 1U << static_cast<uint32_t>(nvinfer1::NetworkDefinitionCreationFlag::kEXPLICIT_BATCH);
@@ -24,8 +25,8 @@ inline void export_engine_sam_image_encoder(const std::string& f = "vit_l_embedd
     std::unique_ptr<nvinfer1::INetworkDefinition> network(builder->createNetworkV2(flag));
 
     // Importing a Model Using the ONNX Parser
-    // auto parser = std::make_unique<nvonnxparser::IParser>(nvonnxparser::createParser(*network, logger));
-    std::unique_ptr<nvonnxparser::IParser> parser(nvonnxparser::createParser(*network, logger));
+    // auto parser = std::make_unique<nvonnxparser::IParser>(nvonnxparser::createParser(*network, slamplay::NvLogger::instance));
+    std::unique_ptr<nvonnxparser::IParser> parser(nvonnxparser::createParser(*network, slamplay::NvLogger::instance));
 
     // read the model file and process any errors
     parser->parseFromFile(f.c_str(), static_cast<int32_t>(nvinfer1::ILogger::Severity::kWARNING));
@@ -40,7 +41,11 @@ inline void export_engine_sam_image_encoder(const std::string& f = "vit_l_embedd
 #if SET_MAX_WORKSPACE
     // maximum workspace size
     const int workspace = MAX_WORKSPACE_IN_GB;  // GB
+#if NV_TENSORRT_VERSION_CODE < 100000L          // If we are using TensorRT 8
     config->setMaxWorkspaceSize(workspace * 1U << 30);
+#else
+    config->setMemoryPoolLimit(nvinfer1::MemoryPoolType::kWORKSPACE, 1U << 30);
+#endif
 #endif
     config->setFlag(nvinfer1::BuilderFlag::kGPU_FALLBACK);
 
@@ -60,7 +65,7 @@ inline void export_engine_sam_sample_encoder_and_mask_decoder(const std::string&
     std::cout << "exporting " << f << " to " << output << std::endl;
 
     // create an instance of the builder
-    std::unique_ptr<nvinfer1::IBuilder> builder(nvinfer1::createInferBuilder(logger));
+    std::unique_ptr<nvinfer1::IBuilder> builder(nvinfer1::createInferBuilder(slamplay::NvLogger::instance));
     // create a network definition
     // The kEXPLICIT_BATCH flag is required in order to import models using the ONNX parser.
     uint32_t flag = 1U << static_cast<uint32_t>(nvinfer1::NetworkDefinitionCreationFlag::kEXPLICIT_BATCH);
@@ -69,8 +74,8 @@ inline void export_engine_sam_sample_encoder_and_mask_decoder(const std::string&
     std::unique_ptr<nvinfer1::INetworkDefinition> network(builder->createNetworkV2(flag));
 
     // Importing a Model Using the ONNX Parser
-    // auto parser = std::make_unique<nvonnxparser::IParser>(nvonnxparser::createParser(*network, logger));
-    std::unique_ptr<nvonnxparser::IParser> parser(nvonnxparser::createParser(*network, logger));
+    // auto parser = std::make_unique<nvonnxparser::IParser>(nvonnxparser::createParser(*network, slamplay::NvLogger::instance));
+    std::unique_ptr<nvonnxparser::IParser> parser(nvonnxparser::createParser(*network, slamplay::NvLogger::instance));
 
     // read the model file and process any errors
     parser->parseFromFile(f.c_str(), static_cast<int32_t>(nvinfer1::ILogger::Severity::kWARNING));
@@ -85,7 +90,11 @@ inline void export_engine_sam_sample_encoder_and_mask_decoder(const std::string&
 #if SET_MAX_WORKSPACE
     // maximum workspace size
     const int workspace = MAX_WORKSPACE_IN_GB;  // GB
+#if NV_TENSORRT_VERSION_CODE < 100000L          // If we are using TensorRT 8
     config->setMaxWorkspaceSize(workspace * 1U << 30);
+#else
+    config->setMemoryPoolLimit(nvinfer1::MemoryPoolType::kWORKSPACE, 1U << 30);
+#endif
 #endif
     config->setFlag(nvinfer1::BuilderFlag::kGPU_FALLBACK);
 
@@ -129,7 +138,7 @@ inline void export_engine_sam_sample_encoder_and_mask_decoder_h(const std::strin
     std::cout << "exporting " << f << " to " << output << std::endl;
 
     // create an instance of the builder
-    std::unique_ptr<nvinfer1::IBuilder> builder(nvinfer1::createInferBuilder(logger));
+    std::unique_ptr<nvinfer1::IBuilder> builder(nvinfer1::createInferBuilder(slamplay::NvLogger::instance));
     // create a network definition
     // The kEXPLICIT_BATCH flag is required in order to import models using the ONNX parser.
     uint32_t flag = 1U << static_cast<uint32_t>(nvinfer1::NetworkDefinitionCreationFlag::kEXPLICIT_BATCH);
@@ -138,8 +147,8 @@ inline void export_engine_sam_sample_encoder_and_mask_decoder_h(const std::strin
     std::unique_ptr<nvinfer1::INetworkDefinition> network(builder->createNetworkV2(flag));
 
     // Importing a Model Using the ONNX Parser
-    //auto parser = std::make_unique<nvonnxparser::IParser>(nvonnxparser::createParser(*network, logger));
-    std::unique_ptr<nvonnxparser::IParser> parser(nvonnxparser::createParser(*network, logger));
+    //auto parser = std::make_unique<nvonnxparser::IParser>(nvonnxparser::createParser(*network, slamplay::NvLogger::instance));
+    std::unique_ptr<nvonnxparser::IParser> parser(nvonnxparser::createParser(*network, slamplay::NvLogger::instance));
 
     // read the model file and process any errors
     parser->parseFromFile(f.c_str(), static_cast<int32_t>(nvinfer1::ILogger::Severity::kWARNING));
@@ -154,7 +163,11 @@ inline void export_engine_sam_sample_encoder_and_mask_decoder_h(const std::strin
 #if SET_MAX_WORKSPACE
     // maximum workspace size
     const int workspace = MAX_WORKSPACE_IN_GB;  // GB
+#if NV_TENSORRT_VERSION_CODE < 100000L  // If we are using TensorRT 8    
     config->setMaxWorkspaceSize(workspace * 1U << 30);
+#else 
+    config->setMemoryPoolLimit(nvinfer1::MemoryPoolType::kWORKSPACE, 1U << 30);
+#endif
 #endif 
     config->setFlag(BuilderFlag::kGPU_FALLBACK);
 

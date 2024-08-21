@@ -1,6 +1,12 @@
 #pragma once
 
 #include <NvInfer.h>
+#include <NvInferVersion.h>
+#include <iostream>
+
+#ifndef NV_TENSORRT_VERSION_CODE
+#define NV_TENSORRT_VERSION_CODE (NV_TENSORRT_MAJOR * 10000L + NV_TENSORRT_MINOR * 100L + NV_TENSORRT_PATCH * 1L)
+#endif
 
 template <typename T>
 inline void checkCudaStatus(const T& status) {
@@ -19,7 +25,9 @@ inline void checkCudaStatusNoAbort(const T& status) {
     }
 }
 
-inline void index2srt(nvinfer1::DataType dataType) {
+namespace slamplay {
+
+inline void index2srt(const nvinfer1::DataType& dataType) {
     switch (dataType)
     {
         case nvinfer1::DataType::kFLOAT:
@@ -46,7 +54,7 @@ inline void index2srt(nvinfer1::DataType dataType) {
     }
 }
 
-inline void dims2str(nvinfer1::Dims dims) {
+inline void dims2str(const nvinfer1::Dims& dims) {
     std::string o_s("[");
     for (size_t i = 0; i < dims.nbDims; i++)
     {
@@ -58,10 +66,22 @@ inline void dims2str(nvinfer1::Dims dims) {
     std::cout << o_s << std::endl;
 }
 
-class Logger : public nvinfer1::ILogger {
+inline bool checkIsNegative(const nvinfer1::Dims& dims) {
+    for (size_t i = 0; i < dims.nbDims; i++)
+    {
+        if (dims.d[i] < 0) return true;
+    }
+    return false;
+}
+
+class NvLogger : public nvinfer1::ILogger {
+   public:
     void log(Severity severity, const char* msg) noexcept override {
         // suppress info-level messages
-        if (severity <= Severity::kWARNING)
+        if (severity <= nvinfer1::ILogger::Severity::kWARNING)
             std::cout << msg << std::endl;
     }
-} logger;
+    static NvLogger instance;
+};
+
+}  // namespace slamplay

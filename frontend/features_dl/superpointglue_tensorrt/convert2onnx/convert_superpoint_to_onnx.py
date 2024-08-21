@@ -7,6 +7,7 @@ import numpy as np
 import onnx
 import onnxruntime
 import torch
+import sys
 
 import superpoint
 
@@ -60,7 +61,11 @@ def main():
 
     # check onnx conversion
     onnx_model = onnx.load(onnx_filename)
-    onnx.checker.check_model(onnx_model)
+    try: 
+        onnx.checker.check_model(onnx_model, full_check=True)   
+    except Exception as e:
+        print(f'onnx check failed: {e}') 
+        sys.exit(1)    
     onnxruntime_session = onnxruntime.InferenceSession(onnx_filename)
 
     # compute ONNX Runtime output prediction
@@ -76,4 +81,9 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    try: 
+        main()
+    except Exception as e:
+        print(f'Error: {e}')
+        sys.exit(1)
+

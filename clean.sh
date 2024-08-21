@@ -6,12 +6,13 @@ SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 cd $SCRIPT_DIR
 
 build_folders=( \
-thirdparty/tensorrtbuffers
+thirdparty/tensorrtbuffers \
+thirdparty/dbow2 \
 )
 
 for folder in "${build_folders[@]}"
 do
-	echo "cleaning $folder ..."
+	echo "cleaning build $folder ..."
 	if [[ -d $folder ]]; then 
 		cd $folder
 		if [[ -d build ]]; then 
@@ -20,6 +21,12 @@ do
 			cd ..
 			rm -Rf build
 		fi 
+		if [[ -d install ]]; then
+			rm -Rf install
+		fi
+		if [[ -d lib ]]; then
+			rm -Rf lib
+		fi
 		cd $SCRIPT_DIR
 	fi 
 done
@@ -51,13 +58,18 @@ thirdparty/rerun \
 thirdparty/tracy \
 )
 
-for folder in "${git_folders[@]}"
-do
-	echo "cleaning $folder ..."
+for folder in "${git_folders[@]}"; do
+	echo "cleaning git $folder ..."
 	if [[ -d $folder ]]; then 
 		cd $folder
 		if [[ -d build ]]; then 
 			rm -Rf build
+		fi 
+		if [[ -d install ]]; then
+			rm -Rf install
+		fi 
+		if [[ -d lib ]]; then 
+			rm -Rf lib
 		fi 
 		cd $SCRIPT_DIR
 	fi 

@@ -25,6 +25,7 @@ std::tuple<cv::Mat, int, int> resize_depth(cv::Mat &img, int w, int h) {
     cv::cvtColor(img, img, cv::COLOR_BGR2RGB);
 
     cv::Mat re(h, w, CV_8UC3);
+    // std::cout << "resizing size: " << h << "x" << w << std::endl;
     cv::resize(img, re, re.size(), 0, 0, cv::INTER_LINEAR);
     cv::Mat out(h, w, CV_8UC3, 0.0);
     re.copyTo(out(cv::Rect(0, 0, re.cols, re.rows)));

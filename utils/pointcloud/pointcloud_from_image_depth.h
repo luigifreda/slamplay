@@ -78,8 +78,6 @@ inline void getPointCloudFromImageAndDepth(const cv::Mat& color,
     cv::Mat mask = maskIn.empty() ? cv::Mat(color.size(), CV_8U, 1) : maskIn;
     MSG_ASSERT(mask.type() == CV_8U || mask.type() == CV_8UC1, "Must be a mask!");
 
-    std::cout << "starting here" << std::endl;
-
     const auto& fx = intrinsics.fx;
     const auto& fy = intrinsics.fy;
     const auto& cx = intrinsics.cx;

@@ -30,8 +30,8 @@ if [ ! -d "${INSTALL_PATH}/hfnet_tf" ]; then
         pip install gdown
         echo Downloading $FILE_NAME1 from drive
         gdrive_download $URL_MY_DRIVE_ID1
-        tar -xvf $FILE_NAME1 
     fi
+    tar -xvf $FILE_NAME1 
 fi 
 
 if [ ! -d "${INSTALL_PATH}/hfnet-rt" ]; then
@@ -40,8 +40,8 @@ if [ ! -d "${INSTALL_PATH}/hfnet-rt" ]; then
         pip install gdown
         echo Downloading $FILE_NAME2 from drive
         gdrive_download $URL_MY_DRIVE_ID2
-        tar -xvf $FILE_NAME2 
     fi
+    tar -xvf $FILE_NAME2 
 fi 
 
 cd $SCRIPT_DIR

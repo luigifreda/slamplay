@@ -1,6 +1,6 @@
 #pragma once
 
-#include "tensorrt/DeviceBuffer.h"
+#include "tensorrt/GenericBuffer.h"
 #include "tensorrt/tensorrt_utils.h"
 
 namespace slamplay {
@@ -41,9 +41,9 @@ TensorRtBaseModel::TensorRtBaseModel(std::string modelFile) {
         else
             mOutputsName.emplace_back(tensor_name);
         std::cout << "tensor_name: " << tensor_name << std::endl;
-        dims2str(dims);
+        slamplay::dims2str(dims);
         nvinfer1::DataType type = engine->getBindingDataType(i);
-        index2srt(type);
+        slamplay::index2srt(type);
         auto vol = std::accumulate(dims.d, dims.d + dims.nbDims, int64_t{1}, std::multiplies<int64_t>{});
         std::unique_ptr<slamplay::DeviceBuffer> device_buffer{new slamplay::DeviceBuffer(vol, type)};
         mDeviceBindings.emplace_back(device_buffer->data());
@@ -81,7 +81,11 @@ void TensorRtBaseModel::readEngineFile(std::string modelFile) {
     engineFile.close();
 
     nvinfer1::IRuntime* runtime = nvinfer1::createInferRuntime(logger);
+#if NV_TENSORRT_VERSION_CODE < 100000L
     engine = runtime->deserializeCudaEngine(engineData.data(), fsize, nullptr);
+#else
+    engine = runtime->deserializeCudaEngine(engineData.data(), fsize);
+#endif
 }
 
 }  // namespace slamplay

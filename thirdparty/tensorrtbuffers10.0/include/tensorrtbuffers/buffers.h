@@ -386,6 +386,7 @@ class BufferManager {
             void const* srcPtr = deviceToHost ? mManagedBuffers[n.second]->deviceBuffer.data()
                                               : mManagedBuffers[n.second]->hostBuffer.data();
             size_t const byteSize = mManagedBuffers[n.second]->hostBuffer.nbBytes();
+            //std::cout << "copying tensor " << n.first << " from " << (deviceToHost ? "device" : "host") << " to " << (deviceToHost ? "host" : "device") << ", size: " << byteSize << std::endl;
             const cudaMemcpyKind memcpyType = deviceToHost ? cudaMemcpyDeviceToHost : cudaMemcpyHostToDevice;
             if ((copyInput && tenosrIsInput(n.first)) || (!copyInput && !tenosrIsInput(n.first)))
             {

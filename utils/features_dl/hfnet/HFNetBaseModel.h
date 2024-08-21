@@ -7,14 +7,14 @@
 namespace hfnet {
 
 enum ModelType {
-    kHFNetTFModel,
+    kHFNetTFModel = 0,
     kHFNetRTModel,
     kHFNetVINOModel,
 };
 const std::string gStrModelTypeName[] = {"kHFNetTFModel", "kHFNetRTModel", "kHFNetVINOModel"};
 
 enum ModelDetectionMode {
-    kImageToLocalAndGlobal,
+    kImageToLocalAndGlobal = 0,
     kImageToLocal,
     kImageToLocalAndIntermediate,
     kIntermediateToGlobal

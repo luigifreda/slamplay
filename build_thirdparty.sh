@@ -74,6 +74,22 @@ if [ $USE_TENSORRT -eq 1 ]; then
     fi
 fi
 
+# ====================================================
+
+if [ $USE_TENSORRT -eq 1 ]; then
+    print_blue '================================================'
+    print_blue "Configuring and building thirdparty/tensorrtbuffers ..."
+
+    cd thirdparty
+    cd tensorrtbuffers
+    make_buid_dir
+    if [[ ! -d lib/libtensorrtbuffers.so ]]; then
+        cd build
+        cmake .. -DCMAKE_BUILD_TYPE=Release  $EXTERNAL_OPTION
+        make -j 8
+    fi 
+    cd $SCRIPT_DIR
+fi 
 
 # ====================================================
 
@@ -424,24 +440,6 @@ if [[ ! -d install ]]; then
     make install 
 fi 
 cd $SCRIPT_DIR
-
-
-# ====================================================
-
-if [ $USE_TENSORRT -eq 1 ]; then
-    print_blue '================================================'
-    print_blue "Configuring and building thirdparty/tensorrtbuffers ..."
-
-    cd thirdparty
-    cd tensorrtbuffers
-    make_buid_dir
-    if [[ ! -d lib/libtensorrtbuffers.so ]]; then
-        cd build
-        cmake .. -DCMAKE_BUILD_TYPE=Release  $EXTERNAL_OPTION
-        make -j 8
-    fi 
-    cd $SCRIPT_DIR
-fi 
 
 # ====================================================
 

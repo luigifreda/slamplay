@@ -76,6 +76,7 @@ def main():
     print("now converting from onnx to tensorrt engine models...")
     
     # run the script onnx_to_tensorrt.py
+    print(f'running {SCRIPT_DIR}/onnx_to_tensorrt.sh')
     os.system(f"bash {SCRIPT_DIR}/onnx_to_tensorrt.sh")
 
 if __name__ == "__main__":

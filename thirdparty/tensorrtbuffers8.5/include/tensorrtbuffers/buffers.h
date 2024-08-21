@@ -422,6 +422,7 @@ class BufferManager {
                                               : mManagedBuffers[i]->hostBuffer.data();
             const size_t byteSize = mManagedBuffers[i]->hostBuffer.nbBytes();
             const cudaMemcpyKind memcpyType = deviceToHost ? cudaMemcpyDeviceToHost : cudaMemcpyHostToDevice;
+            // std::cout << "copying tensor " << mEngine->getBindingName(i) << " from " << (deviceToHost ? "device" : "host") << " to " << (deviceToHost ? "host" : "device") << ", size: " << byteSize << std::endl;
             if ((copyInput && mEngine->bindingIsInput(i)) || (!copyInput && !mEngine->bindingIsInput(i))) {
                 if (async)
                     CHECK(cudaMemcpyAsync(dstPtr, srcPtr, byteSize, memcpyType, stream));
@@ -437,6 +438,6 @@ class BufferManager {
     std::vector<void *> mDeviceBindings;                          //!< The vector of device buffers needed for engine execution
 };
 
-}  // namespace tensorrt_buffer
+}  // namespace tensorrt_buffers
 
 #endif  // TENSORRT_BUFFERS_H

@@ -15,14 +15,13 @@ source $CONFIG_DIR/bash_utils.sh
 UBUNTU_VERSION=$(lsb_release -a 2>&1)  # ubuntu version 
 if [[ $UBUNTU_VERSION == *"24.04"* ]] ; then
     cd $CONFIG_DIR
-	if [ ! -d "$CONFIG_DIR/.venv" ]; then
+	if [ ! -d "$CONFIG_DIR"/.venv ]; then
 		echo "installing virtualenv under Ubuntu 24.04"
 		sudo apt install -y python3-venv
 		python3 -m venv .venv
 	fi 
 	echo "activating python venv $CONFIG_DIR/.venv"
     source $CONFIG_DIR/.venv/bin/activate
-    cd -
 fi 
 
 # ====================================================
@@ -65,8 +64,8 @@ export CUDADIR=/usr/local/$CUDA_VERSION
 
 export USE_TENSORRT=1  # Use TensorRT. The scripts will locally install TensorRT and cmake will use it. 
                        # Only available if you installed CUDA and this is properly detected.
-export TENSORRT_VERSION="8"
-#export TENSORRT_VERSION="10" # WIP, does not work yet 
+export TENSORRT_VERSION=8 # can be adjusted below depending on the found cuda version 
+#export TENSORRT_VERSION=10 # WIP
 
 export TENSORRT_DIR=$CONFIG_DIR/thirdparty/TensorRT # Default value. This is the install path used by the script install_local_tensorrt.sh.
 
@@ -78,8 +77,8 @@ export TENSORRT_DIR=$CONFIG_DIR/thirdparty/TensorRT # Default value. This is the
 export USE_TORCH=1  # Use Torch. The scripts will locally install Torch and use it. 
                     # Only available if you installed CUDA and this is properly detected)
 
-export USE_CUDA_TORCH=0  # Use Torch with CUDA. 1: ON, 0: OFF
-						 # It seems that Torch with CUDA is not working properly (for different mixed deps). 
+export USE_CUDA_TORCH=0  # Use Torch with CUDA support. 1: ON, 0: OFF
+						 # It seems that Torch with CUDA support is not working properly (for different mixed deps). 
 						 # It's very likely we need to build from source. WIP.
 
 export TORCH_DIR=$CONFIG_DIR/thirdparty/libtorch/share/cmake/Torch # Default value. This is the install path used by the script install_local_libtorch.sh.
@@ -110,7 +109,7 @@ if [ $USE_TENSORFLOW -eq 1 ]; then
 fi 
 
 # ====================================================
-# Check and Manage Settings 
+# Check and manage settings 
 # ====================================================
 
 # auto managed things below ...
@@ -126,13 +125,25 @@ export HAVE_AVX=$(gcc -march=native -dM -E - </dev/null | grep AVX || : )
 # ====================================================
 # CUDA 
 
+# check CUDA and adjust things if needed 
 export CUDA_FOUND=0
+export CUDA_VERSION_NUMBER=0
 if [ -f /usr/local/$CUDA_VERSION/bin/nvcc ] || [ -f /usr/bin/nvcc ]; then
 	CUDA_FOUND=1
-	echo "CUDA found: $CUDA_VERSION"
+	echo "CUDA folder found in /usr/local: $CUDA_VERSION"
 	CUDA_VERSION_NUMBER=$(get_cuda_version)
-	echo "CUDA_VERSION_NUMBER: $CUDA_VERSION_NUMBER"	
+	CUDA_VERSION_CODE=$(echo "$CUDA_VERSION_NUMBER" | sed 's/\.//g') # for instance, "118" stands for "cuda 11.8"
+	echo "CUDA_VERSION_NUMBER: $CUDA_VERSION_NUMBER"
+	echo "CUDA_VERSION_CODE: $CUDA_VERSION_NUMBER"	
 fi
+
+if [ $CUDA_FOUND -eq 1 ]; then
+	if [ $CUDA_VERSION_CODE -ge 120 ]; then
+		echo "CUDA VERSION >= 120"
+		export TENSORRT_VERSION="10"
+		echo "TENSORRT_VERSION (adjusted): $TENSORRT_VERSION"
+	fi
+fi 
 
 # Reset env var if CUDA lib is not installed 
 if [ $CUDA_FOUND -eq 0 ]; then
