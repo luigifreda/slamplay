@@ -32,6 +32,9 @@ do
 done
 #remove symbolic links
 if [ -e thirdparty/tensorrtbuffers ]; then
+	if [ -d thirdparty/tensorrtbuffers/build ]; then
+		rm -Rf thirdparty/tensorrtbuffers/build
+	fi
 	rm -Rf thirdparty/tensorrtbuffers
 fi 
 

@@ -109,6 +109,14 @@ if [ $USE_TENSORFLOW -eq 1 ]; then
 fi 
 
 # ====================================================
+# Tracy Settings
+# ====================================================
+
+# Tracy is a great profiler. Details here https://github.com/wolfpld/tracy
+
+export USE_TRACY=1  # Use Tracy. The script will automatically install it. You will be able to profile your apps with this great profiler.
+
+# ====================================================
 # Check and manage settings 
 # ====================================================
 
@@ -178,11 +186,3 @@ if [ $USE_LOCAL_OPENCV -eq 1 ] && [[ ! -n "$OpenCV_DIR" ]]; then
 	echo setting OpenCV_DIR: $OpenCV_DIR
     #export LD_LIBRARY_PATH=$CONFIG_DIR/thirdparty/opencv/install/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
 fi
-
-# ====================================================
-# Tracy Settings
-# ====================================================
-
-# Tracy is a great profiler. Details here https://github.com/wolfpld/tracy
-
-export USE_TRACY=1  # Use Tracy. The script will automatically install it. You will be able to profile your apps with this great profiler.

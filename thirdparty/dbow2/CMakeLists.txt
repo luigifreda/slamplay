@@ -6,7 +6,7 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 
 set(CPP_STANDARD_VERSION "17" CACHE STRING "Desired C++ standard version") 
-set(OPENCV_VERSION "3" CACHE STRING "Desired OpenCV version") # this is the first target version that is searched for 
+set(OPENCV_VERSION "4" CACHE STRING "Desired OpenCV version") # this is the first target version that is searched for 
 
 # Set the C++ standard 
 set(CMAKE_CXX_STANDARD ${CPP_STANDARD_VERSION})

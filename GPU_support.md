@@ -2,11 +2,11 @@
 
 <!-- TOC -->
 
-- [GPU support with `CUDA`, `cuDNN`, `TensorRT`](#gpu-support-with-cuda-cudnn-tensorrt)
-  - [CUDA 11.8](#cuda-118)
-  - [CUDA 12.5 - WIP](#cuda-125---wip)
-  - [tensorflow\_cc](#tensorflow_cc)
-  - [Feedback](#feedback)
+- [GPU support with CUDA, cuDNN, TensorRT](#gpu-support-with-cuda-cudnn-tensorrt)
+    - [1. CUDA 11.8](#1-cuda-118)
+    - [2. CUDA 12.5 - WIP](#2-cuda-125---wip)
+    - [3. tensorflow_cc](#3-tensorflow_cc)
+    - [4. Feedback](#4-feedback)
 
 <!-- /TOC -->
 

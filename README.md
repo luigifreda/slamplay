@@ -66,11 +66,10 @@ This repository is structured in the following main folders (with self-explanato
 - `data`
 - `dense_mapping`
 - `docs`
-- `frontend`  
-- `full_slam`**(*)**
+- `frontend` **(*)**
+- `full_slam`
 - `io`
 - `loop_closure`
-- `dense_mapping`
 - `scripts`
 - `semantics` **(*)**
 - `utils`
@@ -257,7 +256,7 @@ Tracy is a great profiler that will be automatically installed by the main build
 Repository link: https://github.com/wolfpld/tracy. Documentation is [here](https://github.com/wolfpld/tracy/releases/latest/download/tracy.pdf).
 
 - Include `profiler/profiler_tracy.h` in every file you are interested in profiling.
-- Check `TRACY_ENABLE` is defined for the WHOLE project (`slamplay` automatically takes care of that if you set `USE_TRACY=1` in `config.h`).
+- Check `TRACY_ENABLE` is defined for the WHOLE project (`slamplay` automatically takes care of that if you set `USE_TRACY=1` in `config.sh`).
 - Add the macro `FrameMark` at the end of each frame loop. (Jump this: The latest version of tracy does not seem to support well this)
 - Add the macro `ZoneScoped` as the first line of your function definitions to include them in the profile.
 - Run tracy profiler: `./thirdparty/tracy/tracy-profiler` and hit the connect button. 
