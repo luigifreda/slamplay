@@ -66,8 +66,8 @@ This repository is structured in the following main folders (with self-explanato
 - `data`
 - `dense_mapping`
 - `docs`
-- `frontend`  
-- `full_slam`**(*)**
+- `frontend` **(*)**
+- `full_slam`
 - `io`
 - `loop_closure`
 - `dense_mapping`
