@@ -16,6 +16,7 @@ set(FOLDERS
   pcl
   icp 
   opticflow_direct_method
+  trajectory_alignment
 )
 
 foreach(folder ${FOLDERS})
