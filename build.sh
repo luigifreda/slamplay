@@ -22,6 +22,27 @@ if [[ -n "$EXTERNAL_OPTION" ]]; then
     echo "external option: $EXTERNAL_OPTION" 
 fi
 
+# check if we set a BUILD_TYPE
+if [[ -n "$BUILD_TYPE" ]]; then
+    echo "BUILD_TYPE: $BUILD_TYPE" 
+    EXTERNAL_OPTIONS="$EXTERNAL_OPTIONS -DCMAKE_BUILD_TYPE=$BUILD_TYPE"
+else
+    echo "setting BUILD_TYPE to Release by default"
+    EXTERNAL_OPTIONS="$EXTERNAL_OPTIONS -DCMAKE_BUILD_TYPE=Release"     
+fi
+
+# check if we set BUILD_WITH_MARCH_NATIVE
+if [[ -n "$BUILD_WITH_MARCH_NATIVE" ]]; then
+    echo "BUILD_WITH_MARCH_NATIVE: $BUILD_WITH_MARCH_NATIVE" 
+    EXTERNAL_OPTIONS="$EXTERNAL_OPTIONS -DBUILD_WITH_MARCH_NATIVE=$BUILD_WITH_MARCH_NATIVE"
+fi
+
+# check if we set a C++ standard
+if [[ -n "$CPP_STANDARD_VERSION" ]]; then
+    echo "CPP_STANDARD_VERSION: $CPP_STANDARD_VERSION" 
+    EXTERNAL_OPTIONS="$EXTERNAL_OPTIONS -DCPP_STANDARD_VERSION=$CPP_STANDARD_VERSION"
+fi
+
 # check the use of local opencv
 if [[ -n "$OpenCV_DIR" ]]; then
     echo "OpenCV_DIR: $OpenCV_DIR" 

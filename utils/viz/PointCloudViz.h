@@ -58,7 +58,7 @@ class PointCloudViz {
             {
                 std::lock_guard<std::mutex> guard(m);
                 glPointSize(2);
-                // NOTE: a buffer object could be used
+                // NOTE: a buffer object could be used here (this is just a very simple example)
                 glBegin(GL_POINTS);
                 for (auto &p : pointcloud.points) {
                     glColor3f(p.r / 255.0, p.g / 255.0, p.b / 255.0);
@@ -68,7 +68,7 @@ class PointCloudViz {
             }
 
             pangolin::FinishFrame();
-            usleep(5000);  // sleep 5 ms
+            std::this_thread::sleep_for(std::chrono::milliseconds(5));
         }
         running = false;
         return;

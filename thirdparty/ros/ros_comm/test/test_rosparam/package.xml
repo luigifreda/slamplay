@@ -1,0 +1,24 @@
+<package>
+  <name>test_rosparam</name>
+  <version>1.12.14</version>
+  <description>
+    A package containing the unit tests for rosparam.
+  </description>
+  <maintainer email="dthomas@osrfoundation.org">Dirk Thomas</maintainer>
+  <license>BSD</license>
+
+  <url>http://ros.org/wiki/rosparam</url>
+  <author>Ken Conley</author>
+
+  <buildtool_depend version_gte="0.5.68">catkin</buildtool_depend>
+
+  <build_depend>rostest</build_depend>
+
+  <test_depend>python-yaml</test_depend>
+  <test_depend>rosgraph</test_depend>
+  <test_depend>rosparam</test_depend>
+
+  <export>
+    <rosdoc config="rosdoc.yaml"/>
+  </export>
+</package>

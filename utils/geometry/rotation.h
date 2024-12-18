@@ -4,7 +4,27 @@
 #include <cmath>
 #include <limits>
 
+#include <Eigen/Core>
+#include <Eigen/Geometry>
+
 namespace slamplay {
+
+template <typename T>
+inline Eigen::Matrix3d enforceRotationMatrix(const Eigen::Matrix<T, 3, 3> &mat) {
+    // Perform Singular Value Decomposition (SVD)
+    Eigen::JacobiSVD<Eigen::Matrix<T, 3, 3>> svd(mat, Eigen::ComputeFullU | Eigen::ComputeFullV);
+
+    // Correct the rotation matrix
+    auto R = svd.matrixU() * svd.matrixV().transpose();
+
+    // Ensure determinant is +1 (proper rotation)
+    if (R.determinant() < 0) {
+        const auto U = svd.matrixU();
+        U.col(2) *= -1;  // Flip the sign of the last column
+        R = U * svd.matrixV().transpose();
+    }
+    return R;
+}
 
 //////////////////////////////////////////////////////////////////
 // math functions needed for rotation conversion.
@@ -12,12 +32,12 @@ namespace slamplay {
 // dot and cross production
 
 template <typename T>
-inline T DotProduct(const T x[3], const T y[3]) {
+inline T dotProduct(const T x[3], const T y[3]) {
     return (x[0] * y[0] + x[1] * y[1] + x[2] * y[2]);
 }
 
 template <typename T>
-inline void CrossProduct(const T x[3], const T y[3], T result[3]) {
+inline void crossProduct(const T x[3], const T y[3], T result[3]) {
     result[0] = x[1] * y[2] - x[2] * y[1];
     result[1] = x[2] * y[0] - x[0] * y[2];
     result[2] = x[0] * y[1] - x[1] * y[0];
@@ -27,7 +47,7 @@ inline void CrossProduct(const T x[3], const T y[3], T result[3]) {
 
 // Converts from a angle anxis to quaternion :
 template <typename T>
-inline void AngleAxisToQuaternion(const T *angle_axis, T *quaternion) {
+inline void angleAxisToQuaternion(const T *angle_axis, T *quaternion) {
     const T &a0 = angle_axis[0];
     const T &a1 = angle_axis[1];
     const T &a2 = angle_axis[2];
@@ -51,7 +71,7 @@ inline void AngleAxisToQuaternion(const T *angle_axis, T *quaternion) {
 }
 
 template <typename T>
-inline void QuaternionToAngleAxis(const T *quaternion, T *angle_axis) {
+inline void quaternionToAngleAxis(const T *quaternion, T *angle_axis) {
     const T &q1 = quaternion[1];
     const T &q2 = quaternion[2];
     const T &q3 = quaternion[3];
@@ -88,8 +108,8 @@ inline void QuaternionToAngleAxis(const T *quaternion, T *angle_axis) {
 }
 
 template <typename T>
-inline void AngleAxisRotatePoint(const T angle_axis[3], const T pt[3], T result[3]) {
-    const T theta2 = DotProduct(angle_axis, angle_axis);
+inline void angleAxisRotatePoint(const T angle_axis[3], const T pt[3], T result[3]) {
+    const T theta2 = dotProduct(angle_axis, angle_axis);
     if (theta2 > T(std::numeric_limits<double>::epsilon())) {
         // Away from zero, use the rodriguez formula
         //
@@ -116,9 +136,9 @@ inline void AngleAxisRotatePoint(const T angle_axis[3], const T pt[3], T result[
                                   w[2] * pt[0] - w[0] * pt[2],
                                   w[0] * pt[1] - w[1] * pt[0] };*/
         T w_cross_pt[3];
-        CrossProduct(w, pt, w_cross_pt);
+        crossProduct(w, pt, w_cross_pt);
 
-        const T tmp = DotProduct(w, pt) * (T(1.0) - costheta);
+        const T tmp = dotProduct(w, pt) * (T(1.0) - costheta);
         //    (w[0] * pt[0] + w[1] * pt[1] + w[2] * pt[2]) * (T(1.0) - costheta);
 
         result[0] = pt[0] * costheta + w_cross_pt[0] * sintheta + w[0] * tmp;
@@ -146,7 +166,7 @@ inline void AngleAxisRotatePoint(const T angle_axis[3], const T pt[3], T result[
                                   angle_axis[2] * pt[0] - angle_axis[0] * pt[2],
                                   angle_axis[0] * pt[1] - angle_axis[1] * pt[0] };*/
         T w_cross_pt[3];
-        CrossProduct(angle_axis, pt, w_cross_pt);
+        crossProduct(angle_axis, pt, w_cross_pt);
 
         result[0] = pt[0] + w_cross_pt[0];
         result[1] = pt[1] + w_cross_pt[1];

@@ -1,0 +1,24 @@
+<package>
+  <name>rostime</name>
+  <version>0.7.2</version>
+  <description>
+    Time and Duration implementations for C++ libraries, including roscpp.
+  </description>
+  <maintainer email="dthomas@osrfoundation.org">Dirk Thomas</maintainer>
+  <license>BSD</license>
+
+  <url>http://ros.org/wiki/rostime</url>
+  <author>Josh Faust</author>
+
+  <buildtool_depend version_gte="0.5.68">catkin</buildtool_depend>
+
+  <build_depend>libboost-date-time-dev</build_depend>
+  <build_depend>libboost-system-dev</build_depend>
+  <build_depend>libboost-thread-dev</build_depend>
+  <build_depend>cpp_common</build_depend>
+
+  <run_depend>libboost-date-time-dev</run_depend>
+  <run_depend>libboost-system-dev</run_depend>
+  <run_depend>libboost-thread-dev</run_depend>
+  <run_depend>cpp_common</run_depend>
+</package>

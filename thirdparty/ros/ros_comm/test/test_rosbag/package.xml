@@ -1,0 +1,42 @@
+<package>
+  <name>test_rosbag</name>
+  <version>1.12.14</version>
+  <description>
+    A package containing the unit tests for rosbag.
+  </description>
+  <maintainer email="dthomas@osrfoundation.org">Dirk Thomas</maintainer>
+  <license>BSD</license>
+
+  <url>http://ros.org/wiki/rosbag</url>
+  <author>Tim Field</author>
+  <author>Jeremy Leibs</author>
+  <author>James Bowman</author>
+
+  <buildtool_depend version_gte="0.5.68">catkin</buildtool_depend>
+
+  <build_depend>boost</build_depend>
+  <build_depend>bzip2</build_depend>
+  <build_depend>cpp_common</build_depend>
+  <build_depend>message_generation</build_depend>
+  <build_depend>python-imaging</build_depend>
+  <build_depend>rosbag</build_depend>
+  <build_depend>rosconsole</build_depend>
+  <build_depend>roscpp</build_depend>
+  <build_depend>roscpp_serialization</build_depend>
+  <build_depend>rosgraph_msgs</build_depend>
+  <build_depend>rostest</build_depend>
+  <build_depend>rosunit</build_depend>
+  <build_depend>topic_tools</build_depend>
+  <build_depend>xmlrpcpp</build_depend>
+
+  <test_depend>genmsg</test_depend>
+  <test_depend>genpy</test_depend>
+  <test_depend>message_runtime</test_depend>
+  <test_depend>python-rospkg</test_depend>
+  <test_depend>roslib</test_depend>
+  <test_depend>rospy</test_depend>
+
+  <export>
+    <rosdoc config="${prefix}/rosdoc.yaml"/>
+  </export>
+</package>

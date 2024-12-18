@@ -1,0 +1,23 @@
+<package>
+  <name>roscpp_core</name>
+  <version>0.7.2</version>
+  <description>
+    Underlying data libraries for roscpp messages.
+  </description>
+  <maintainer email="dthomas@osrfoundation.org">Dirk Thomas</maintainer>
+  <license>BSD</license>
+
+  <url type="website">http://www.ros.org/wiki/roscpp_core</url>
+  <author>Josh Faust</author>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <run_depend>cpp_common</run_depend>
+  <run_depend>roscpp_serialization</run_depend>
+  <run_depend>roscpp_traits</run_depend>
+  <run_depend>rostime</run_depend>
+
+  <export>
+    <metapackage/>
+  </export>
+</package>

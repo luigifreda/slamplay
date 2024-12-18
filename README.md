@@ -5,28 +5,29 @@ Author: [Luigi Freda](https://www.luigifreda.com)
 <!-- TOC -->
 
 - [slamplay](#slamplay)
-  - [How to start](#how-to-start)
-    - [Configuration](#configuration)
-    - [Install data](#install-data)
-    - [Deep learning (DL)](#deep-learning-dl)
-      - [Intall DL models](#intall-dl-models)
-      - [GPU support with `CUDA`, `cuDNN`, `TensorRT`](#gpu-support-with-cuda-cudnn-tensorrt)
-      - [Install tensorflow C++ API](#install-tensorflow-c-api)
-  - [Docker](#docker)
-  - [Eigen Tutorials](#eigen-tutorials)
-  - [Front-end](#front-end)
-    - [Features DL (Deep Learning)](#features-dl-deep-learning)
-    - [Depth DL](#depth-dl)
-    - [Tensorflow C++ API](#tensorflow-c-api)
-  - [Back-end](#back-end)
-    - [GTSAM examples](#gtsam-examples)
-    - [Ceres examples](#ceres-examples)
-    - [g2o examples](#g2o-examples)
-  - [IO](#io)
-    - [chrono](#chrono)
-  - [Profiling](#profiling)
-    - [Tracy](#tracy)
-  - [Credits](#credits)
+    - [1. How to start](#1-how-to-start)
+        - [1.1. Configuration](#11-configuration)
+        - [1.2. Install data](#12-install-data)
+        - [1.3. Deep learning DL](#13-deep-learning-dl)
+            - [1.3.1. Intall DL models](#131-intall-dl-models)
+            - [1.3.2. GPU support with CUDA, cuDNN, TensorRT](#132-gpu-support-with-cuda-cudnn-tensorrt)
+            - [1.3.3. Install tensorflow C++ API](#133-install-tensorflow-c-api)
+    - [2. Docker](#2-docker)
+    - [3. Eigen Tutorials](#3-eigen-tutorials)
+    - [4. Front-end](#4-front-end)
+        - [4.1. Features DL Deep Learning](#41-features-dl-deep-learning)
+        - [4.2. Depth DL](#42-depth-dl)
+        - [4.3. Tensorflow C++ API](#43-tensorflow-c-api)
+    - [5. Back-end](#5-back-end)
+        - [5.1. GTSAM examples](#51-gtsam-examples)
+        - [5.2. Ceres examples](#52-ceres-examples)
+        - [5.3. g2o examples](#53-g2o-examples)
+    - [6. IO](#6-io)
+        - [6.1. chrono](#61-chrono)
+    - [7. Profiling](#7-profiling)
+        - [7.1. Tracy](#71-tracy)
+    - [8. Credits](#8-credits)
+    - [9. License](#9-license)
 
 <!-- /TOC -->
 
@@ -63,6 +64,7 @@ alt="Segment Anything Model" height="180" border="1"/>
 This repository is structured in the following main folders (with self-explanatory names): 
 - `algebra_geometry`
 - `backend`
+- `core` 
 - `data`
 - `dense_mapping`
 - `docs`
@@ -273,3 +275,7 @@ Repository link: https://github.com/wolfpld/tracy. Documentation is [here](https
 * Thanks to the Authors of the repository https://github.com/LiuLimingCode/HFNet_SLAM. I integrated and adapted part of their C++ implementation of HFNet NN.
 * Thanks to the Authors of the repositories https://github.com/spacewalk01/depth-anything-tensorrt and https://github.com/ojh6404/depth_anything_ros. I adapted and integrated some parts of their C++ classes and script for DepthAnything v2 NN.
 
+---
+## License 
+
+`slamplay` is released under [GPLv3 license](./LICENSE). `slamplay` contains some modified libraries, each one coming with its license. Where nothing is specified, a GPLv3 license applies to the software.

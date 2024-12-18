@@ -1,0 +1,18 @@
+sudo: required
+dist: trusty
+language: cpp
+compiler:
+  - gcc
+  - clang
+env:
+  - BUILD_TYPE=Debug
+  - BUILD_TYPE=RelWithDebInfo
+script:
+  - mkdir build
+  - cd build 
+  - cmake -DCMAKE_BUILD_TYPE=$BUILD_TYPE -DCMAKE_CXX_FLAGS=-Werror ..
+  - make
+  - make test ARGS="-VV"
+after_script:
+  - sudo make install
+  - pkg-config --modversion console_bridge

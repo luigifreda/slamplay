@@ -57,3 +57,5 @@ data/remode_test_data.zip
 data/superpointglue/weights/superglue_indoor_sim_int32.engine
 data/superpointglue/weights/superglue_outdoor_sim_int32.engine
 data/superpointglue/weights/superpoint_v1_sim_int32.engine
+
+*.engine

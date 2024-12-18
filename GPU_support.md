@@ -2,11 +2,11 @@
 
 <!-- TOC -->
 
-- [GPU support with CUDA, cuDNN, TensorRT](#gpu-support-with-cuda-cudnn-tensorrt)
-    - [1. CUDA 11.8](#1-cuda-118)
-    - [2. CUDA 12.5 - WIP](#2-cuda-125---wip)
-    - [3. tensorflow_cc](#3-tensorflow_cc)
-    - [4. Feedback](#4-feedback)
+- [GPU support with `CUDA`, `cuDNN`, `TensorRT`](#gpu-support-with-cuda-cudnn-tensorrt)
+  - [CUDA 11.8](#cuda-118)
+  - [CUDA 12.5 - WIP](#cuda-125---wip)
+  - [tensorflow\_cc](#tensorflow_cc)
+  - [Feedback](#feedback)
 
 <!-- /TOC -->
 
@@ -51,7 +51,7 @@ As for tensorflow support, I recommend the usage of [tensorflow_cc](https://gith
 - **CUDNN**: 8.6.0.163-1+cuda11.8       
   `sudo apt install -y libcudnn8=8.6.0.163-1+cuda11.8 libcudnn8-dev=8.6.0.163-1+cuda11.8`
 
-As noted [here](https://github.com/luigifreda/tensorflow_cc?tab=readme-ov-file#some-final-notes-and-some-tested-working-configurations), I successfully built and deployed other newer tensorflow configurations (see the list [here](https://github.com/luigifreda/tensorflow_cc?tab=readme-ov-file#some-final-notes-and-some-tested-working-configurations)). However, note that tensorflow does download and use its own custom versions of Eigen (and of other base libraries, according to the selected tensorflow version) and the used library versions may not be the same ones that are installed in your system. This fact may cause severe issues (undefined behaviors and uncontrolled crashes) in your final target projects (where you import the built and deployed Tensorflow C++): In fact, in such case, you may be mixing libraries built with different versions of Eigen (so with different data alignments)!
+As noted [here](https://github.com/luigifreda/tensorflow_cc?tab=readme-ov-file#some-final-notes-and-some-tested-working-configurations), I successfully built and deployed other newer tensorflow configurations (see the list [here](https://github.com/luigifreda/tensorflow_cc?tab=readme-ov-file#some-final-notes-and-some-tested-working-configurations)). However, note that tensorflow does download and use its own custom versions of `Eigen` (and of other base libraries, according to the selected tensorflow version) and the used library versions may not be the same ones that are installed in your system. This fact may cause **severe issues** (undefined behaviors and uncontrolled crashes) in your final target projects (where you import the built and deployed Tensorflow C++): In fact, in such case, you may be mixing libraries built with different versions of `Eigen` (so with different data alignments and special effects)!
 
 
 ## Feedback 

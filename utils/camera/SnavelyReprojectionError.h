@@ -39,7 +39,7 @@ class SnavelyReprojectionError {
     static inline bool CamProjectionWithDistortion(const T *camera, const T *point, T *predictions) {
         // Rodrigues' formula
         T p[3];
-        AngleAxisRotatePoint(camera, point, p);
+        angleAxisRotatePoint(camera, point, p);
         // camera[3,4,5] are the translation
         p[0] += camera[3];
         p[1] += camera[4];

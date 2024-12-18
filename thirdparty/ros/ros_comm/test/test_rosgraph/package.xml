@@ -1,0 +1,16 @@
+<package>
+  <name>test_rosgraph</name>
+  <version>1.12.14</version>
+  <description>
+    Tests for rosgraph which depend on rostest.
+  </description>
+  <maintainer email="dthomas@osrfoundation.org">Dirk Thomas</maintainer>
+  <license>BSD</license>
+
+  <url>http://ros.org/wiki/rosgraph</url>
+  <author>Ken Conley</author>
+
+  <buildtool_depend version_gte="0.5.68">catkin</buildtool_depend>
+
+  <build_depend>rostest</build_depend>
+</package>

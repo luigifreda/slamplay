@@ -1,0 +1,25 @@
+<package>
+  <name>test_rospy</name>
+  <version>1.12.14</version>
+  <description>
+    rospy unit and integration test framework.
+  </description>
+  <maintainer email="dthomas@osrfoundation.org">Dirk Thomas</maintainer>
+  <license>BSD</license>
+
+  <url>http://ros.org/wiki/rospy</url>
+  <author>Ken Conley</author>
+
+  <buildtool_depend version_gte="0.5.68">catkin</buildtool_depend>
+
+  <build_depend>genmsg</build_depend>
+  <build_depend>rostest</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_depend>test_rosmaster</build_depend>
+
+  <test_depend>python-numpy</test_depend>
+  <test_depend>python-psutil</test_depend>
+  <test_depend>rosbuild</test_depend>
+  <test_depend>rosgraph</test_depend>
+  <test_depend>rospy</test_depend>
+</package>

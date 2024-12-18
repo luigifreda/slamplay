@@ -9,6 +9,23 @@ cd $CONFIG_DIR # this brings us in the actual folder of this config script (not 
 source $CONFIG_DIR/bash_utils.sh
 
 # ====================================================
+# BUILD_TYPE 
+# ====================================================
+
+export BUILD_TYPE=Release            # control the build type of all the projects
+export BUILD_WITH_MARCH_NATIVE=ON    # enable/disable building with --march=native in all the projects
+
+if [[ "$UBUNTU_VERSION" == *"24.04"* ]] ; then
+	BUILD_WITH_MARCH_NATIVE=OFF  # At present, building with --march=native does not work under Ubuntu 24.04 (probably due to different default building options in the native libpcl)
+fi 
+
+# ====================================================
+# C++ standard  
+# ====================================================
+
+export CPP_STANDARD_VERSION=20   # we need c++17 since nvcc does not support c++20 yet (probably we can try mixing c++ standards and just let nvcc use c++17 ... not sure this is the best choice)
+
+# ====================================================
 # Python Settings 
 # ====================================================
 

@@ -1,0 +1,40 @@
+<package>
+  <name>test_roscpp</name>
+  <version>1.12.14</version>
+  <description>
+    Tests for roscpp which depend on rostest.
+  </description>
+  <maintainer email="dthomas@osrfoundation.org">Dirk Thomas</maintainer>
+  <license>BSD</license>
+
+  <url>http://ros.org/wiki/roscpp</url>
+  <author>Morgan Quigley</author>
+  <author>Josh Faust</author>
+  <author>Brian Gerkey</author>
+  <author>Troy Straszheim</author>
+
+  <buildtool_depend version_gte="0.5.68">catkin</buildtool_depend>
+
+  <build_depend>cpp_common</build_depend>
+  <build_depend>message_generation</build_depend>
+  <build_depend>pkg-config</build_depend>
+  <build_depend>rosconsole</build_depend>
+  <build_depend>roscpp</build_depend>
+  <build_depend>roscpp_serialization</build_depend>
+  <build_depend>roscpp_traits</build_depend>
+  <build_depend>rosgraph_msgs</build_depend>
+  <build_depend>roslang</build_depend>
+  <build_depend>rostest</build_depend>
+  <build_depend>rostime</build_depend>
+  <build_depend>rosunit</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_depend>std_srvs</build_depend>
+  <build_depend>xmlrpcpp</build_depend>
+
+  <run_depend>message_runtime</run_depend>
+  <run_depend>rosconsole</run_depend>
+  <run_depend>rosgraph_msgs</run_depend>
+  <run_depend>std_msgs</run_depend>
+  <run_depend>std_srvs</run_depend>
+  <run_depend>xmlrpcpp</run_depend>
+</package>

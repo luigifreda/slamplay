@@ -98,7 +98,7 @@ BALProblem::BALProblem(const std::string &filename, bool use_quaternions) {
         double *original_cursor = parameters_;
         double *quaternion_cursor = quaternion_parameters;
         for (int i = 0; i < num_cameras_; ++i) {
-            AngleAxisToQuaternion(original_cursor, quaternion_cursor);
+            angleAxisToQuaternion(original_cursor, quaternion_cursor);
             quaternion_cursor += 4;
             original_cursor += 3;
             for (int j = 4; j < 10; ++j) {
@@ -137,7 +137,7 @@ void BALProblem::WriteToFile(const std::string &filename) const {
         double angleaxis[9];
         if (use_quaternions_) {
             // OutPut in angle-axis format.
-            QuaternionToAngleAxis(parameters_ + 10 * i, angleaxis);
+            quaternionToAngleAxis(parameters_ + 10 * i, angleaxis);
             memcpy(angleaxis + 3, parameters_ + 10 * i + 4, 6 * sizeof(double));
         } else {
             memcpy(angleaxis, parameters_ + 9 * i, 9 * sizeof(double));
@@ -209,14 +209,14 @@ void BALProblem::CameraToAngelAxisAndCenter(const double *camera,
                                             double *center) const {
     VectorRef angle_axis_ref(angle_axis, 3);
     if (use_quaternions_) {
-        QuaternionToAngleAxis(camera, angle_axis);
+        quaternionToAngleAxis(camera, angle_axis);
     } else {
         angle_axis_ref = ConstVectorRef(camera, 3);
     }
 
     // c = -R't
     Eigen::VectorXd inverse_rotation = -angle_axis_ref;
-    AngleAxisRotatePoint(inverse_rotation.data(),
+    angleAxisRotatePoint(inverse_rotation.data(),
                          camera + camera_block_size() - 6,
                          center);
     VectorRef(center, 3) *= -1.0;
@@ -227,13 +227,13 @@ void BALProblem::AngleAxisAndCenterToCamera(const double *angle_axis,
                                             double *camera) const {
     ConstVectorRef angle_axis_ref(angle_axis, 3);
     if (use_quaternions_) {
-        AngleAxisToQuaternion(angle_axis, camera);
+        angleAxisToQuaternion(angle_axis, camera);
     } else {
         VectorRef(camera, 3) = angle_axis_ref;
     }
 
     // t = -R * c
-    AngleAxisRotatePoint(angle_axis, center, camera + camera_block_size() - 6);
+    angleAxisRotatePoint(angle_axis, center, camera + camera_block_size() - 6);
     VectorRef(camera + camera_block_size() - 6, 3) *= -1.0;
 }
 

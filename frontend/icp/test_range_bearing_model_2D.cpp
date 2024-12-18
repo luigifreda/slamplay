@@ -124,8 +124,8 @@ and we assume all epsir and epsith are independent noises (for i=1,2,...,N).
 
 III) Cartesian noise:
 pi = pzi + cartesian noise     (we could also see it as the other way around, noise on the other side of the equation)
-pi =  [x] + [ri*cos(theta + thi)] + [epsix] = [cos(theta), -sin(theta)] * [ri*cos(thi)] + [epsix] \in IR^2
-      [y]   [ri*sin(theta + thi)]   [epsiy]   [sin(theta),  cos(theta)]   [ri*sin(thi)]   [epsiy]
+pi =  [x] + [ri*cos(theta + thi)] + [epsix] = [x] + [cos(theta), -sin(theta)] * [ri*cos(thi)] + [epsix] \in IR^2
+      [y]   [ri*sin(theta + thi)]   [epsiy]   [y]   [sin(theta),  cos(theta)]   [ri*sin(thi)]   [epsiy]
 
 where
 epsi = [epsix] \in IR^2 ~ N(0,sigmap)
@@ -191,10 +191,10 @@ In long vector form:
  e = [e1,e2,...,eN] \in IR^{2*Nx1}
 
 Measurement model. Assuming:
- (i) points p1 belongs to the map m, points p1 are newly observed from a different pose as pzi (computed from {[ri,thi]})
+ (i) points pi belongs to the map m, points pi are newly observed from a different pose as pzi (computed from {[ri,thi]})
 (ii) we have independent noise on each observed points p2i
 we have that:
-p(z|q, map) = \prod_i p(zi|q, map) = \prod_i p(pzi|q, map)
+p(z|q, map) = \prod_i p(zi|q, map)
 
 => p(e|q, map) = \prod_i p(ei|q, map) = \prod_i N(pzi-pi|0,sigmap;q)
 

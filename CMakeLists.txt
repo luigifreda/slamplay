@@ -5,6 +5,7 @@ project(slamplay LANGUAGES CXX)
 #====================================
 # options 
 
+set(CPP_STANDARD_VERSION   "20" CACHE STRING "Desired C++ standard version") # we need c++17 since nvcc does not support c++20 (probably we can try mixing standards and let nvcc use c++17 ... not sure about the result)
 set(OPENCV_VERSION          "4" CACHE STRING "Desired OpenCV version") # this is the first target version that is searched for 
 set(SET_RPATH               ON  CACHE BOOL   "Set RPATH instead of the default RUNPATH") # for solving the linking issue with g2o binaries (see the related node in the compiler options section)
 set(BUILD_WITH_MARCH_NATIVE ON  CACHE BOOL   "Build with \"-march native\"")
@@ -31,7 +32,7 @@ endif()
 #====================================
 # c++ standard 
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD ${CPP_STANDARD_VERSION})
 set(CMAKE_CXX_STANDARD_REQUIRED ON) # CMake will generate an error if it is unable to compile the code with a compiler that supports C++17.
 
 #====================================
@@ -219,6 +220,26 @@ find_package(SESync REQUIRED)
 #message(STATUS "sesync lid dir: ${SESYNC_LIB_DIR}")
 message(STATUS "sesync libs: ${SESYNC_LIBS}")
 
+# rosbag
+find_package(BZip2 REQUIRED)
+find_library(lz4_LIBRARIES REQUIRED NAMES lz4)
+message(STATUS "lz4_LIBRARIES: ${lz4_LIBRARIES}")
+
+set(ROSBAG_DIR ${PROJECT_SOURCE_DIR}/thirdparty/ros)
+message(STATUS "set custom rosbag folder: ${ROSBAG_DIR}")
+set(ROSBAG_INCLUDE_DIRS
+  ${ROSBAG_DIR}/include
+  ${ROSBAG_DIR}/console_bridge/include
+  ${ROSBAG_DIR}/roscpp_core/cpp_common/include
+  ${ROSBAG_DIR}/roscpp_core/rostime/include
+  ${ROSBAG_DIR}/roscpp_core/roscpp_serialization/include
+  ${ROSBAG_DIR}/roscpp_core/roscpp_traits/include
+  ${ROSBAG_DIR}/ros_comm/utilities/roslz4/include
+  ${ROSBAG_DIR}/ros_comm/tools/rosbag_storage/include
+)
+set(ROSBAG_LIBS ${ROSBAG_DIR}/lib/librosbag.a ${BZIP2_LIBRARIES} ${lz4_LIBRARIES})
+message(STATUS "rosbag includes: ${ROSBAG_INCLUDE_DIRS}")
+
 # DBoW2
 set(DBOW2_DIR ${PROJECT_SOURCE_DIR}/thirdparty/dbow2/)
 message(STATUS "set custom DBoW2 folder: ${DBOW2_DIR}")
@@ -326,6 +347,7 @@ endif()
 
 set(INCLUDE_DIRS
   ${PROJECT_SOURCE_DIR}/utils/
+  ${PROJECT_SOURCE_DIR}/core/
 )
 # add all subdirs of utils 
 # subdirlist(SUBDIRS ${PROJECT_SOURCE_DIR}/utils) # macro from cmake/macros.cmake
@@ -347,6 +369,7 @@ set(EXT_INCLUDE_DIRS
   ${OpenCV_INCLUDE_DIRS}
   ${SESYNC_INCLUDE_DIRS}
   ${CSPARSE_INCLUDE_DIR}
+  ${ROSBAG_INCLUDE_DIRS}
   ${DBoW2_INCLUDE_DIRS}
   ${DBoW3_INCLUDE_DIRS}
   ${OBINDEX2_INCLUDE_DIR}
@@ -370,6 +393,8 @@ set(EXT_INCLUDE_DIRS
 set(LIBS
   orbslam2_features  
   bal_dataset 
+  datasets
+  timeutils
   #hfnet_features  # We treat this separately for safety since it may be linked with a tensorflow_cc, which may use a different version of Eigen
   #superpointglue 
 )
@@ -392,7 +417,8 @@ set(EXT_LIBS
   ${Boost_LIBRARIES} 
   ${CHOLMOD_LIBRARIES}  
   ${Pangolin_LIBRARIES}
-  ${PCL_LIBRARIES} 
+  ${PCL_LIBRARIES}
+  ${ROSBAG_LIBS} 
   ${DBoW2_LIB}
   gtsam
   ${G2O_LIBS}  
@@ -422,6 +448,7 @@ set(EXT_LIBS
 
 set(FOLDERS 
   utils
+  core
   algebra_geometry
   backend
   frontend

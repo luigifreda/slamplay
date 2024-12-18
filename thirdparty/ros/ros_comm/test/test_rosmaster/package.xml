@@ -1,0 +1,21 @@
+<package>
+  <name>test_rosmaster</name>
+  <version>1.12.14</version>
+  <description>
+    Tests for rosmaster which depend on rostest.
+  </description>
+  <maintainer email="dthomas@osrfoundation.org">Dirk Thomas</maintainer>
+  <license>BSD</license>
+
+  <url>http://ros.org/wiki/rosmaster</url>
+  <author>Ken Conley</author>
+
+  <buildtool_depend version_gte="0.5.68">catkin</buildtool_depend>
+
+  <build_depend>genmsg</build_depend>
+  <build_depend>rosgraph</build_depend>
+  <build_depend>rostest</build_depend>
+  <build_depend>std_msgs</build_depend>
+
+  <test_depend>rosbuild</test_depend>
+</package>
