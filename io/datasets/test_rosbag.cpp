@@ -1,14 +1,14 @@
 // *************************************************************************
-/* 
+/*
  * This file is part of the slamplay project.
  * Copyright (C) 2018-present Luigi Freda <luigifreda at gmail dot com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- * any later version, at your option. If this file is a modified/adapted 
- * version of an original file distributed under a different license that 
- * is not compatible with the GNU General Public License, the 
+ * any later version, at your option. If this file is a modified/adapted
+ * version of an original file distributed under a different license that
+ * is not compatible with the GNU General Public License, the
  * BSD 3-Clause License will apply instead.
  *
  * This program is distributed in the hope that it will be useful,
@@ -129,7 +129,7 @@ int main(int argc, char** argv) {
     if (!gt_trajectory.empty()) {
         viz.setDownsampleCameraVizFactor(10);
         viz.start();
-        viz.setTrajectory(gt_trajectory);
+        viz.addTrajectory(gt_trajectory, slamplay::Trajectory::Color(0, 255, 0), "gt");
     }
 
     // replayImageUnsynchronized(dataset);

@@ -1,14 +1,14 @@
 // *************************************************************************
-/* 
+/*
  * This file is part of the slamplay project.
  * Copyright (C) 2018-present Luigi Freda <luigifreda at gmail dot com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- * any later version, at your option. If this file is a modified/adapted 
- * version of an original file distributed under a different license that 
- * is not compatible with the GNU General Public License, the 
+ * any later version, at your option. If this file is a modified/adapted
+ * version of an original file distributed under a different license that
+ * is not compatible with the GNU General Public License, the
  * BSD 3-Clause License will apply instead.
  *
  * This program is distributed in the hope that it will be useful,
@@ -43,7 +43,6 @@ int main(int argc, char **argv) {
         dataset_path = argv[1];
     }
 
-
     std::cout << "Reading " << dataset_type << " dataset: " << dataset_path << std::endl;
 
     slamplay::DatasetIoInterfacePtr dataset_io = slamplay::DatasetIoFactory::getDatasetIo(dataset_type);
@@ -62,7 +61,7 @@ int main(int argc, char **argv) {
     slamplay::TrajectoryViz viz;
     viz.setDownsampleCameraVizFactor(10);
     viz.start();
-    viz.setTrajectory(gt_trajectory);
+    viz.addTrajectory(gt_trajectory, slamplay::Trajectory::Color(0, 255, 0), "gt");
 
     for (size_t i = 0; i < dataset->get_image_timestamps().size(); i++) {
         int64_t t_img_ns = dataset->get_image_timestamps()[i];
