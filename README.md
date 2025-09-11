@@ -1,3 +1,8 @@
+<p align="center">
+<img src="images/slamplay-logo.png"
+alt="slamplay" height="120" border="0"/> 
+</p>
+
 # slamplay 
 
 Author: [Luigi Freda](https://www.luigifreda.com)
@@ -46,19 +51,19 @@ I created **slamplay** for a computer vision class I taught. I started developin
 
 <p align="center">
 <img src="images/kitti-VO.png"
-alt="KITTI visual odometry" height="180" border="1"/> 
+alt="KITTI visual odometry" height="180" border="0"/> 
 <img src="images/euroc-VO.png"
-alt="EUROC VO" height="180" border="1"/> 
+alt="EUROC VO" height="180" border="0"/> 
 <img src="images/direct-method.png"
-alt="KITTI direct method for feature tracking" height="180" border="1"/> 
+alt="KITTI direct method for feature tracking" height="180" border="0"/> 
 <img src="images/clouds-viz.png"
-alt="Pointcloud visulization" height="180" border="1"/> 
+alt="Pointcloud visulization" height="180" border="0"/> 
 <img src="images/slamplay-depth-anything.png"
-alt="Pointcloud visulization of DepthAnythingV2" height="180" border="1"/> 
+alt="Pointcloud visulization of DepthAnythingV2" height="180" border="0"/> 
 <img src="images/slamplay-kitti-sam.png"
-alt="Segment Anything Model on Kitti" height="180" border="1"/> 
+alt="Segment Anything Model on Kitti" height="180" border="0"/> 
 <img src="images/slamplay-segment-anything.png"
-alt="Segment Anything Model" height="180" border="1"/> 
+alt="Segment Anything Model" height="180" border="0"/> 
 </p>
   
 This repository is structured in the following main folders (with self-explanatory names): 
