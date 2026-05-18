@@ -4,6 +4,8 @@ set(CORELIBS ${LIBS} ${EXT_LIBS})
 
 add_subdirectory(datasets)
 add_subdirectory(time)
+add_subdirectory(viz)
+add_subdirectory(utm)
 if(WITH_TENSORRT)
     add_subdirectory(tensorrt)
 endif()

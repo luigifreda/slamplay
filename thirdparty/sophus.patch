@@ -21,3 +21,61 @@ index c715bb20..0fd4a56d 100644
      SET(CMAKE_CXX_FLAGS_COVERAGE "${CMAKE_CXX_FLAGS_DEBUG} --coverage -fno-inline -fno-inline-small-functions -fno-default-inline")
      SET(CMAKE_EXE_LINKER_FLAGS_COVERAGE "${CMAKE_EXE_LINKER_FLAGS_DEBUG} --coverage")
      SET(CMAKE_SHARED_LINKER_FLAGS_COVERAGE "${CMAKE_SHARED_LINKER_FLAGS_DEBUG} --coverage")
+diff --git a/sophus/so3.hpp b/sophus/so3.hpp
+index 67dd852f..94b41ab6 100644
+--- a/sophus/so3.hpp
++++ b/sophus/so3.hpp
+@@ -455,6 +455,53 @@ class SO3Base {
+     return static_cast<Derived const*>(this)->unit_quaternion();
+   }
+ 
++  // newly-added
++  // left jacobian
++  SOPHUS_FUNC static Transformation jl(const Point& Omega) {
++    using std::cos;
++    using std::sin;
++
++    Scalar theta = Omega.norm();
++    if (theta < Constants<Scalar>::epsilon()) {
++      return Transformation::Identity() + Scalar(0.5) * SO3<Scalar>::hat(Omega);
++    }
++
++    Point a = Omega;
++    a.normalize();
++    Scalar sin_theta = sin(theta);
++    Scalar cos_theta = cos(theta);
++    return (sin_theta / theta) * Transformation ::Identity() +
++           (1 - sin_theta / theta) * a * a.transpose() +
++           (1 - cos_theta) / theta * SO3<Scalar>::hat(a);
++  }
++
++  SOPHUS_FUNC static Transformation jl_inv(const Point& Omega) {
++    Scalar theta = Omega.norm();
++    if (theta < 1e-6) {
++      return Transformation::Identity();
++    }
++
++    Point a = Omega;
++    a.normalize();
++
++    double cot_half_theta = cos(0.5 * theta) / sin(0.5 * theta);
++    return 0.5 * theta * cot_half_theta * Transformation ::Identity() +
++           (1 - 0.5 * theta * cot_half_theta) * a * a.transpose() -
++           0.5 * theta * SO3<Scalar>::hat(a);
++  }
++
++  SOPHUS_FUNC static Transformation jr(const Point& Omega) {
++    return jl(-Omega);
++  }
++  SOPHUS_FUNC Transformation jr() { return jr(log()); }
++  SOPHUS_FUNC Transformation jr_inv() { return jl_inv(-log()); }
++  SOPHUS_FUNC static Transformation jr_inv(const Point& Omega) {
++    return jl_inv(-Omega);
++  }
++  SOPHUS_FUNC static Transformation jr_inv(const SO3Base<Derived>& R) {
++    return jr_inv(R.log());
++  }
++
+  private:
+   /// Mutator of unit_quaternion is private to ensure class invariant. That is
+   /// the quaternion must stay close to unit length.

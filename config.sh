@@ -63,12 +63,21 @@ export OPENCV_VERSION="4" # default opencv version
 # USE_LOCAL_OPENCV=1
 
 # 1: ON, 0: OFF
-export USE_CUDA=0  # Use CUDA in slamplay code 
-export CUDA_VERSION_NUMBER=11.8
-export CUDA_VERSION="cuda-$CUDA_VERSION_NUMBER"  # Must be an installed CUDA path in "/usr/local"
-if [ ! -d /usr/local/$CUDA_VERSION ]; then
-    CUDA_VERSION="cuda"  # Use last installed CUDA path (standard path, which is usually a symbolic link to the last installed CUDA version)
-fi 
+export USE_CUDA=0  # Use CUDA in slamplay code
+# NOTE: Default CUDA version is cuda-11.8. This is the version tested and working. Overridden per Ubuntu below (it does bring issues with Ubuntu 24.04).
+export CUDA_VERSION_NUMBER=11.8  # default; overridden per Ubuntu below 
+export CUDA_VERSION="cuda-$CUDA_VERSION_NUMBER"  # default; overridden per Ubuntu below
+
+UBUNTU_RELEASE=$(ubuntu_release_version)
+if [[ "$UBUNTU_RELEASE" == "24.04" ]]; then
+    # Ubuntu 24.04: use whichever CUDA toolkit is installed (often /usr/local/cuda -> cuda-12.x).
+	# cuda-11.8 is not supported on Ubuntu 24.04 (only with GCC>11).
+    if resolved=$(resolve_cuda_version_dir); [[ -n "$resolved" ]]; then
+        CUDA_VERSION="$resolved"
+    fi
+elif [ ! -d /usr/local/$CUDA_VERSION ]; then
+    CUDA_VERSION="cuda"  # fallback symlink
+fi
 
 export PATH=/usr/local/$CUDA_VERSION/bin${PATH:+:${PATH}}
 export LD_LIBRARY_PATH=/usr/local/$CUDA_VERSION/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}
@@ -159,7 +168,7 @@ if [ -f /usr/local/$CUDA_VERSION/bin/nvcc ] || [ -f /usr/bin/nvcc ]; then
 	CUDA_VERSION_NUMBER=$(get_cuda_version)
 	CUDA_VERSION_CODE=$(echo "$CUDA_VERSION_NUMBER" | sed 's/\.//g') # for instance, "118" stands for "cuda 11.8"
 	echo "CUDA_VERSION_NUMBER: $CUDA_VERSION_NUMBER"
-	echo "CUDA_VERSION_CODE: $CUDA_VERSION_NUMBER"	
+	echo "CUDA_VERSION_CODE: $CUDA_VERSION_CODE"
 fi
 
 if [ $CUDA_FOUND -eq 1 ]; then
@@ -179,6 +188,12 @@ if [ $CUDA_FOUND -eq 0 ]; then
 	echo 'CUDA env var reset, check your CUDA installation'
 	echo 'TensorRT env var reser'
 fi
+
+# write CUDA_VERSION_NUMBER to .env file
+write_env_var "USE_CUDA" "$USE_CUDA"
+write_env_var "CUDA_VERSION_NUMBER" "$CUDA_VERSION_NUMBER"
+write_env_var "CUDA_VERSION_CODE" "$CUDA_VERSION_CODE"
+write_env_var "CUDA_VERSION" "$CUDA_VERSION"
 
 # ====================================================
 # OPENCV 

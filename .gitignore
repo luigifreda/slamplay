@@ -3,6 +3,7 @@ __pycache__
 
 # python 
 .venv
+.cache
 
 # thirdparty 
 thirdparty/pangolin 
@@ -35,6 +36,9 @@ thirdparty/dbow3/lib
 thirdparty/libtorch
 thirdparty/libtorch.zip
 thirdparty/dbow2/lib
+thirdparty/utm_convert/lib
+thirdparty/tensorrtbuffers10.0/lib
+thirdparty/tensorrtbuffers8.5/lib
 
 # data 
 data/new_college
@@ -57,5 +61,15 @@ data/remode_test_data.zip
 data/superpointglue/weights/superglue_indoor_sim_int32.engine
 data/superpointglue/weights/superglue_outdoor_sim_int32.engine
 data/superpointglue/weights/superpoint_v1_sim_int32.engine
+data/ad/datasets/wxb
+data/ad/datasets/ulhk
+data/ad/datasets/utbm
+data/ad/datasets/2dmapping
+data/ad/datasets/nclt
+
+.env
+
+results
+
 
 *.engine

@@ -3,7 +3,7 @@
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 SCRIPT_DIR=$(readlink -f $SCRIPT_DIR)  # this reads the actual path if a symbolic directory is used
 
-. config.sh  # source configuration file and utils
+. $SCRIPT_DIR/config.sh  # source configuration file and utils
 
 # You can get your preferred TensorRT version package from: https://docs.nvidia.com/deeplearning/tensorrt/install-guide/index.html#downloading
 # Alternatively, you can use the following procedure to download TensorRT tar.gz from my google drive.
@@ -46,12 +46,8 @@ if [ ! -d "${INSTALL_PATH}/TensorRT/lib" ]; then
   fi
 
   if [ $CUDA_FOUND -eq 1 ]; then
-    if [[ $version == *"24.04"* ]] ; then
-        install_packages libcudnn-dev
-    else 
-        install_packages libcudnn8 libcudnn8-dev  # check and install otherwise this is going to update to the latest version (and that's not we necessary want to do)
-    fi
-  fi   
+    install_cudnn_dev
+  fi
 
   mkdir -p ${INSTALL_PATH}/TensorRT
   pip install gdown

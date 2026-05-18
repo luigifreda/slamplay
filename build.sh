@@ -11,6 +11,9 @@ reset
 
 # ====================================================
 
+export BUILD_JOBS=$(nproc)
+#BUILD_JOBS=8
+
 ./build_thirdparty.sh 
 
 #./install_dl_models.sh
@@ -102,4 +105,4 @@ fi
 
 cd $SCRIPT_DIR/build
 cmake .. -DCMAKE_BUILD_TYPE=Release $EXTERNAL_OPTION
-make -j 8
+make -j $BUILD_JOBS

@@ -96,10 +96,17 @@ int main(int argc, char const* argv[]) {
     std::string inputImage = kSamDataDir + "/truck-vga.png";
 
     cv::Mat frame = cv::imread(inputImage);
+    if (frame.empty()) {
+        std::cerr << "failed to load input image: " << inputImage << std::endl;
+        return 1;
+    }
     std::cout << "frame size:" << frame.size << std::endl;
 
     SamInterface samIf;
-    samIf.loadModels();
+    if (samIf.loadModels() <= 0) {
+        std::cerr << "failed to load SAM TensorRT models" << std::endl;
+        return 1;
+    }
 
     auto& image_embeddings = samIf.processEmbedding(frame);
 

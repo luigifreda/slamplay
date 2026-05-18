@@ -8,7 +8,8 @@ cd $SCRIPT_DIR
 build_folders=( \
 thirdparty/tensorrtbuffers \
 thirdparty/dbow2 \
-thirdparty/rosbag \
+thirdparty/ros \
+thirdparty/utm_convert \
 )
 
 for folder in "${build_folders[@]}"

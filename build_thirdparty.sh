@@ -14,6 +14,8 @@ print_blue "Building thirdparty"
 print_blue '================================================'
 
 version=$(lsb_release -a 2>&1)
+export BUILD_JOBS=$(nproc)
+#BUILD_JOBS=8
 
 # ====================================================
 # check if we have external options
@@ -47,6 +49,11 @@ fi
 if [[ -n "$OpenCV_DIR" ]]; then
     echo "OpenCV_DIR: $OpenCV_DIR" 
     EXTERNAL_OPTION="$EXTERNAL_OPTION -DOpenCV_DIR=$OpenCV_DIR"
+    OPENCV_CUDA_CMAKE_FLAGS=$(opencv_cuda_toolkit_cmake_flags "$OpenCV_DIR")
+    if [[ -n "$OPENCV_CUDA_CMAKE_FLAGS" ]]; then
+        echo "OpenCV CUDA toolkit: $OPENCV_CUDA_CMAKE_FLAGS"
+        EXTERNAL_OPTION="$EXTERNAL_OPTION $OPENCV_CUDA_CMAKE_FLAGS"
+    fi
 fi
 
 if [[ $OPENCV_VERSION == 4* ]]; then
@@ -107,7 +114,7 @@ if [ $USE_TENSORRT -eq 1 ]; then
     if [[ ! -d lib/libtensorrtbuffers.so ]]; then
         cd build
         cmake .. -DCMAKE_BUILD_TYPE=Release  $EXTERNAL_OPTION
-        make -j 8
+        make -j $BUILD_JOBS
     fi 
     cd $SCRIPT_DIR
 fi 
@@ -143,7 +150,7 @@ if [[ ! -f install/lib/libpango_core.so ]]; then
 	cd build
     PANGOLIN_OPTIONS="-DBUILD_EXAMPLES=OFF"
     cmake .. -DCMAKE_INSTALL_PREFIX="`pwd`/../install" -DCMAKE_BUILD_TYPE=Release $PANGOLIN_OPTIONS $EXTERNAL_OPTION
-	make -j 8
+	make -j $BUILD_JOBS
     make install 
 fi
 cd $SCRIPT_DIR
@@ -201,12 +208,18 @@ cd ceres
 make_buid_dir
 if [[ ! -f install/lib/libceres.a ]]; then
 	cd build
-    CERES_OPTIONS="-DBUILD_EXAMPLES=OFF"
-    if [ $CUDA_FOUND -eq 1 ]; then
-        CERES_OPTIONS="$CERES_OPTIONS -DCMAKE_CUDA_COMPILER=`which nvcc`"
-    fi  
+    # TODO: add CUDA support. For the moment, we do not use CUDA in ceres and simplify the build process.
+    CERES_OPTIONS="-DBUILD_EXAMPLES=OFF -DUSE_CUDA=OFF"
+    # if [ $CUDA_FOUND -eq 1 ]; then
+    #     NVCC="${CUDADIR}/bin/nvcc"
+    #     if [[ ! -x "$NVCC" ]]; then
+    #         NVCC=$(command -v nvcc)
+    #     fi
+    #     CERES_OPTIONS="$CERES_OPTIONS -DCMAKE_CUDA_COMPILER=$NVCC"
+    #     CERES_OPTIONS="$CERES_OPTIONS $(cuda_nvcc_compat_cmake_flags "$NVCC")"
+    # fi
     cmake .. -DCMAKE_INSTALL_PREFIX="`pwd`/../install" -DCMAKE_BUILD_TYPE=Release $CERES_OPTIONS $EXTERNAL_OPTION
-	make -j 8
+	make -j $BUILD_JOBS
     make install 
 fi
 cd $SCRIPT_DIR
@@ -234,7 +247,7 @@ if [[ ! -f install/lib/libgtsam.so ]]; then
     # https://bitbucket.org/gtborg/gtsam/issues/414/compiling-with-march-native-results-in 
     GTSAM_OPTIONS="-DGTSAM_USE_SYSTEM_EIGEN=On -DGTSAM_BUILD_WITH_MARCH_NATIVE=Off"
     cmake .. -DCMAKE_INSTALL_PREFIX="`pwd`/../install" -DCMAKE_BUILD_TYPE=Release $GTSAM_OPTIONS $EXTERNAL_OPTION
-	make -j 8
+	make -j $BUILD_JOBS
     make install 
 fi
 cd $SCRIPT_DIR
@@ -259,7 +272,7 @@ if [[ ! -f install/lib/libg2o_core.so ]]; then
 	cd build
     G2O_OPTIONS="-DBUILD_WITH_MARCH_NATIVE=ON -DG2O_BUILD_EXAMPLES=OFF"
     cmake .. -DCMAKE_INSTALL_PREFIX="`pwd`/../install" -DCMAKE_BUILD_TYPE=Release $G2O_OPTIONS $EXTERNAL_OPTION
-	make -j 8
+	make -j $BUILD_JOBS
     make install 
 fi 
 cd $SCRIPT_DIR
@@ -283,7 +296,7 @@ make_buid_dir
 if [[ ! -f install/lib/libmahi-gui.a ]]; then
 	cd build
     cmake .. -DCMAKE_INSTALL_PREFIX="`pwd`/../install" -DCMAKE_BUILD_TYPE=Release $EXTERNAL_OPTION
-	make -j 8
+	make -j $BUILD_JOBS
     make install 
 fi 
 cd $SCRIPT_DIR
@@ -310,7 +323,7 @@ if [[ ! -d install ]]; then
 	cd build
     JSON_OPTIONS="-DJSON_BuildTests=OFF"
     cmake .. -DCMAKE_INSTALL_PREFIX="`pwd`/../install" -DCMAKE_BUILD_TYPE=Release $JSON_OPTIONS $EXTERNAL_OPTION
-	make -j 8
+	make -j $BUILD_JOBS
     make install 
 fi
 cd $SCRIPT_DIR
@@ -340,7 +353,7 @@ if [[ ! -f build/lib/libSESync.so ]]; then
 	cd build
     SESYNC_OPTIONS="-DENABLE_VISUALIZATION=ON"
     cmake .. -DCMAKE_INSTALL_PREFIX="`pwd`/../../install" -DCMAKE_BUILD_TYPE=Release $SESYNC_OPTIONS $EXTERNAL_OPTION
-	make -j 8
+	make -j $BUILD_JOBS
     #make install # unfortunately, sesync does not have any install target!
 fi
 cd $SCRIPT_DIR
@@ -357,7 +370,7 @@ if [[ ! -f lib/librosbag.a || ! -d build ]]; then
     make_buid_dir
     cd build
     cmake .. -DCMAKE_BUILD_TYPE=Release $EXTERNAL_OPTION
-    make -j 8
+    make -j $BUILD_JOBS
 fi
 cd $SCRIPT_DIR
 
@@ -372,7 +385,7 @@ if [ ! -f lib/libDBoW2.so ]; then
     make_buid_dir
     cd build
     cmake .. -DCMAKE_BUILD_TYPE=Release $EXTERNAL_OPTION
-    make -j 8
+    make -j $BUILD_JOBS
 fi
 cd $SCRIPT_DIR
 
@@ -397,7 +410,7 @@ if [[ ! -d install ]]; then
 	cd build
     DBOW3_OPTIONS="-DUSE_CONTRIB=ON"  # If you have installed the OpenCV contrib_modules
     cmake .. -DCMAKE_INSTALL_PREFIX="`pwd`/../install" -DCMAKE_BUILD_TYPE=Release $DBOW3_OPTIONS $EXTERNAL_OPTION
-	make -j 8
+	make -j $BUILD_JOBS
     make install 
 fi
 cd $SCRIPT_DIR
@@ -422,7 +435,7 @@ make_buid_dir
 if [[ ! -d build/libobindex2.a ]]; then
     cd build
     cmake .. -DCMAKE_INSTALL_PREFIX="`pwd`/../install" -DCMAKE_BUILD_TYPE=Release $EXTERNAL_OPTION
-    make -j 8
+    make -j $BUILD_JOBS
 fi 
 cd $SCRIPT_DIR
 
@@ -448,10 +461,22 @@ make_buid_dir
 if [[ ! -d build/liblcdetector.a ]]; then
     cd build
     cmake .. -DCMAKE_INSTALL_PREFIX="`pwd`/../install" -DCMAKE_BUILD_TYPE=Release $EXTERNAL_OPTION
-    make -j 8
+    make -j $BUILD_JOBS
 fi 
 cd $SCRIPT_DIR
 
+# ====================================================
+
+print_blue '================================================'
+print_blue "Configuring and building thirdparty/utm_convert ..."
+
+cd thirdparty
+cd utm_convert
+make_buid_dir
+if [[ ! -d lib ]]; then
+    ./build.sh
+fi 
+cd $SCRIPT_DIR
 
 # ====================================================
 
@@ -472,7 +497,7 @@ make_buid_dir
 if [[ ! -d install ]]; then
 	cd build
     cmake .. -DCMAKE_INSTALL_PREFIX="`pwd`/../install" -DCMAKE_BUILD_TYPE=Release  $EXTERNAL_OPTION -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} -fPIC" 
-	make -j 8
+	make -j $BUILD_JOBS
     make install 
 fi 
 cd $SCRIPT_DIR

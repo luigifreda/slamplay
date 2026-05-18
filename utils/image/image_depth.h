@@ -29,22 +29,36 @@
 
 namespace slamplay {
 
+inline cv::Mat depthImageToDisplayableGray(const cv::Mat &map) {
+    if (map.empty()) return cv::Mat();
+
+    cv::Mat valid_mask;
+    if (map.depth() == CV_32F || map.depth() == CV_64F) {
+        cv::compare(map, 0, valid_mask, cv::CMP_GT);
+        cv::Mat finite_mask;
+        cv::compare(map, map, finite_mask, cv::CMP_EQ);
+        cv::bitwise_and(valid_mask, finite_mask, valid_mask);
+    } else {
+        cv::compare(map, 0, valid_mask, cv::CMP_GT);
+    }
+
+    double max = 0.0;
+    cv::minMaxIdx(map, nullptr, &max, nullptr, nullptr, valid_mask);
+
+    cv::Mat adjMap = cv::Mat::zeros(map.size(), CV_8UC1);
+    if (max <= 0.0) return adjMap;
+
+    cv::convertScaleAbs(map, adjMap, 255.0 / max);
+    cv::bitwise_and(adjMap, valid_mask, adjMap);
+    return adjMap;
+}
+
 void showDepthImage(const std::string &windowName, const cv::Mat &map) {
-    double min;
-    double max;
-    cv::minMaxIdx(map, &min, &max);
-    cv::Mat adjMap;
-    cv::convertScaleAbs(map, adjMap, 255 / max);
-    cv::imshow(windowName, adjMap);
+    cv::imshow(windowName, depthImageToDisplayableGray(map));
 }
 
 cv::Mat convertDepthImageToGray(const cv::Mat &map) {
-    double min;
-    double max;
-    cv::minMaxIdx(map, &min, &max);
-    cv::Mat adjMap;
-    cv::convertScaleAbs(map, adjMap, 255 / max);
-    return adjMap;
+    return depthImageToDisplayableGray(map);
 }
 
 void plotDepth(const cv::Mat &depth_truth, const cv::Mat &depth_estimate, const cv::Mat &depth_variance, const double factor = 0.4, int border = 0) {

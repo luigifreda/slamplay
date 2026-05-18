@@ -113,6 +113,7 @@ public:
 
     //! Close the bag file
     void close();
+    bool isOpen() const;
 
     std::string     getFileName()     const;                      //!< Get the filename of the bag
     BagMode         getMode()         const;                      //!< Get the mode the bag is in

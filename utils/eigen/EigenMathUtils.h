@@ -1,14 +1,14 @@
 // *************************************************************************
-/* 
+/*
  * This file is part of the slamplay project.
  * Copyright (C) 2018-present Luigi Freda <luigifreda at gmail dot com>
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
- * any later version, at your option. If this file is a modified/adapted 
- * version of an original file distributed under a different license that 
- * is not compatible with the GNU General Public License, the 
+ * any later version, at your option. If this file is a modified/adapted
+ * version of an original file distributed under a different license that
+ * is not compatible with the GNU General Public License, the
  * BSD 3-Clause License will apply instead.
  *
  * This program is distributed in the hope that it will be useful,
@@ -23,6 +23,9 @@
 // *************************************************************************
 #pragma once
 
+#include <io/messages.h>
+
+#include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <list>
@@ -42,21 +45,21 @@ namespace slamplay {
 // Note: For even sized vectors we don't return the mean of the middle two, but
 // simply the second one as is.
 template <class Scalar, int Rows>
-Scalar median(const Eigen::Matrix<Scalar, Rows, 1>& vec) {
-    static_assert(Rows != 0);
-    if constexpr (Rows < 0) {
-        BASALT_ASSERT(vec.size() >= 1);
-    }
-    int n = vec.size() / 2;
-    std::nth_element(vec.begin(), vec.begin() + n, vec.end());
-    return vec(n);
+Scalar median(const Eigen::Matrix<Scalar, Rows, 1> &vec) {
+  static_assert(Rows != 0);
+  if constexpr (Rows < 0) {
+    MSG_ASSERT(vec.size() >= 1, "Vector is empty");
+  }
+  int n = vec.size() / 2;
+  std::nth_element(vec.begin(), vec.begin() + n, vec.end());
+  return vec(n);
 }
 
 template <class Scalar, int N>
-Scalar variance(const Eigen::Matrix<Scalar, N, 1>& vec) {
-    static_assert(N != 0);
-    const Eigen::Matrix<Scalar, N, 1> centered = vec.array() - vec.mean();
-    return centered.squaredNorm() / Scalar(vec.size());
+Scalar variance(const Eigen::Matrix<Scalar, N, 1> &vec) {
+  static_assert(N != 0);
+  const Eigen::Matrix<Scalar, N, 1> centered = vec.array() - vec.mean();
+  return centered.squaredNorm() / Scalar(vec.size());
 }
 
-}  // namespace slamplay
+} // namespace slamplay

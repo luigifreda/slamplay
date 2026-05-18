@@ -60,6 +60,9 @@ class SamInterface {
     cv::Mat showAutoSegmentResult(const cv::Mat& frame, const cv::Mat& mask, cv::Mat& outImage);
 
    protected:
+    bool exportEngine_(const std::string& engineFile, bool isEmbedding);
+    nvinfer1::ICudaEngine* deserializeEngine_(const std::string& engineFile);
+    nvinfer1::ICudaEngine* loadEngineWithRecovery_(const std::string& engineFile, bool isEmbedding);
     void exportEnginesIfNeeded_();
     cv::Mat autoSegment_(const cv::Mat& image);
 
@@ -71,30 +74,91 @@ class SamInterface {
     nvinfer1::IRuntime* runtime{nullptr};
 };
 
+inline bool SamInterface::exportEngine_(const std::string& engineFile, bool isEmbedding) {
+    const std::string onnxFile = slamplay::getFileNameWithouExtension(engineFile) + ".onnx";
+    if (!slamplay::fileExists(onnxFile)) {
+        MSG_ERROR("File not found: " << onnxFile);
+        return false;
+    }
+
+    MSG_WARN_STREAM("Exporting " << engineFile << " from onnx model, it may take some time...");
+    if (isEmbedding) {
+        export_engine_sam_image_encoder(onnxFile, engineFile);
+    } else {
+        export_engine_sam_sample_encoder_and_mask_decoder(onnxFile, engineFile);
+    }
+
+    if (!slamplay::fileExists(engineFile)) {
+        MSG_WARN_STREAM("engine export did not create: " << engineFile);
+        return false;
+    }
+
+    return true;
+}
+
+inline nvinfer1::ICudaEngine* SamInterface::deserializeEngine_(const std::string& engineFile) {
+    std::ifstream engineStream(engineFile, std::ifstream::binary);
+    if (!engineStream.good()) {
+        MSG_WARN_STREAM("failed to read model: " << engineFile);
+        return nullptr;
+    }
+
+    engineStream.seekg(0, engineStream.end);
+    const auto fileSize = static_cast<size_t>(engineStream.tellg());
+    engineStream.seekg(0, engineStream.beg);
+    std::vector<char> engineData(fileSize);
+    engineStream.read(engineData.data(), fileSize);
+
+    if (engineStream) {
+        std::cout << "all characters read successfully: " << engineFile << std::endl;
+    } else {
+        std::cout << "error: only " << engineStream.gcount() << " could be read" << std::endl;
+        return nullptr;
+    }
+    engineStream.close();
+
+#if NV_TENSORRT_VERSION_CODE < 100000L
+    return runtime->deserializeCudaEngine(engineData.data(), fileSize, nullptr);
+#else
+    return runtime->deserializeCudaEngine(engineData.data(), fileSize);
+#endif
+}
+
+inline nvinfer1::ICudaEngine* SamInterface::loadEngineWithRecovery_(const std::string& engineFile, bool isEmbedding) {
+    nvinfer1::ICudaEngine* engine = deserializeEngine_(engineFile);
+    if (engine) {
+        return engine;
+    }
+
+    MSG_WARN_STREAM("failed to deserialize engine: " << engineFile);
+    std::error_code ec;
+    std::filesystem::remove(engineFile, ec);
+    if (ec) {
+        MSG_WARN_STREAM("failed to remove incompatible engine cache " << engineFile << ": " << ec.message());
+    }
+
+    if (!exportEngine_(engineFile, isEmbedding)) {
+        return nullptr;
+    }
+
+    engine = deserializeEngine_(engineFile);
+    if (!engine) {
+        MSG_WARN_STREAM("failed to deserialize rebuilt engine: " << engineFile);
+    }
+    return engine;
+}
+
 void SamInterface::exportEnginesIfNeeded_() {
     std::ifstream f1(kSamEmbeddingModelFile);
     if (!f1.good())
     {
-        MSG_WARN_STREAM("Exporting " << kSamEmbeddingModelFile << " from onnx model, it may take some time...");
-        const std::string samEmbeddingModelOnnxFile = slamplay::getFileNameWithouExtension(kSamEmbeddingModelFile) + ".onnx";
-        if (slamplay::fileExists(samEmbeddingModelOnnxFile)) {
-            export_engine_sam_image_encoder(samEmbeddingModelOnnxFile, kSamEmbeddingModelFile);
-        } else
-        {
-            MSG_ERROR("File not found: " << samEmbeddingModelOnnxFile);
-        }
+        exportEngine_(kSamEmbeddingModelFile, true);
     }
 
     std::ifstream f2(kSamModelFile);
     if (!f2.good())
     {
-        MSG_WARN_STREAM("Exporting " << kSamModelFile << " from onnx model, it may take some time...");
-        const std::string samModelOnnxFile = slamplay::getFileNameWithouExtension(kSamModelFile) + ".onnx";
-        if (slamplay::fileExists(samModelOnnxFile)) {
-            export_engine_sam_sample_encoder_and_mask_decoder(samModelOnnxFile, kSamModelFile);
-        } else {
-            MSG_ERROR("File not found: " << samModelOnnxFile);
-        }
+        exportEngine_(kSamModelFile, false);
     }
 }
 
@@ -109,63 +173,19 @@ int SamInterface::loadModels() {
 
     {
         // Load SAM embedding model
-        std::ifstream engineFile(kSamEmbeddingModelFile, std::ifstream::binary);
-        if (!engineFile.good())
-        {
-            MSG_WARN_STREAM("failed to read model: " << kSamEmbeddingModelFile);
+        nvinfer1::ICudaEngine* engine = loadEngineWithRecovery_(kSamEmbeddingModelFile, true);
+        if (!engine) {
+            MSG_WARN_STREAM("failed to load engine: " << kSamEmbeddingModelFile);
             return -1;
         }
-
-        int fsize;
-        engineFile.seekg(0, engineFile.end);
-        fsize = engineFile.tellg();
-        engineFile.seekg(0, engineFile.beg);
-        std::vector<char> engineData(fsize);
-        engineFile.read(engineData.data(), fsize);
-
-        if (engineFile)
-            std::cout << "all characters read successfully: " << kSamEmbeddingModelFile << std::endl;
-        else
-            std::cout << "error: only " << engineFile.gcount() << " could be read" << std::endl;
-        engineFile.close();
-
-#if NV_TENSORRT_VERSION_CODE < 100000L
-        nvinfer1::ICudaEngine* engine = runtime->deserializeCudaEngine(engineData.data(), fsize, nullptr);
-#else
-        nvinfer1::ICudaEngine* engine = runtime->deserializeCudaEngine(engineData.data(), fsize);
-#endif
         engImgEmbedding = std::shared_ptr<SamEmbedding>(new SamEmbedding(std::to_string(1), engine));
     }
 
     {
         // Load SAM model
-        std::ifstream engineFile(kSamModelFile, std::ifstream::binary);
-        if (!engineFile.good())
-        {
-            MSG_WARN_STREAM("failed to read model: " << kSamModelFile);
-            return -1;
-        }
-
-        int fsize;
-        engineFile.seekg(0, engineFile.end);
-        fsize = engineFile.tellg();
-        engineFile.seekg(0, engineFile.beg);
-        std::vector<char> engineData(fsize);
-        engineFile.read(engineData.data(), fsize);
-
-        if (engineFile)
-            std::cout << "all characters read successfully: " << kSamModelFile << std::endl;
-        else
-            std::cout << "error: only " << engineFile.gcount() << " could be read" << std::endl;
-        engineFile.close();
-
-#if NV_TENSORRT_VERSION_CODE < 100000L
-        nvinfer1::ICudaEngine* engine = runtime->deserializeCudaEngine(engineData.data(), fsize, nullptr);
-#else
-        nvinfer1::ICudaEngine* engine = runtime->deserializeCudaEngine(engineData.data(), fsize);
-#endif
+        nvinfer1::ICudaEngine* engine = loadEngineWithRecovery_(kSamModelFile, false);
         if (!engine) {
-            MSG_WARN_STREAM("failed to deserialize engine: " << kSamModelFile);
+            MSG_WARN_STREAM("failed to load engine: " << kSamModelFile);
             return -1;
         }
 

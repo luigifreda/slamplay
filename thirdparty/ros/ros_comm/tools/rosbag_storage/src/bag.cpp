@@ -178,6 +178,10 @@ void Bag::close() {
     curr_chunk_connection_indexes_.clear();
 }
 
+bool Bag::isOpen() const {
+    return file_.isOpen();
+}
+
 void Bag::closeWrite() {
     stopWriting();
 }

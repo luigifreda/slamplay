@@ -1,0 +1,15 @@
+preprocess:
+  lidar_type: 1                # 1 for Livox serials LiDAR, 2 for Velodyne LiDAR, 3 for ouster LiDAR,
+  scan_line: 6
+  time_scale: 1e-3             # time scale for different datasets; only used for Velodyne (lidar_type=2)
+
+mapping:
+  extrinsic_T: [ 0.04165, 0.02326, -0.0284 ]
+  extrinsic_R: [ 1, 0, 0,
+                 0, 1, 0,
+                 0, 0, 1 ]
+
+point_filter_num: 3
+max_iteration: 10
+imu_has_gravity: true
+with_ui: false

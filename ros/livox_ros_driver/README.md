@@ -1,0 +1,1 @@
+These messages are directly implemented in thirdparty/ros/include/livox_ros_driver

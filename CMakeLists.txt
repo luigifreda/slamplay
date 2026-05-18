@@ -98,7 +98,11 @@ include(${PROJECT_SOURCE_DIR}/cmake/macros.cmake)
 # c++ macros 
 
 set(DATA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/data" CACHE PATH "Where data live")
+set(CONFIG_DIR "${CMAKE_CURRENT_SOURCE_DIR}/config" CACHE PATH "Where config files live")
+set(RESULTS_DIR "${CMAKE_CURRENT_SOURCE_DIR}/results" CACHE PATH "Where results are saved")
 add_compile_definitions(DATA_DIR=${DATA_DIR})
+add_compile_definitions(CONFIG_DIR=${CONFIG_DIR})
+add_compile_definitions(RESULTS_DIR=${RESULTS_DIR})
 
 #====================================
 # packages 
@@ -278,6 +282,12 @@ find_package(GFlags REQUIRED)
 # yaml 
 find_package(yaml-cpp REQUIRED)
 
+# utm convert
+set(UTM_CONVERT_DIR ${PROJECT_SOURCE_DIR}/thirdparty/utm_convert/)
+set(UTM_INCLUDE_DIR ${UTM_CONVERT_DIR}/include)
+set(UTM_LIB_DIR ${UTM_CONVERT_DIR}/lib)
+set(UTM_LIB ${UTM_LIB_DIR}/libutm_convert.a)
+
 # TensorRT
 if(WITH_TENSORRT)
   add_definitions(-DUSE_TENSORRT)
@@ -348,6 +358,7 @@ endif()
 set(INCLUDE_DIRS
   ${PROJECT_SOURCE_DIR}/utils/
   ${PROJECT_SOURCE_DIR}/core/
+  ${PROJECT_SOURCE_DIR}/
 )
 # add all subdirs of utils 
 # subdirlist(SUBDIRS ${PROJECT_SOURCE_DIR}/utils) # macro from cmake/macros.cmake
@@ -375,6 +386,7 @@ set(EXT_INCLUDE_DIRS
   ${OBINDEX2_INCLUDE_DIR}
   ${IBOW_LCD_INCLUDE_DIR}
   ${OCTOMAP_INCLUDE_DIRS}
+  ${UTM_INCLUDE_DIR}
   ${GLOG_INCLUDE_DIRS}
   ${GTEST_INCLUDE_DIRS}
   ${GFLAGS_INCLUDE_DIRS}
@@ -395,6 +407,8 @@ set(LIBS
   bal_dataset 
   datasets
   timeutils
+  autonomous_driving_viz
+  # utm_utils imu ad_common 
   #hfnet_features  # We treat this separately for safety since it may be linked with a tensorflow_cc, which may use a different version of Eigen
   #superpointglue 
 )
@@ -409,6 +423,7 @@ link_directories(
   ${DBoW3_LIB_DIR}
   ${IBOW_LCD_LIB_DIR}
   ${OBINDEX2_LIB_DIR}
+  ${UTM_LIB_DIR}
 )
 
 set(EXT_LIBS
@@ -420,6 +435,7 @@ set(EXT_LIBS
   ${PCL_LIBRARIES}
   ${ROSBAG_LIBS} 
   ${DBoW2_LIB}
+  ${UTM_LIB}
   gtsam
   ${G2O_LIBS}  
   ${CERES_LIBRARIES}
@@ -458,6 +474,7 @@ set(FOLDERS
   dense_mapping
   full_slam
   semantics
+  ros
 )
 
 foreach(folder ${FOLDERS})

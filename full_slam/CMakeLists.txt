@@ -4,10 +4,13 @@ set(CORELIBS ${LIBS} ${EXT_LIBS})
 
 enable_testing()
 
-include_directories(${CMAKE_CURRENT_LIST_DIR}/include)
+include_directories(${CMAKE_CURRENT_LIST_DIR})
 
-add_subdirectory(src)
+add_subdirectory(vslam)
+add_subdirectory(lio_slam)
+
 add_subdirectory(test)
+
 add_subdirectory(apps)
 
 get_current_dir_name(CURRENT_DIR_NAME) # macro from cmake/macros.cmake

@@ -50,6 +50,10 @@ sudo apt-get install -y liboctomap-dev octovis
 
 # rerun 
 sudo apt-get install -y cargo 
+#$SCRIPT_DIR/install_rerun.sh   # done in build_thirdparty.sh
+
+# gtsam 
+#$SCRIPT_DIR/install_gtsam.sh   # done in build_thirdparty.sh
 
 # python for scripts and post-processing 
 sudo apt-get install -y python3 python3-pip python3-dev
